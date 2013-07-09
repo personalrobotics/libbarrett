@@ -36,7 +36,7 @@ typename units::JointTorques<DOF>::type saturateJt(const typename units::JointTo
 	int index;
 	double minRatio;
 
-	minRatio = (limit.cwise() / (x.cwise().abs())).minCoeff(&index);
+	minRatio = (limit.array() / (x.cwiseAbs())).minCoeff(&index);
 	if (minRatio < 1.0) {
 		return minRatio * x;
 	} else {

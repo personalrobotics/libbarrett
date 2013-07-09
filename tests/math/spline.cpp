@@ -65,7 +65,7 @@ TEST(SplineTest, InitialDirection) {
 
 	// the spline should go the "wrong" direction at first...
 	jp.setConstant(0.0);
-	EXPECT_TRUE((spline.eval(spline.changeInS() * 0.1).cwise() < jp).all());
+	EXPECT_TRUE((spline.eval(spline.changeInS() * 0.1).array() < jp).all());
 }
 */
 

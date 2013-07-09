@@ -121,9 +121,9 @@ endif()
 
 
 ## Eigen2
-find_package(Eigen2 REQUIRED)
-include_directories(${EIGEN2_INCLUDE_DIR})
-set(exported_include_dirs ${exported_include_dirs} ${EIGEN2_INCLUDE_DIR})
+find_package(Eigen3 REQUIRED)
+include_directories(${Eigen_INCLUDE_DIRS})
+set(exported_include_dirs ${exported_include_dirs} ${Eigen_INCLUDE_DIRS})
 
 
 ## curses
