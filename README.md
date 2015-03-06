@@ -21,6 +21,13 @@ your system. Configuration files will be installed to the `/etc/barrett/`
 directory. A copy of the `examples/` directory will be placed in your home
 folder.
 
+Additional Makefile targets include:
+
+```bash
+make install_config      # Update or install configuration files only
+make package             # Package the library as a tar-ball
+```
+
 ## Dependencies ##
 
 ### Ubuntu 12.04 ###
@@ -103,12 +110,6 @@ cmake command.
 For additional dependencies, see [this
 page](http://web.barrett.com/svn/libbarrett/dependencies/).
 
-Additional Makefile targets include:
-
-```bash
-make install_config      # Update or install configuration files only
-make package             # Package the library as a tar-ball
-```
 
 ## License ##
 
