@@ -11,7 +11,10 @@ please email: support@barrett.com
 To build and install libbarrett, run:
 
 ```bash
-cmake .
+mkdir build
+cd build
+cmake .. # realtime, requires Xenomai
+cmake -DNON_REALTIME:bool=1 .. # non-realtime
 make
 sudo make install
 ```
