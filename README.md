@@ -37,7 +37,7 @@ For additional dependencies, see [this page](http://web.barrett.com/svn/libbarre
 Install system dependencies:
 
 ```bash
-apt-get install libeigen2-dev libgsl0-dev libboost-dev libboost-thread-dev libboost-system-dev libboost-python-dev
+apt-get install libncurses5-dev libeigen2-dev libgsl0-dev libboost-dev libboost-thread-dev libboost-system-dev libboost-python-dev
 ```
 
 The version of libconfig++ shipped with Ubuntu 12.04 is too old to be used by
