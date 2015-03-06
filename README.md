@@ -30,6 +30,8 @@ make package             # Package the library as a tar-ball
 
 ## Dependencies ##
 
+For additional dependencies, see [this page](http://web.barrett.com/svn/libbarrett/dependencies/).
+
 ### Ubuntu 12.04 ###
 
 Install system dependencies:
@@ -106,10 +108,6 @@ driver installed on your system. If a hard real time guarantee is not important
 for your application, you may use the SocketCAN driver from the standard Linux
 kernel. To use the Linux SocketCAN driver, add `-DNON_REALTIME=true` to your
 cmake command.
-
-For additional dependencies, see [this
-page](http://web.barrett.com/svn/libbarrett/dependencies/).
-
 
 ## License ##
 
