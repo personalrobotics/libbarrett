@@ -37,24 +37,25 @@ For additional dependencies, see [this page](http://web.barrett.com/svn/libbarre
 Install system dependencies:
 
 ```bash
-apt-get install libeigen2-dev
+apt-get install libconfig-dev libeigen2-dev libgsl0-dev libboost-dev libboost-thread-dev libboost-system-dev libboost-python-dev
 ```
 
 The version of libconfig++ shipped with Ubuntu 12.04 is too old to be used by
 libbarrett. Additionally, libbarrett requires a modified version of libconfig++
 that adds a public `getCSettings` method.
 
-We will build this patched version of libconfig from source:
+We can use `debuild` to build this patched version of libconfig from source:
 
 ```bash
+apt-get install devscripts texinfo
 wget http://web.barrett.com/svn/libbarrett/dependencies/libconfig-1.4.5-PATCHED.tar.gz
 tar xzf libconfig-1.4.5-PATCHED.tar.gz
 cd libconfig-1.4.5
 debuild -i -us -uc -b
 ```
 
-This will generate a collection of `.deb` files in teh parent directory. You
-should install using the following command:
+This will generate a collection of `.deb` files in the parent directory. You
+should install these packages using the following command:
 
 ```bash
 sudo dpkg -i ../libconfig*.deb
