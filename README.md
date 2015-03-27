@@ -121,6 +121,39 @@ for your application, you may use the SocketCAN driver from the standard Linux
 kernel. To use the Linux SocketCAN driver, add `-DNON_REALTIME=true` to your
 cmake command.
 
+## Configuring the CAN adaptor ##
+
+> **Note:** These instructions assumes that you are using a PeakSys CAN adaptor. We've tested these instructions on the PCI-E interface, but they should also work on other types of PeakSys adaptors.
+
+1. Build the `pcan` kernel module from source:
+    1. Download the latest version of the [`pcan` kernel driver](http://www.peak-system.com/fileadmin/media/linux/index.htm#download).
+    2. Build the kernel module SocketCAN (aka "netdev") support:
+```
+make RT=XENOMAI NET=NO_NETDEV_SUPPORT # real-time
+make RT=NO_RT NET=NO_NETDEV_SUPPORT # not real-time
+```
+    3. Install the kernel module:
+```bash
+sudo make install
+```
+2. Set the CAN changing the `/etc/modprobe.d/pcan.conf` file to be:
+```
+options pcan bitrate=0x0014
+install pcan /sbin/modprobe --ignore-install pcan
+```
+3. Load the kernel module:
+```
+sudo modprobe pcan
+```
+4. Bring the appropriate interface up:
+```
+sudo ip link set can0 up
+```
+5. Increate the size of the transmit queue:
+```
+sudo ifconfig can0 txqueuelen 10000
+```
+
 ## License ##
 
 This version of libbarrett is free software: you can redistribute it and/or
