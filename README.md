@@ -34,7 +34,7 @@ Alternatively, you can build libbarrett as a Debian package:
 
 ```bash
 mkdir build; cd build
-cmake -DNON_REALTIME:bool=1 -DCONFIG_PACKAGE:bool=1 -DCONFIG_DEBIAN:bool=1 -DCPACK_GENERATOR=DEB ..
+cmake -DNON_REALTIME:bool=1 -DCONFIG_PACKAGE:bool=1 -DCONFIG_DEBIAN:bool=1 -DINSTALL_EXAMPLES:bool=0 -DINSTALL_SANDBOX:bool=0 -DCPACK_GENERATOR=DEB ..
 make
 make package
 ```
