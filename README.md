@@ -30,6 +30,15 @@ make install_config      # Update or install configuration files only
 make package             # Package the library as a tar-ball
 ```
 
+Alternatively, you can build libbarrett as a Debian package:
+
+```bash
+mkdir build; cd build
+cmake -DNON_REALTIME:bool=1 -DCONFIG_PACKAGE:bool=1 -DCONFIG_DEBIAN:bool=1 -DCPACK_GENERATOR=DEB ..
+make
+make package
+```
+
 ## Dependencies ##
 
 For additional dependencies, see [this page](http://web.barrett.com/svn/libbarrett/dependencies/).
