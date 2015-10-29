@@ -1,0 +1,30 @@
+<?xml version="1.0"?> 
+<package format="2">
+  <!-- This is a Catkin package.xml file to optionally support building
+       libbarrett in a Catkin workspace. Catkin is NOT required to build this
+       package. For more information, see:
+
+       http://ros.org/reps/rep-0136.html
+    -->
+  <name>libbarrett</name>
+  <version>1.2.4</version>
+  <description>
+    Libbarrett is a real-time controls library written in C++ that runs Barrett
+    Technology's products, including the WAM Arm and the BH8-280 BarrettHand.
+  </description>
+  <url type="website">http://support.barrett.com/wiki/Libbarrett</url>
+  <url type="repository">https://github.com/BarrettTechnology/libbarrett</url>
+  <url type="bugtracker">https://github.com/BarrettTechnology/libbarrett/issues</url>
+  <maintainer email="support@barrett.com">Barrett Support</maintainer>
+  <license>BSD</license>
+  <buildtool_depend>cmake</buildtool_depend>
+  <depend>boost</depend>
+  <depend>libcurses-dev</depend>
+  <depend>libgsl</depend>
+  <depend>python</depend>
+  <!-- These are required by REP-136. -->
+  <exec_depend>catkin</exec_depend>
+  <export>
+    <build_type>cmake</build_type>
+  </export>
+</package>
