@@ -37,6 +37,7 @@
 #include <limits>
 #include <cmath>
 #include <cassert>
+#include <fstream>
 
 #include <boost/static_assert.hpp>
 #include <Eigen/LU>
@@ -331,6 +332,8 @@ void LowLevelWam<DOF>::update()
 template<size_t DOF>
 void LowLevelWam<DOF>::setTorques(const jt_type& jt)
 {
+  static std::ofstream torque_log("/tmp/barrett_torques.log", std::ios::binary);
+
 	// Get around C++ address-of-static-member weirdness...
 	static const size_t PUCKS_PER_TORQUE_GROUP = MotorPuck::PUCKS_PER_TORQUE_GROUP;
 
@@ -341,6 +344,8 @@ void LowLevelWam<DOF>::setTorques(const jt_type& jt)
 		MotorPuck::sendPackedTorques(bus, torqueGroups[g]->getId(), torquePropId, pt.data()+i, std::min(PUCKS_PER_TORQUE_GROUP, DOF-i));
 		i += PUCKS_PER_TORQUE_GROUP;
 	}
+
+  torque_log << "position " << jp_motorEncoder << " torque " << torque_log << std::endl;
 }
 
 template<size_t DOF>
