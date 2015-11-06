@@ -25,6 +25,7 @@ option(OPTIMIZE_FOR_PROCESSOR "Set to ON to build binaries that are optimized fo
 option(WITH_PYTHON "Set to ON to build Python bindings for libbarrett" ON)
 option(INSTALL_EXAMPLES "Set to ON to copy libbarrett example programs to the current user's home folder when the library is installed" ON)
 option(INSTALL_SANDBOX "Set to ON to copy libbarrett sandbox programs to the current user's home folder when the library is installed" ON)
+option(INSTALL_CONFIG "Set to ON to copy configuration files to BARRETT_ETC_PATH when the library is installed" ON)
 option(CONFIG_PACKAGE "Set to ON to set up CPACK variables necessary for packaging" OFF)
 option(CONFIG_DEBIAN "Set to ON to copy standard barrett-config.cmake, required for Debian packaging" OFF)
 
@@ -58,8 +59,6 @@ if (INSTALL_SANDBOX)
 	message(STATUS "When installed, sandbox code will be placed in: ${SANDBOX_DIR}")
 	message(STATUS "When installed, sandbox code will be owned by: ${SANDBOX_DIR_OWNER}")
 endif()
-
-
 
 ### Dependencies
 
@@ -187,16 +186,17 @@ configure_file(
 install(FILES ${PROJECT_BINARY_DIR}/include/barrett/config.h 
   DESTINATION ${CMAKE_INSTALL_PREFIX}/include/barrett)
 
-set(config_dir ${BARRETT_ETC_PATH})
-set(install_config_cmd ${PROJECT_SOURCE_DIR}/programs/install_config_files --source=${PROJECT_SOURCE_DIR}/config/ --dest=${config_dir})
-add_custom_target(install_config ${install_config_cmd} VERBATIM)
+if (INSTALL_CONFIG)
+  set(config_dir ${BARRETT_ETC_PATH})
+  set(install_config_cmd ${PROJECT_SOURCE_DIR}/programs/install_config_files --source=${PROJECT_SOURCE_DIR}/config/ --dest=${config_dir})
+  add_custom_target(install_config ${install_config_cmd} VERBATIM)
 
-install(DIRECTORY DESTINATION ${config_dir})  # Makes an empty directory
-install(CODE "execute_process(COMMAND ${install_config_cmd})")
+  install(DIRECTORY DESTINATION ${config_dir})  # Makes an empty directory
+  install(CODE "execute_process(COMMAND ${install_config_cmd})")
 
-install(CODE "message(STATUS \"Changing the owner of ${config_dir} to ${CONFIG_FILE_OWNER}...\")")
-install(CODE "execute_process(COMMAND chown -R ${CONFIG_FILE_OWNER}:${CONFIG_FILE_OWNER} ${config_dir})")
-
+  install(CODE "message(STATUS \"Changing the owner of ${config_dir} to ${CONFIG_FILE_OWNER}...\")")
+  install(CODE "execute_process(COMMAND chown -R ${CONFIG_FILE_OWNER}:${CONFIG_FILE_OWNER} ${config_dir})")
+endif()
 
 ## Example code
 if (INSTALL_EXAMPLES)
