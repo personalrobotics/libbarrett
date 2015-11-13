@@ -28,6 +28,7 @@ endfunction()
 
 add_programs(
 	ex01_initialize_wam
+	ex01_dump_encoders
 	ex02_hold_position
 	ex03_simple_move
 	ex04_display_basic_info
