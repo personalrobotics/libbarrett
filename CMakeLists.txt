@@ -92,6 +92,9 @@ endif()
 
 ## GSL
 find_package(GSL REQUIRED)
+# fix incorrect libraries variable setting to enable packaging with ROS Catkin
+string(REPLACE "-L/usr/lib;" "" GSL_LIBRARIES "${GSL_LIBRARIES}")
+string(REPLACE "-l" "" GSL_LIBRARIES "${GSL_LIBRARIES}")
 include_directories(${GSL_INCLUDE_DIRS})
 set(exported_include_dirs ${exported_include_dirs} ${GSL_INCLUDE_DIRS})
 
