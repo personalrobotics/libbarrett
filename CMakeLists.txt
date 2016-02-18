@@ -93,7 +93,10 @@ endif()
 ## GSL
 find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS})
+link_directories(${GSL_LIBRARY_DIRS})
+
 set(exported_include_dirs ${exported_include_dirs} ${GSL_INCLUDE_DIRS})
+set(exported_link_dirs ${exported_link_dirs} ${GSL_LIBRARY_DIRS})
 
 
 ## Boost
