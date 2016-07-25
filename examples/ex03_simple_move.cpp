@@ -77,7 +77,7 @@ void moveToStr(systems::Wam<DOF>& wam, math::Matrix<R,C, Units>* dest,
 		std::cout << "Moving to " << description << ": " << *dest << std::endl;
 		wam.moveTo(*dest);
 	} else {
-		printf("ERROR: Please enter exactly %d numbers separated by "
+		printf("ERROR: Please enter exactly %ld numbers separated by "
 				"whitespace.\n", dest->size());
 	}
 }
