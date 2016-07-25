@@ -127,26 +127,26 @@ TEST_F(FirstOrderFilterTest, Matrix) {
 
 	f.setLowPass(omega, gain);
 	for (i = 1; i <= 300; ++i) {
-		expected = gain.cwise()*(1.0 + (-(-i*T_s * omega).cwise().exp()).cwise());
+		expected = gain.array()*(1.0 + (-(-i*T_s * omega).array().exp()).array());
 		actual = f(vector_t(1.0));
-		ASSERT_LT((expected - actual).cwise().abs().maxCoeff(), ERR);
+		ASSERT_LT((expected - actual).cwiseAbs().maxCoeff(), ERR);
 	}
 	for (i = 1; i <= 300; ++i) {
-		expected = gain.cwise()  *  (
-				1.0 * (1.0 + (-(-(i+300)*T_s * omega).cwise().exp()).cwise()) +
-				-16.0 * (1.0 + (-(-i*T_s * omega).cwise().exp()).cwise())
+		expected = gain.array()  *  (
+				1.0 * (1.0 + (-(-(i+300)*T_s * omega).array().exp()).array()) +
+				-16.0 * (1.0 + (-(-i*T_s * omega).array().exp()).array())
 				);
 		actual = f(vector_t(-15.0));
-		ASSERT_LT((expected - actual).cwise().abs().maxCoeff(), ERR);
+		ASSERT_LT((expected - actual).cwiseAbs().maxCoeff(), ERR);
 	}
 	for (i = 1; i <= 300; ++i) {
-		expected = gain.cwise()  *  (
-				1.0 * (1.0 + (-(-(i+600)*T_s * omega).cwise().exp()).cwise()) +
-				-16.0 * (1.0 + (-(-(i+300)*T_s * omega).cwise().exp()).cwise()) +
-				15.0 * (1.0 + (-(-i*T_s * omega).cwise().exp()).cwise())
+		expected = gain.array()  *  (
+				1.0 * (1.0 + (-(-(i+600)*T_s * omega).array().exp()).array()) +
+				-16.0 * (1.0 + (-(-(i+300)*T_s * omega).array().exp()).array()) +
+				15.0 * (1.0 + (-(-i*T_s * omega).array().exp()).array())
 				);
 		actual = f(vector_t(0.0));
-		ASSERT_LT((expected - actual).cwise().abs().maxCoeff(), ERR);
+		ASSERT_LT((expected - actual).cwiseAbs().maxCoeff(), ERR);
 	}
 }
 

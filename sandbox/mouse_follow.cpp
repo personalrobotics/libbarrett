@@ -96,7 +96,7 @@ protected:
 			data = input.getValue();
 		} else {
 			delta = basePos + comPos - data.get<0>();
-			data.get<0>() += math::sign(delta).cwise() * math::min(math::abs(delta), CP_RATE_LIMIT);
+			data.get<0>() += math::sign(delta).array() * math::min(math::abs(delta), CP_RATE_LIMIT);
 
 			double angleDiff = comAngle - comAA.angle();
 			if (math::abs(angleDiff) > ANGLE_RATE_LIMIT) {
