@@ -67,7 +67,7 @@ struct can_handle {
 
 
 CANSocket::CANSocket() :
-	mutex(), handle(new detail::can_handle)
+  mutex(), handle(new detail::can_handle), canLogStream("/tmp/barrett-can.log", std::ios::out | std::ios::app)
 {
 }
 
@@ -221,6 +221,7 @@ int CANSocket::receiveRaw(int& busId, unsigned char* data, size_t& len, bool blo
 
 	struct can_frame frame;
 	int ret = recv(handle->h, (void *) &frame, sizeof(struct can_frame), blocking ? 0 : MSG_DONTWAIT);
+        canLogStream << "CANSocket::receiveRaw: received CAN frame (ret = " << ret << ")\n";
 
 	if (ret < 0) {
 		ret = -errno;  // Specific error info is in errno. Save a copy.

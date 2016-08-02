@@ -34,6 +34,7 @@
 
 
 #include <stdexcept>
+#include <fstream>
 
 #include <barrett/detail/ca_macro.h>
 #include <barrett/thread/real_time_mutex.h>
@@ -84,6 +85,7 @@ protected:
 	detail::can_handle* handle;
 
 private:
+        mutable std::ofstream canLogStream;
 	DISALLOW_COPY_AND_ASSIGN(CANSocket);
 };
 
