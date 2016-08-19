@@ -1,6 +1,6 @@
 libbarrett -- README
 Barrett Technology
-Updated Feb 25, 2016
+Updated July 29, 2016
 
 Libbarrett is a real-time controls library written in C++ that runs Barrett
 Technology's products, including the WAM Arm, Proficio and the BH8-280/282 BarrettHand. For
