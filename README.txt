@@ -13,7 +13,7 @@ Source based install
 
 Pre-requisites:
 
-$ sudo apt-get install python-dev python-argparse
+$ sudo apt-get install git python-dev python-argparse
 $ sudo apt-get install libeigen3-dev libboost-all-dev libgsl0-dev
 $ sudo apt-get install libxenomai-dev libxenomai1
 $ wget http://web.barrett.com/support/WAM_Installer/libconfig-1.4.5-PATCHED.tar.gz
