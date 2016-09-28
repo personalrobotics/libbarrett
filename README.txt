@@ -1,6 +1,6 @@
 libbarrett -- README
 Barrett Technology
-Updated July 29, 2016
+Updated September 28, 2016
 
 Libbarrett is a real-time controls library written in C++ that runs Barrett
 Technology's products, including the WAM Arm, Proficio and the BH8-280/282 BarrettHand. For
@@ -13,7 +13,7 @@ Source based install
 
 Pre-requisites:
 
-$ sudo apt-get install git python-dev python-argparse
+$ sudo apt-get install git g++ cmake libncurses5-dev python-dev python-argparse
 $ sudo apt-get install libeigen3-dev libboost-all-dev libgsl0-dev
 $ sudo apt-get install libxenomai-dev libxenomai1
 $ wget http://web.barrett.com/support/WAM_Installer/libconfig-1.4.5-PATCHED.tar.gz
