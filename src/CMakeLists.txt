@@ -104,6 +104,8 @@ install(TARGETS barrett
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 )
+install(FILES libbarrett_socketcan_subdissector.lua
+        DESTINATION share/libbarrett)
 
 install(CODE "message(STATUS \"Running ldconfig...\")")
 install(CODE "execute_process(COMMAND ldconfig)")
