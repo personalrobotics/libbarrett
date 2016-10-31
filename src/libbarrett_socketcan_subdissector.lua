@@ -150,7 +150,7 @@ do
       elseif to_addr == 1 or to_addr == 2 then
         -- if torque request (not Force/Torque sensor)
         -- don't know how torques are packed so just print the hex for now
-        subtree:add(f_value, tvb(0,-1), '0x' .. tvb:bytes(0,-1):tohex())
+        subtree:add(f_value, tvb(), '0x' .. tvb:bytes():tohex())
       end
 
     elseif is_group_id and is_ft_group(to_addr) and is_set_prop() then
@@ -188,7 +188,11 @@ do
       end
     else
       -- don't know the format
-      subtree:add(f_value, tvb(), '0x' .. tvb:bytes():tohex())
+      if data_len == 4 or data_len == 6 then
+        subtree:add(f_value, tvb(2,-1), tostring(tvb(2,-1):le_int()))
+      else
+        subtree:add(f_value, tvb(), '0x' .. tvb:bytes():tohex())
+      end
     end
   end -- dissector function
 
