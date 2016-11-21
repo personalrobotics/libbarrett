@@ -95,7 +95,8 @@ namespace barrett {
 
 void btsleep(double duration_s)
 {
-	assert(duration_s > 1e-6);  // Minimum duration is 1 us
+	// assert(duration_s > 1e-6);  // Minimum duration is 1 us
+	duration_s = std::max(duration_s, 1e-6);
 	boost::this_thread::sleep(boost::posix_time::microseconds(long(duration_s * 1e6)));
 }
 
