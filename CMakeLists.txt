@@ -227,6 +227,7 @@ if (INSTALL_SANDBOX)
 		PATTERN "*.cpp"
 		PATTERN "*.py"
 		PATTERN "*.txt"
+		PATTERN "*.conf"
 		PATTERN ".svn" EXCLUDE
 		PATTERN "CMakeFiles" EXCLUDE
 	)
