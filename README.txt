@@ -34,11 +34,23 @@ $ sudo make install
 
 Configuration Files for the robots:
 
-Upon installation of libbarrett, the configuration files of the robot are installed to the /etc/barrett directory. However, to give an additional flexibility of each user maintaining their own configurations for the same robot, by default, the configuration files are read from ~/.barrett directory if it exists. If not, then libbarrett reads the necessary configuration files from /etc/barrett/ directory. It is upto the user to maintain and populate the ~/.barrett directory
+Upon installation of libbarrett, the configuration files of the robot are 
+installed to the /etc/barrett directory. However, to give an additional 
+flexibility of each user maintaining their own configurations for the same 
+robot, by default, the configuration files are read from ~/.barrett directory 
+if it exists. If not, then libbarrett reads the necessary configuration files 
+from /etc/barrett/ directory. It is upto the user to maintain and populate the 
+~/.barrett directory
 
 For Proficio support only:
 
-In addition to the above, there are two different configuration files for the Proficio to account for its variant.. So, the right set of configuration files have to be copied either to the /etc/barrett/ or ~/.barrett folder depending on the configuration of the robot in use. In order to ease this process, there is a bash aliases that copies the corresponding configuration files to the /etc/barrett directory. As before, copying it to the ~/.barrett directory has to be done manually by the user.
+In addition to the above, there are two different configuration files for the 
+Proficio to account for its variant.. So, the right set of configuration files 
+have to be copied either to the /etc/barrett/ or ~/.barrett folder depending on 
+the configuration of the robot in use. In order to ease this process, there is a 
+bash aliases that copies the corresponding configuration files to the 
+/etc/barrett directory. As before, copying it to the ~/.barrett directory has to 
+be done manually by the user.
 
 To set it up for the first time after installing libbarrett,
 
@@ -54,19 +66,24 @@ Rerun the bash script
 
 $ . ~/.bashrc
 
-- Before running the Proficio in a particular configuration or immediately after switching the configuration of the proficio, type either of the following based on the configuration of the robot
+- Before running the Proficio in a particular configuration or immediately after 
+switching the configuration of the proficio, type either of the following based 
+on the configuration of the robot
 
 $ leftConfig
 or
 $ rightConfig
 
-The above bash aliases copies the particular configuration of the proficio from ~/libbarrett/proficio_sandbox/configurations into /etc/barrett directory.
+The above bash aliases copies the particular configuration of the proficio from 
+~/libbarrett/proficio_sandbox/configurations into /etc/barrett directory.
 
 - Hit E-STOP and shift+idle.
 
-- If the outer elbow of the proficio is swapped, do gravity calibration before running the examples.
+- If the outer elbow of the proficio is swapped, do gravity calibration before 
+running the examples.
 
-P.S Some of the examples above may not work with any robot if the libbarrett is not installed from this source.
+P.S Some of the examples above may not work with any robot if the libbarrett is 
+not installed from this source.
 
 Headers and shared libraries will be installed to their typical locations for
 your system. Configuration files will be installed to the /etc/barrett/
