@@ -317,6 +317,9 @@ protected:
 	v_type& zeroAngle;
 
 	int state, digit;
+
+public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 // The Exit menu item.
