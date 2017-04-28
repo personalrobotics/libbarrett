@@ -8,6 +8,7 @@
 #include <math.h>
 #include <vector>
 #include <algorithm>
+#include <Eigen/StdVector>
 
 #include <libconfig.h++>
 
@@ -21,6 +22,10 @@
 #include <barrett/config.h>
 
 using namespace barrett;
+
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(::barrett::units::JointPositions<3>::type)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(::barrett::units::JointPositions<4>::type)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(::barrett::units::JointPositions<7>::type)
 
 const std::string CAL_CONFIG_FILE = barrett::EtcPathRelative("autotension.conf");
 
