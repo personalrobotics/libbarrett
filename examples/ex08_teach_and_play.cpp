@@ -8,6 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <Eigen/StdVector>
 
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
@@ -29,6 +30,11 @@ using systems::connect;
 using systems::disconnect;
 using systems::reconnect;
 
+
+// necessary to use std::vector with jp_type
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(boost::tuple<double, ::barrett::units::JointPositions<3>::type>)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(boost::tuple<double, ::barrett::units::JointPositions<4>::type>)
+EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(boost::tuple<double, ::barrett::units::JointPositions<7>::type>)
 
 
 template<size_t DOF>
