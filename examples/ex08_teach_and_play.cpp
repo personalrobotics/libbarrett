@@ -8,11 +8,13 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <Eigen/StdVector>
 
 #include <boost/ref.hpp>
 #include <boost/bind.hpp>
 #include <boost/tuple/tuple.hpp>
+
+#define EIGEN_USE_NEW_STDVECTOR
+#include <Eigen/StdVector>
 
 #include <barrett/detail/stl_utils.h>  // waitForEnter()
 #include <barrett/math.h>
@@ -29,12 +31,6 @@ using detail::waitForEnter;
 using systems::connect;
 using systems::disconnect;
 using systems::reconnect;
-
-
-// necessary to use std::vector with jp_type
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(boost::tuple<double, ::barrett::units::JointPositions<3>::type>)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(boost::tuple<double, ::barrett::units::JointPositions<4>::type>)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(boost::tuple<double, ::barrett::units::JointPositions<7>::type>)
 
 
 template<size_t DOF>
@@ -85,7 +81,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 
 	// Build spline between recorded points
 	log::Reader<jp_sample_type> lr(tmpFile);
-	std::vector<jp_sample_type> vec;
+	std::vector<jp_sample_type, Eigen::aligned_allocator<jp_sample_type> > vec;
 	for (size_t i = 0; i < lr.numRecords(); ++i) {
 		vec.push_back(lr.getRecord());
 	}

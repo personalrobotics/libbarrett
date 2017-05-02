@@ -15,6 +15,9 @@
 #include <boost/thread.hpp>
 #include <boost/ref.hpp>
 
+#define EIGEN_USE_NEW_STDVECTOR
+#include <Eigen/StdVector>
+
 #include <barrett/exception.h>
 #include <barrett/detail/stl_utils.h>
 #include <barrett/units.h>
@@ -171,7 +174,7 @@ void readHand(Hand& hand) {
 
 void moveHand(Hand& hand) {
 	Hand::jp_type tmp;
-	std::vector<Hand::jp_type> pos;
+	std::vector<Hand::jp_type, Eigen::aligned_allocator<Hand::jp_type> > pos;
 
 	tmp.setZero();
 	pos.push_back(tmp);

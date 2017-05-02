@@ -12,6 +12,9 @@
 
 #include <boost/tuple/tuple.hpp>
 
+#define EIGEN_USE_NEW_STDVECTOR
+#include <Eigen/StdVector>
+
 #include <barrett/detail/stl_utils.h>  // waitForEnter()
 #include <barrett/units.h>
 #include <barrett/systems.h>
@@ -80,7 +83,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 
 			// Build spline between recorded points
 			log::Reader<cp_type> lr(tmpFile);
-			std::vector<cp_type> vec;
+			std::vector<cp_type, Eigen::aligned_allocator<cp_type> > vec;
 			for (size_t i = 0; i < lr.numRecords(); ++i) {
 				vec.push_back(lr.getRecord());
 			}
