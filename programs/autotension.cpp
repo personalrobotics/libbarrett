@@ -8,6 +8,8 @@
 #include <math.h>
 #include <vector>
 #include <algorithm>
+
+#define EIGEN_USE_NEW_STDVECTOR
 #include <Eigen/StdVector>
 
 #include <libconfig.h++>
@@ -22,10 +24,6 @@
 #include <barrett/config.h>
 
 using namespace barrett;
-
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(::barrett::units::JointPositions<3>::type)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(::barrett::units::JointPositions<4>::type)
-EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(::barrett::units::JointPositions<7>::type)
 
 const std::string CAL_CONFIG_FILE = barrett::EtcPathRelative("autotension.conf");
 
@@ -168,7 +166,7 @@ protected:
 	systems::ExposedOutput<double> tensionValue;
 	systems::Ramp motorRamp;
 
-	std::vector<jp_type> jpInitial, jpStart, jpSlack1, jpSlack2;
+	std::vector<jp_type, Eigen::aligned_allocator<jp_type> > jpInitial, jpStart, jpSlack1, jpSlack2;
 	jp_type tensionDefaults, jpStopHigh, jpStopLow, tangBuffer, tangMiss, stopBuffer, slackThreshold;
 	sqm_type j2mp;
 	double motorSlackPulled, j1SlackPulled, j5TangPos, j6TangPos;

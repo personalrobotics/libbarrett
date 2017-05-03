@@ -36,7 +36,9 @@
 #include <cassert>
 #include <vector>
 
+#define EIGEN_USE_NEW_STDVECTOR
 #include <Eigen/Core>
+#include <Eigen/StdVector>
 
 #include <barrett/detail/ca_macro.h>
 #include <barrett/units.h>
@@ -58,7 +60,7 @@ public:		System::Output<cp_type> tangentDirectionOutput;
 protected:	System::Output<cp_type>::Value* tangentDirectionOutputValue;
 
 public:
-	HapticPath(const std::vector<cp_type>& path,
+	HapticPath(const std::vector<cp_type, Eigen::aligned_allocator<cp_type> >& path,
 			const std::string& sysName = "HapticPath") :
 		HapticObject(sysName),
 		tangentDirectionOutput(this, &tangentDirectionOutputValue),
@@ -120,7 +122,7 @@ protected:
 	cf_type dir;
 	cp_type tangentDir;
 
-	std::vector<cp_type> coarsePath;
+	std::vector<cp_type, Eigen::aligned_allocator<cp_type> > coarsePath;
 	math::Spline<cp_type>* spline;
 
 private:
