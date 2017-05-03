@@ -121,7 +121,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 	wam.moveTo(startPos);
 
 //	systems::ExposedOutput<jp_type> reference(startPos);
-	std::vector<jp_type Eigen::aligned_allocator<jp_type> > vec;
+	std::vector<jp_type, Eigen::aligned_allocator<jp_type> > vec;
 	vec.push_back(startPos);
 	vec.push_back(endPos);
 	math::Spline<jp_type> spline(vec);
