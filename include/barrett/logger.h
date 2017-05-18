@@ -61,8 +61,8 @@ public:
     , mThread(boost::thread(&Logger::print, this))
     {
       mLogfile.open(filename.c_str(), std::ofstream::out);
-      mLogfile << "Logging begins" << std::endl;
-      std::cout << "Logger created" << std::endl;
+      mLogfile << "Logging begins here" << std::endl;
+      std::cout << "Logger created here" << std::endl;
     }
 
     void log(LogData log){

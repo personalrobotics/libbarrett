@@ -46,7 +46,7 @@
 #include <barrett/products/puck.h>
 #include <barrett/bus/can_socket.h>
 
-
+#include <barrett/detail/stacktrace.h>
 
 namespace barrett {
 namespace bus {
@@ -70,6 +70,8 @@ std::string filename = "/home/robot/log1.log";
 CANSocket::CANSocket() :
 	mutex(), handle(new detail::can_handle), logger(printCycle,  filename)
 {
+	barrett::logMessage("Constructing a CAN SOCKET", true);
+	barrett::detail::syslog_stacktrace();
 }
 
 CANSocket::CANSocket(int port) throw(std::runtime_error) :
