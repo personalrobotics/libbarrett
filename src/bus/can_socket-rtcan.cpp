@@ -36,6 +36,7 @@
 #include <cstring>
 #include <sstream>
 #include <iostream> 
+#include <boost/lexical_cast.hpp>
 
 #include <errno.h>
 
@@ -65,12 +66,14 @@ struct can_handle {
 
 double printCycle = 0.1;
 double startTime = highResolutionSystemTime();
-std::string filename = "/home/robot/log1.log";
+// std::stringstream sstm;
+// sstm << "/home/robot/log_" << startTime << ".log";
+std::string filename = "/home/robot/log_" + boost::lexical_cast<std::string>(startTime);;
 
 CANSocket::CANSocket() :
 	mutex(), handle(new detail::can_handle), logger(printCycle,  filename)
 {
-	barrett::logMessage("Constructing a CAN SOCKET", true);
+	barrett::logMessage("Constructing a CAN SOCKET, logging to %s", true) % filename;
 	barrett::detail::syslog_stacktrace();
 }
 

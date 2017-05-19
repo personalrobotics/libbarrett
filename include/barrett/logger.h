@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
+#include <barrett/os.h>
 
 #include <native/timer.h>
 
@@ -60,9 +61,10 @@ public:
     , mLogfile()
     , mThread(boost::thread(&Logger::print, this))
     {
-      mLogfile.open(filename.c_str(), std::ofstream::out);
-      mLogfile << "Logging begins here" << std::endl;
-      std::cout << "Logger created here" << std::endl;
+        std::cout << "Logger created" << std::endl;
+        mLogfile.open(filename.c_str());
+        mLogfile << "Logging begins at: " << rt_timer_read() << "\n";
+
     }
 
     void log(LogData log){
@@ -71,6 +73,7 @@ public:
 
     ~Logger()
     {
+        std::cout << "Logger destructed" << std::endl;
         mLogfile.close();
     }
 
@@ -87,7 +90,7 @@ protected:
             while (!mLogBuffer.empty())
             {
                 LogData& log = mLogBuffer.front();
-                mLogfile << log << '\n';
+                mLogfile << log << std::endl;
                 mLogBuffer.pop();
             }
 
