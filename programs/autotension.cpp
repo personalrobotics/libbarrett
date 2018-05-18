@@ -188,7 +188,7 @@ protected:
 	std::vector<jp_type, Eigen::aligned_allocator<jp_type> > jpInitial, jpStart, jpSlack1, jpSlack2;
 	jp_type tensionDefaults, jpStopHigh, jpStopLow, tangBuffer, tangMiss, stopBuffer, slackThreshold;
 	sqm_type j2mp;
-	double motorSlackPulled, j1SlackPulled, j5TangPos, j6TangPos, slackDifference, oldSlackPulled;
+	double motorSlackPulled, j5TangPos, j6TangPos, slackDifference, oldSlackPulled;
 	int motor;
 
 	// Safe positions for Joint 2 autotensioning
@@ -222,23 +222,6 @@ public:
 	}
 
 	void init(ProductManager& pm, std::vector<int> args);
-
-	void updateJ1Moves(int tensionMotor, bool addJ1) 
-	{
-		if (addJ1) 
-		{
-			jpStart[tensionMotor][0] = jpStopLow[0] + tangBuffer[0];
-			jpSlack1[tensionMotor][0] = jpStart[tensionMotor][0] - tangBuffer[0] / 2.0;
-			jpSlack2[tensionMotor][0] = jpStopHigh[0] - tangBuffer[0] / 2.0;
-		} 
-		else 
-		{
-			// The following were all zero.
-			// jpStart[tensionMotor][0] = 4.71;
-			// jpSlack1[tensionMotor][0] = 4.71;
-			// jpSlack2[tensionMotor][0] = 4.71;
-		}
-	}
 
 	void updateJ5(double jpInc, bool reset = false) 
 	{
@@ -320,9 +303,24 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	// ==================================================================
 	// JOINT POSITIONS TO MOVE TO DURING THE AUTOTENSIONING ROUTINE
 	// ==================================================================
-
-	// Joint 1 Tensioning will be added in and run simultaneously if present.
+	// Joint1: This should be the same for both the arms.
+	// Initial Position: Fully stretched forward
 	jpInitial[0] = wam.getJointPositions();
+	jpInitial[0][1] = 0.0;
+	jpInitial[0][2] = 0.0;
+	jpInitial[0][3] = 0.0;
+
+	// Start Position: Engage the Tang
+	jpStart[0] = jpInitial[0];
+	jpStart[0][0] = jpStopLow[0] + tangBuffer[0];
+	
+	// Move to one end
+	jpSlack1[0] = jpStart[0];
+	jpSlack1[0][0] = jpStart[0][0] - tangBuffer[0]/2.0;
+	
+	// Move to the other end
+	jpSlack2[0] = jpStart[0];
+	jpSlack2[0][0] = jpStopHigh[0] - tangBuffer[0] / 2.0;
 
 	// ==================================================================
 	// Joint 2: This is different for the two arms.
@@ -334,7 +332,7 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 
 	// Start Position: Engage the Tang
 	jpStart[1] = jpInitial[1];
-        jpStart[1][0] = 5 * M_PI/6.0;
+  jpStart[1][0] = 5 * M_PI/6.0;
 	jpStart[1][1] = jpStopHigh[1] - tangBuffer[1]; // Move joint 2 to positive end (towards the base)
 	jpStart[1][2] = jpStopLow[2] + tangBuffer[2]; // Move joint 3 towards negative extreme
 
@@ -346,7 +344,7 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	
 	// Move to the other end
 	jpSlack2[1] = jpSlack1[1];
-        jpSlack2[1][0] = jpInitial[1][0] + M_PI/6.0; // Home + pi/6 
+  jpSlack2[1][0] = jpInitial[1][0] + M_PI/6.0; // Home + pi/6 
 	jpSlack2[1][1] = jpStopLow[1] + stopBuffer[1]; // Near the Head
 	jpSlack2[1][2] = 0.0; // Home Position
 
@@ -359,7 +357,7 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 
 	// Start Position: Engage the Tang
 	jpStart[2] = jpInitial[2];
-        jpStart[2][0] = jpStart[2][0] + M_PI/6.0; // Home + pi/6
+  jpStart[2][0] = jpStart[2][0] + M_PI/6.0; // Home + pi/6
 	jpStart[2][1] = jpStopLow[1] + tangBuffer[1];
 	jpStart[2][2] = jpStopLow[2] + tangBuffer[2];
 
@@ -440,22 +438,15 @@ template<size_t DOF>
 std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) 
 {
 	int joint = joint_list[joint_list.size() - 1];
-	bool j1tens = false;
 	bool diff_tens = false;
-	if (std::find(joint_list.begin(), joint_list.end(), 1) != joint_list.end())
-		j1tens = true;
 
 	motor = joint - 1; // Joint indexing
-        motorSlackPulled = 1.0;
-        slackDifference = 1.0;
+  motorSlackPulled = 1.0;
+  slackDifference = 1.0;
 
 	// Check to see if we have met the slack thresholds
 	while ((motorSlackPulled > slackThreshold[motor] && slackDifference > 1e-3) || !diff_tens)
 	{
-		j1SlackPulled = 1.0;
-		if (std::find(joint_list.begin(), joint_list.end(), 1) != joint_list.end())
-			j1tens = true;
-
 		// Move to the initial safe position
 		wam.moveTo(jpInitial[motor], 1.2, 0.75);
 		printf("\n**************************\n");
@@ -467,9 +458,8 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list)
 				diff_tens = false;
 				joint = 3;
 				motor = 2;
-				// updateJ1Moves(1, j1tens);
-				// updateJ1Moves(2, j1tens);
-				printf("Tensioning Joint %s\n", (j1tens && joint != 1) ? "1, 2, and 3" : "2 and 3");
+
+				printf("Tensioning Joints 2 and 3");
 				// Pull tension from J2
 				wam.moveTo(jpStart[1], 1.2, 0.75);
 				puck[1]->setProperty(Puck::TENSION, true);
@@ -498,9 +488,8 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list)
 				diff_tens = false;
 				joint = 6;
 				motor = 5;
-				// updateJ1Moves(4, j1tens);
-				// updateJ1Moves(5, j1tens);
-				printf("Tensioning Joint %s\n", (j1tens && joint != 1) ? "1, 5, and 6" : "5 and 6");
+
+				printf("Tensioning Joints 5 and 6");
 				// Pull tension from J5
 				wam.moveTo(jpStart[4], 1.2, 0.75);
 				puck[4]->setProperty(Puck::TENSION, true);
@@ -555,40 +544,12 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list)
 				puck[4]->setProperty(Puck::TENSION, false); // Release Tang
 				break;
 			default: // Joint 4
-				// updateJ1Moves(motor, j1tens);
-				printf("Tensioning Joint%s%d\n", (j1tens && joint != 1) ? " 1 and Joint " : " ", joint);
+				printf("Tensioning Joint %d\n", joint);
 				diff_tens = true;
 				break;
 		}
 
-		// TODO: Debug
-    std::cout << "Motor Index: " << motor << std::endl;
-    std::cout << "Moving to: " << jpStart[motor] << std::endl;
-    btsleep(0.5);
-    // TODO: Debug
-
 		wam.moveTo(jpStart[motor], 1.2, 0.75);
-
-		if (motor != 0 && j1tens) 
-		{ 
-			// Engage tang and pull tension from J1
-			puck[0]->setProperty(Puck::TENSION, true);
-			if (!engage(0)) 
-			{
-				puck[0]->setProperty(Puck::TENSION, false);
-				joint_list.resize(0);
-				printf("Error - Failed to engage autotensioner for joint 1\n");
-				return joint_list;
-			} 
-			else
-			{
-				printf("Successfully engaged joint 1 autotensioner.\n");
-			}
-
-			btsleep(0.5);
-			j1SlackPulled = pullTension(0);
-			puck[0]->setProperty(Puck::TENSION, false);
-		}
 
 		// Engage tang for specified motor
 		if (joint != 6)
@@ -697,14 +658,6 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list)
 		printf("\n");
 		wam.moveTo(jpInitial[motor], 1.2, 0.75);
 		wam.moveHome();
-
-		// Remove J1 from list if enough tension pulled
-		if (j1SlackPulled < slackThreshold[0]) 
-		{
-			printf("Successfully Tensioned Joint 1\n");
-			joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), 1), joint_list.end());
-			j1tens = false;
-		}
 	}
 	switch (joint) 
 	{
