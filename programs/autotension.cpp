@@ -345,7 +345,8 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	jpSlack1[1][2] = jpStopLow[2] + stopBuffer[2];
 	
 	// Move to the other end
-	jpSlack2[1] = jpSlack1[1]; 
+	jpSlack2[1] = jpSlack1[1];
+        jpSlack2[1][0] = jpInitial[1][0] + M_PI/6.0; // Home + pi/6 
 	jpSlack2[1][1] = jpStopLow[1] + stopBuffer[1]; // Near the Head
 	jpSlack2[1][2] = 0.0; // Home Position
 
@@ -358,7 +359,7 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 
 	// Start Position: Engage the Tang
 	jpStart[2] = jpInitial[2];
-        jpStart[2][0] = jpStart[2][0] + M_PI/6.0;
+        jpStart[2][0] = jpStart[2][0] + M_PI/6.0; // Home + pi/6
 	jpStart[2][1] = jpStopLow[1] + tangBuffer[1];
 	jpStart[2][2] = jpStopLow[2] + tangBuffer[2];
 
