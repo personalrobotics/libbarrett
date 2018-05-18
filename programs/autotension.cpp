@@ -191,9 +191,9 @@ public:
 			jpSlack1[tensionMotor][0] = jpStart[tensionMotor][0] - tangBuffer[0] / 2.0;
 			jpSlack2[tensionMotor][0] = jpStopHigh[0] - tangBuffer[0] / 2.0;
 		} else {
-			jpStart[tensionMotor][0] = 0.0;
-			jpSlack1[tensionMotor][0] = 0.0;
-			jpSlack2[tensionMotor][0] = 0.0;
+			jpStart[tensionMotor][0] = 4.71;
+			jpSlack1[tensionMotor][0] = 4.71;
+			jpSlack2[tensionMotor][0] = 4.71;
 		}
 	}
 
@@ -232,7 +232,10 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args) {
 			puck[args[m] - 1]->setProperty(Puck::TENSION, false);
 	}
 
+        std::cout << wam.getHomePosition() << std::endl;
+        std::cout << wam.getJointPositions() << std::endl;
 	wam.moveHome(); // Move the WAM to home position
+        std::cout << "Moved to home" << std::endl;
 
 	// Tell our EM to start managing
 	pm.getExecutionManager()->startManaging(motorRamp); //starting ramp manager
@@ -246,17 +249,17 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args) {
 	jpSlack2.resize(DOF);
 
 	// Initialize hand if present
-	if (pm.foundHand()) {
-		jp_type handBufJT = wam.getJointPositions();
-		if (DOF == 4)
-			handBufJT[3] -= 0.35; // Lift the elbow to give room for BHand HI
-		else
-			handBufJT[5] = jpStopLow[5]; // Set J6 on its positive stop
-		wam.moveTo(handBufJT);
-		hand = pm.getHand();
-		hand->initialize();
-		hand->close(Hand::GRASP);
-	}
+	//if (pm.foundHand()) {
+	//	jp_type handBufJT = wam.getJointPositions();
+	//	if (DOF == 4)
+	//		handBufJT[3] -= 0.35; // Lift the elbow to give room for BHand HI
+	//	//else
+	//	//	handBufJT[5] = jpStopLow[5]; // Set J6 on its positive stop
+	//	//wam.moveTo(handBufJT);
+	//	hand = pm.getHand();
+	//	hand->initialize();
+	//	hand->close(Hand::GRASP);
+	//}
 
 	// Joint 1 Tensioning will be added in and run simultaneously if present.
 	jpInitial[0] = wam.getJointPositions();
@@ -281,19 +284,16 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args) {
 	jpStart[2] = jpInitial[2];
 	jpStart[2][1] = jpStopLow[1] + tangBuffer[1];
 	jpStart[2][2] = jpStopLow[2] + tangBuffer[2];
-	jpStart[2][3] = jpStopLow[3] + stopBuffer[3];
 	jpSlack1[2] = jpStart[2];
 	jpSlack1[2][1] = jpStopLow[1] + stopBuffer[1];
 	jpSlack1[2][2] = jpStopLow[2] + stopBuffer[1];
 	jpSlack2[2] = jpSlack1[2];
 	jpSlack2[2][1] = jpStopHigh[1] - stopBuffer[1];
 	jpSlack2[2][2] = jpStopHigh[2] - stopBuffer[2];
-	jpSlack2[2][3] = jpStopHigh[3] - stopBuffer[3];
 
 	// Joint 4
 	jpInitial[3] = wam.getJointPositions();
 	jpStart[3] = jpInitial[3];
-	jpStart[3][1] = 0.0;
 	jpStart[3][3] = jpStopLow[3] + tangBuffer[3];
 	jpSlack1[3] = jpStart[3];
 	jpSlack1[3][3] = jpStopLow[3] + stopBuffer[3];
@@ -428,7 +428,9 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 			diff_tens = true;
 			break;
 		}
-
+                std::cout << "Motor Index: " << motor << std::endl;
+                std::cout << "Moving to: " << jpStart[motor] << std::endl;
+                btsleep(0.5);
 		wam.moveTo(jpStart[motor], 1.2, 0.75);
 
 		if (motor != 0 && j1tens) { // Engage tang and pull tension from J1
@@ -647,6 +649,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 
 	AutoTension<DOF> autotension(wam, setting);
 	autotension.init(pm, arg_list);
+        detail::waitForEnter();
 
 	/* Autotension Specified Joints*/
 	while (arg_list.size() != 0)
