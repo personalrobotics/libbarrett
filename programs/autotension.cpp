@@ -334,13 +334,13 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 
 	// Start Position: Engage the Tang
 	jpStart[1] = jpInitial[1];
+        jpStart[1][0] = 5 * M_PI/6.0;
 	jpStart[1][1] = jpStopHigh[1] - tangBuffer[1]; // Move joint 2 to positive end (towards the base)
 	jpStart[1][2] = jpStopLow[2] + tangBuffer[2]; // Move joint 3 towards negative extreme
 
 	// Move to one end 
 	jpSlack1[1] = jpStart[1];
 	// TODO (avk): This value has to be mirrored for left arm.
-	jpSlack1[1][0] = 5 * M_PI / 6.0;
 	jpSlack1[1][1] = jpStopHigh[1] - stopBuffer[1];
 	jpSlack1[1][2] = jpStopLow[2] + stopBuffer[2];
 	
@@ -359,6 +359,7 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 
 	// Start Position: Engage the Tang
 	jpStart[2] = jpInitial[2];
+        jpStart[2][0] = jpStart[2][0] + M_PI/6.0;
 	jpStart[2][1] = jpStopLow[1] + tangBuffer[1];
 	jpStart[2][2] = jpStopLow[2] + tangBuffer[2];
 
@@ -445,12 +446,12 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list)
 		j1tens = true;
 
 	motor = joint - 1; // Joint indexing
+        motorSlackPulled = 1.0;
+        slackDifference = 1.0;
 
 	// Check to see if we have met the slack thresholds
-	while (motorSlackPulled > slackThreshold[motor] || slackDifference > 1e-3 || !diff_tens)
+	while ((motorSlackPulled > slackThreshold[motor] && slackDifference > 1e-3) || !diff_tens)
 	{
-		slackDifference = 1.0;
-		motorSlackPulled = 1.0; // Large initial slack value for comparison against threshold
 		j1SlackPulled = 1.0;
 		if (std::find(joint_list.begin(), joint_list.end(), 1) != joint_list.end())
 			j1tens = true;
@@ -660,7 +661,7 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list)
 			oldSlackPulled = motorSlackPulled;
 			motorSlackPulled = pullTension(motor);
 			slackDifference = fabs(motorSlackPulled - oldSlackPulled);
-			printf("Slack Threshold = %f, Slack Difference = %f \n", slackThreshold[motor], oldSlackPulled);
+			printf("Slack Threshold = %f, Slack Difference = %f \n", slackThreshold[motor], slackDifference);
 			puck[motor]->setProperty(Puck::TENSION, false);
 		} 
 		else 
@@ -833,7 +834,6 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam)
 
 	AutoTension<DOF> autotension(wam, setting);
 	autotension.init(pm, arg_list);
-	detail::waitForEnter();
 
 	/* Autotension Specified Joints*/
 	while (arg_list.size() != 0)
