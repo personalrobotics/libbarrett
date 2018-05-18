@@ -346,7 +346,6 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	
 	// Move to the other end
 	jpSlack2[1] = jpSlack1[1]; 
-	jpSlack2[1][0] = jpInitial[1][0]; // Home Position
 	jpSlack2[1][1] = jpStopLow[1] + stopBuffer[1]; // Near the Head
 	jpSlack2[1][2] = 0.0; // Home Position
 
