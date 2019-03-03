@@ -13,8 +13,8 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include <native/task.h>
-#include <native/timer.h>
+#include <alchemy/task.h>
+#include <alchemy/timer.h>
 
 #include <boost/thread.hpp>
 #include <boost/ref.hpp>

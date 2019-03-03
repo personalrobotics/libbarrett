@@ -40,8 +40,8 @@
 #include <sys/mman.h>
 
 #ifdef BARRETT_XENOMAI
-#include <native/task.h>
-#include <native/timer.h>
+#include <alchemy/task.h>
+#include <alchemy/timer.h>
 #endif
 
 #include <boost/thread.hpp>

@@ -60,6 +60,17 @@ using detail::waitForEnter;
 const std::string CAL_CONFIG_FILE = barrett::EtcPathRelative("calibration.conf");
 const std::string DATA_CONFIG_FILE = barrett::EtcPathRelative("calibration_data/%s/zerocal.conf");
 
+void *
+__wrap_malloc (size_t c)
+{
+  return __real_malloc (c);
+}
+
+void __wrap_free(void *ptr)
+{
+  __real_free(ptr);
+}
+
 
 // Convenience class that wraps ncurses text attributes.
 class ScopedAttr {

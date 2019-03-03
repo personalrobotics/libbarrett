@@ -32,8 +32,8 @@ if (OPTIMIZE_FOR_PROCESSOR)
 	# TODO(dc): Does this turn on sse2 if supported by processor? What about -mfpmath=sse?
 	set(NEW_FLAGS "-march=native -mtune=native")
 	
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NEW_FLAGS}")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NEW_FLAGS}")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NEW_FLAGS} -Wno-deprecated")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NEW_FLAGS} -Wno-deprecated")
 	
 	message(STATUS "OPTIMIZE_FOR_PROCESSOR: ${NEW_FLAGS}")
 	set(NEW_FLAGS)  # unset
@@ -82,10 +82,11 @@ if (NON_REALTIME)
 	message(STATUS "NON_REALTIME: Not using Xeonmai")
 else()
 	find_package(Xenomai REQUIRED)
-	include_directories(${XENOMAI_INCLUDE_DIR})
+	include_directories(SYSTEM ${XENOMAI_INCLUDE_DIR})
+	include_directories(${XENOMAI_INCLUDE_DIR}/cobalt)
 	add_definitions(${XENOMAI_DEFINITIONS})
-	
-	set(exported_include_dirs ${exported_include_dirs} ${XENOMAI_INCLUDE_DIR})
+
+	set(exported_include_dirs ${exported_include_dirs} ${XENOMAI_INCLUDE_DIR} ${XENOMAI_INCLUDE_DIR}/cobalt)
 	set(exported_definitions ${exported_definitions} ${XENOMAI_DEFINITIONS})
 endif()
 

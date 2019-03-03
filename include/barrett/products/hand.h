@@ -145,10 +145,10 @@ protected:
 	void blockIf(bool blocking, unsigned int whichDigits) const;
 
 
-	static const double J2_RATIO = 125.0;
-	static const double J2_ENCODER_RATIO = 50.0;
-	static const double J3_RATIO = 375.0;
-	static const double SPREAD_RATIO = 17.5;
+	static constexpr double J2_RATIO = 125.0;
+	static constexpr double J2_ENCODER_RATIO = 50.0;
+	static constexpr double J3_RATIO = 375.0;
+	static constexpr double SPREAD_RATIO = 17.5;
 
 
 	bool hasFtt;

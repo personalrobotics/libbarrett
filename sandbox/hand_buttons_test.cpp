@@ -43,8 +43,8 @@ class Button {
 	};
 
 
-	static const double DEBOUNCE = 0.01;
-	static const double HOLD = 0.08;
+	static constexpr double DEBOUNCE = 0.01;
+	static constexpr double HOLD = 0.08;
 
 	bool pressed_1;
 	double sinceLastTransition;

@@ -113,7 +113,7 @@ public:
 
 
 	static const size_t MAX_WAM_DOF = 7;
-	static const double DEFAULT_LOOP_PERIOD = 0.002;
+	static constexpr double DEFAULT_LOOP_PERIOD = 0.002;
 	static const int SAFETY_MODULE_ID = 10;
 	static const int FIRST_WAM_ID = 1;
 	static const int FIRST_HAND_ID = 11;

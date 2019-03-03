@@ -9,7 +9,7 @@
 #include <string>
 
 #include <unistd.h>
-#include <native/timer.h>
+#include <alchemy/timer.h>
 
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>

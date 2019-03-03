@@ -76,7 +76,7 @@ public:
 			return Puck::encodeBusId(id, PuckGroup::FGRP_FT_FORCE);
 		}
 
-		static const double SCALE_FACTOR = 256.0;
+		static constexpr double SCALE_FACTOR = 256.0;
 		typedef cf_type result_type;
 		static int parse(int id, int propId, result_type* result, const unsigned char* data, size_t len) {
 			return ForceTorqueSensor::parse(id, propId, result, data, len, SCALE_FACTOR);
@@ -88,7 +88,7 @@ public:
 			return Puck::encodeBusId(id, PuckGroup::FGRP_FT_TORQUE);
 		}
 
-		static const double SCALE_FACTOR = 4096.0;
+		static constexpr double SCALE_FACTOR = 4096.0;
 		typedef ct_type result_type;
 		static int parse(int id, int propId, result_type* result, const unsigned char* data, size_t len) {
 			return ForceTorqueSensor::parse(id, propId, result, data, len, SCALE_FACTOR);
@@ -100,7 +100,7 @@ public:
 			return Puck::encodeBusId(id, PuckGroup::FGRP_FT_ACCEL);
 		}
 
-		static const double SCALE_FACTOR = 1024.0;
+		static constexpr double SCALE_FACTOR = 1024.0;
 		typedef ca_type result_type;
 		static int parse(int id, int propId, result_type* result, const unsigned char* data, size_t len) {
 			return ForceTorqueSensor::parse(id, propId, result, data, len, SCALE_FACTOR);

@@ -79,7 +79,7 @@ endif()
 
 set(libs ${Boost_LIBRARIES} ${GSL_LIBRARIES} config config++)  #TODO(dc): libconfig finder?
 if (NOT NON_REALTIME)
-	set(libs ${libs} ${XENOMAI_LIBRARY_NATIVE} ${XENOMAI_LIBRARY_XENOMAI} ${XENOMAI_LIBRARY_RTDM})
+	set(libs ${libs} ${XENOMAI_LIBRARY_ALCHEMY} ${XENOMAI_LIBRARY_COPPERPLATE} ${XENOMAI_LIBRARY_XENOMAI} ${XENOMAI_LIBRARY_RTDM})
 endif()
 if (WITH_PYTHON)
 	set(libs ${libs} ${PYTHON_LIBRARIES})
