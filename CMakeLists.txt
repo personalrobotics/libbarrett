@@ -28,12 +28,16 @@ option(INSTALL_SANDBOX "Set to ON to copy libbarrett sandbox programs to the cur
 option(CONFIG_PACKAGE "Set to ON to set up CPACK variables necessary for packaging" OFF)
 option(CONFIG_DEBIAN "Set to ON to copy standard barrett-config.cmake, required for Debian packaging" OFF)
 
+# Eigen 3.2 Warnings (TODO: Upgrade to 3.3)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-in-bool-context -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-misleading-indentation")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-in-bool-context -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-misleading-indentation")
+
 if (OPTIMIZE_FOR_PROCESSOR)
 	# TODO(dc): Does this turn on sse2 if supported by processor? What about -mfpmath=sse?
 	set(NEW_FLAGS "-march=native -mtune=native")
 	
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NEW_FLAGS} -Wno-deprecated")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NEW_FLAGS} -Wno-deprecated")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NEW_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${NEW_FLAGS}")
 	
 	message(STATUS "OPTIMIZE_FOR_PROCESSOR: ${NEW_FLAGS}")
 	set(NEW_FLAGS)  # unset
@@ -82,7 +86,8 @@ if (NON_REALTIME)
 	message(STATUS "NON_REALTIME: Not using Xeonmai")
 else()
 	find_package(Xenomai REQUIRED)
-	include_directories(SYSTEM ${XENOMAI_INCLUDE_DIR})
+	include_directories(${XENOMAI_INCLUDE_DIR}/trank)
+	include_directories(${XENOMAI_INCLUDE_DIR}) # Needed twice for include_next
 	include_directories(${XENOMAI_INCLUDE_DIR}/cobalt)
 	add_definitions(${XENOMAI_DEFINITIONS})
 

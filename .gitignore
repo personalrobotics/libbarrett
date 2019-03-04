@@ -1,0 +1,4 @@
+# Build Artifacts
+build/
+Doxyfile
+cmake/barrett-config.cmake

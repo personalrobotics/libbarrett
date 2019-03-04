@@ -37,8 +37,8 @@
 
 #include <errno.h>
 
-#include <trank/rtdm/rtdm.h>
-#include <trank/rtdm/rtcan.h>
+#include <rtdm/rtdm.h>
+#include <rtdm/rtcan.h>
 
 #include <barrett/os.h>
 #include <barrett/thread/real_time_mutex.h>
