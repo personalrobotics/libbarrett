@@ -62,9 +62,9 @@ void validate_args(std::vector<int>& jointsToAutotension)
 			}
 		}
 		printf("\nProgram will autotension joints ");
-		for (int j = 0; j < argc - 1; j++) 
+		for (int j = 0; j < jointsToAutotension.size(); j++) 
 		{
-			std::cout << jointsToAutotension[i] << ', ';
+			std::cout << jointsToAutotension[i] << ", ";
 		}
 		std::cout << std::endl;
 	}
