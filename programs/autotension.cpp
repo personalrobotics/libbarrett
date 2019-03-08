@@ -11,6 +11,7 @@
 #include <math.h>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 #define EIGEN_USE_NEW_STDVECTOR
 #include <Eigen/StdVector>
@@ -28,52 +29,46 @@
 #include <boost/program_options.hpp>
 
 using namespace barrett;
+namespace po = boost::program_options;
 
 const std::string CAL_CONFIG_FILE = barrett::EtcPathRelative("autotension.conf");
 
 template<size_t DOF>
-std::vector<int> validate_args(int argc, char** argv) 
+void validate_args(std::vector<int>& jointsToAutotension) 
 {
 	// Some DOF dependent items
 	int jnts2Tens = 4;
-	std::vector<int> args;
 	if (DOF == 7)
 		jnts2Tens = 6;
 
 	// Check our arguments and create vector accordingly.
-	if (argc == 1) 
+	if (jointsToAutotension.size() == 0) 
 	{
 		printf("\nNo arguments provided - Default\n");
 		printf("Program will autotension joints 1-%d\n\n", (DOF == 4) ? 4 : 6);
-		args.resize(jnts2Tens);
+		jointsToAutotension.resize(jnts2Tens);
 		for (int i = 0; i < jnts2Tens; i++)
-			args[i] = i + 1;
+			jointsToAutotension[i] = i + 1;
 	} 
 	else 
 	{
-		args.resize(argc - 1);
-		for (int i = 0; i < argc - 1; i++) 
+		for (int i = 0; i < jointsToAutotension.size(); i++) 
 		{
-			if (atoi(argv[i + 1]) < 1 || atoi(argv[i + 1]) > jnts2Tens) 
+			if (jointsToAutotension[i] < 1 || jointsToAutotension[i] > jnts2Tens)
 			{
 				printf("\nEXITING: Arguments out of range - Must provide valid joints 1-%d (ex. 1 2 4)\n\n", (DOF == 4) ? 4 : 6);
-				args.resize(0);
-				return args;
+				jointsToAutotension.clear();
+				return;
 			}
 		}
 		printf("\nProgram will autotension joints ");
 		for (int j = 0; j < argc - 1; j++) 
 		{
-			printf("%d", atoi(argv[j + 1]));
-			args[j] = atoi(argv[j + 1]);
-			if (j < argc - 2)
-				printf(", ");
-			else
-				printf("\n\n");
+			std::cout << jointsToAutotension[i] << ', ';
 		}
+		std::cout << std::endl;
 	}
-
-	return args;
+	return;
 }
 
 // TorqueWatchdog monitoring system
@@ -172,6 +167,7 @@ class AutoTension
 protected:
 	systems::Wam<DOF>& wam;
 	const libconfig::Setting& setting;
+	std::string armToAutotension;
 	std::vector<Puck*> puck;
 
 	TorqueWatchdog<DOF> watchdog;
@@ -197,9 +193,10 @@ protected:
 
 public:
 	Hand* hand;
-	AutoTension(systems::Wam<DOF>& wam_, const libconfig::Setting& setting_)
+	AutoTension(systems::Wam<DOF>& wam_, const libconfig::Setting& setting_, const std::string armToAutotension_)
 	:	wam(wam_)
 	,	setting(setting_)
+	, armToAutotension(armToAutotension_)
 	,	puck(wam.getLowLevelWam().getPucks())
 	,	j2mtSys(wam.getLowLevelWam().getJointToMotorTorqueTransform())
 	,	gravtor2mtSys(wam.getLowLevelWam().getJointToMotorTorqueTransform())
@@ -328,24 +325,28 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	// Initial Position takes the arm to a safe location.
 	jpInitial[1] = wam.getJointPositions();
 	jpInitial[1][1] = 0.0; // Stretched forward
-	// TODO (avk): This value might be at home for left arm.
 	jpInitial[1][3] = jpStopHigh[3] - stopBuffer[3]; // Folded opposite side as HERB home
 
 	// Start Position: Engage the Tang
 	jpStart[1] = jpInitial[1];
-  jpStart[1][0] = M_PI - M_PI/6.0; // Right arm = pi - pi/6 and left arm = pi + pi/6
+	if (armToAutotension == "left")
+  	jpStart[1][0] = M_PI + M_PI/6.0; // Left arm = pi + pi/6
+  else
+  	jpStart[1][0] = M_PI - M_PI/6.0; // Right arm = pi - pi/6 
 	jpStart[1][1] = jpStopHigh[1] - tangBuffer[1]; // Move joint 2 to positive end (towards the base)
 	jpStart[1][2] = jpStopLow[2] + tangBuffer[2]; // Move joint 3 towards negative extreme
 
 	// Move to one end 
 	jpSlack1[1] = jpStart[1];
-	// TODO (avk): This value has to be mirrored for left arm.
 	jpSlack1[1][1] = jpStopHigh[1] - stopBuffer[1];
 	jpSlack1[1][2] = jpStopLow[2] + stopBuffer[2];
 	
 	// Move to the other end
 	jpSlack2[1] = jpSlack1[1];
-  jpSlack2[1][0] = jpInitial[1][0] + M_PI/6.0; // Right: Home + pi/6. Left: pi - pi/6
+	if (armToAutotension == "left")
+		jpSlack2[1][0] = jpInitial[1][0] - M_PI/6.0; // Left: pi - pi/6
+	else
+		jpSlack2[1][0] = jpInitial[1][0] + M_PI/6.0; // Right: pi + pi/6.
 	jpSlack2[1][1] = jpStopLow[1] + stopBuffer[1]; // Near the Head
 	jpSlack2[1][2] = 0.0; // Home Position
 
@@ -354,11 +355,14 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	// Initial Position takes the arm to a safe location.
 	jpInitial[2] = wam.getJointPositions();
 	jpInitial[2][1] = 0.0; // Fully stretched forward.
-	jpInitial[2][3] = 0; //  M_PI/2.0; // TODO (avk): might need to change for left arm
+	jpInitial[2][3] = 0;
 
 	// Start Position: Engage the Tang
 	jpStart[2] = jpInitial[2];
-  jpStart[2][0] = jpStart[2][0] + M_PI/6.0; // right: Home + pi/6. left: pi - pi/6
+	if (armToAutotension == "left")
+		jpStart[2][0] = jpStart[2][0] - M_PI/6.0; // Left: pi - pi/6
+	else
+		jpStart[2][0] = jpStart[2][0] + M_PI/6.0; // Right: pi + pi/6
 	jpStart[2][1] = jpStopLow[1] + tangBuffer[1];
 	jpStart[2][2] = jpStopLow[2] + tangBuffer[2];
 
@@ -369,7 +373,10 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	
 	// Move to the other end [in this case, through the safe position]
 	jpSlack2[2] = jpSlack1[2];
-	jpSlack2[2][0] = M_PI - M_PI/2.0; // right = pi - pi/2, left = pi + p/2 
+	if (armToAutotension)
+		jpSlack2[2][0] = M_PI + M_PI/2.0; // Left = pi + p/2 
+	else
+		jpSlack2[2][0] = M_PI - M_PI/2.0; // Right = pi - pi/2
 	jpSlack2[2][1] = jpStopHigh[1] - stopBuffer[1];
 	jpSlack2[2][2] = jpStopHigh[2] - stopBuffer[2];
 	jpSlack2[2][3] = jpStopLow[3] - stopBuffer[3];
@@ -750,9 +757,9 @@ void AutoTension<DOF>::connectSystems()
 	wam.supervisoryController.registerConversion(makeIOConversion(wam.jpController.referenceInput, m2jtSys.output));
 }
 
-//wam_main Function
+// WAM Main Function.
 template<size_t DOF>
-int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
+int wam_main(std::string armToAutotension, std::vector<int>& jointsToAutotension, ProductManager& pm, systems::Wam<DOF>& wam) 
 {
 	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
@@ -776,8 +783,8 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam)
 	}
 	const libconfig::Setting& setting = config.lookup("autotension")[pm.getWamDefaultConfigPath()];
 
-	std::vector<int> arg_list = validate_args<DOF>(argc, argv);
-	if (arg_list.size() == 0) 
+	validate_args<DOF>(jointsToAutotension);
+	if (jointsToAutotension.size() == 0) 
 	{
 		pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
 		return 1;
@@ -786,12 +793,12 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam)
 	printf("Press <Enter> to begin autotensioning.\n");
 	detail::waitForEnter();
 
-	AutoTension<DOF> autotension(wam, setting);
-	autotension.init(pm, arg_list);
+	AutoTension<DOF> autotension(wam, setting, armToAutotension);
+	autotension.init(pm, jointsToAutotension);
 
 	/* Autotension Specified Joints*/
-	while (arg_list.size() != 0)
-		arg_list = autotension.tensionJoint(arg_list);
+	while (jointsToAutotension.size() != 0)
+		jointsToAutotension = autotension.tensionJoint(jointsToAutotension);
 
 	/* Re-fold and exit */
 	if (autotension.hand != 0) {
@@ -827,6 +834,34 @@ int main(int argc, char** argv)
 			"\n"
 			"\n");
 
+  po::options_description desc("Autotensioning Options");
+  desc.add_options()
+      ("help,h", "Produce help message")
+      ("arm,a", po::value<std::string>()->required(), "left / right")
+      ("joints,j", po::value<std::vector<int>>()->multitoken(), "Joints to Autotension")
+  ;
+
+  // Read arguments
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+
+  if (vm.count("help"))
+  {
+    std::cout << desc << std::endl;
+    return 1;
+  }
+
+  std::string armToAutotension(vm["arm"].as<std::string>());
+  std::vector<int> jointsToAutotension(vm["joints"].as<std::vector<int>>());
+
+  // Check for sanity.
+  if (armToAutotension != "left" && armToAutotension != "right")
+  {
+  	std::cout << "Arm needs to be either left or right" << std::endl;
+  	return 1;
+  }
+
 	// For clean stack traces
 	barrett::installExceptionHandler();
 
@@ -836,10 +871,10 @@ int main(int argc, char** argv)
 
 	if (pm.foundWam4()) 
 	{
-		return wam_main<4>(argc, argv, pm, *pm.getWam4(true, NULL));
+		return wam_main<4>(armToAutotension, jointsToAutotension, pm, *pm.getWam4(true, NULL));
 	} 
 	else if (pm.foundWam7()) 
 	{
-		return wam_main<7>(argc, argv, pm, *pm.getWam7(true, NULL));
+		return wam_main<7>(armToAutotension, jointsToAutotension, pm, *pm.getWam7(true, NULL));
 	}
 }
