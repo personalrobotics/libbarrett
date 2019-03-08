@@ -23,8 +23,9 @@
 #include <barrett/systems.h>
 #include <barrett/products/product_manager.h>
 #include <barrett/products/puck.h>
-
 #include <barrett/config.h>
+
+#include <boost/program_options.hpp>
 
 using namespace barrett;
 
@@ -332,7 +333,7 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 
 	// Start Position: Engage the Tang
 	jpStart[1] = jpInitial[1];
-  jpStart[1][0] = 5 * M_PI/6.0;
+  jpStart[1][0] = M_PI - M_PI/6.0; // Right arm = pi - pi/6 and left arm = pi + pi/6
 	jpStart[1][1] = jpStopHigh[1] - tangBuffer[1]; // Move joint 2 to positive end (towards the base)
 	jpStart[1][2] = jpStopLow[2] + tangBuffer[2]; // Move joint 3 towards negative extreme
 
@@ -344,7 +345,7 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	
 	// Move to the other end
 	jpSlack2[1] = jpSlack1[1];
-  jpSlack2[1][0] = jpInitial[1][0] + M_PI/6.0; // Home + pi/6 
+  jpSlack2[1][0] = jpInitial[1][0] + M_PI/6.0; // Right: Home + pi/6. Left: pi - pi/6
 	jpSlack2[1][1] = jpStopLow[1] + stopBuffer[1]; // Near the Head
 	jpSlack2[1][2] = 0.0; // Home Position
 
@@ -353,11 +354,11 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	// Initial Position takes the arm to a safe location.
 	jpInitial[2] = wam.getJointPositions();
 	jpInitial[2][1] = 0.0; // Fully stretched forward.
-	jpInitial[2][3] = M_PI/2.0; // TODO (avk): might need to change for left arm
+	jpInitial[2][3] = 0; //  M_PI/2.0; // TODO (avk): might need to change for left arm
 
 	// Start Position: Engage the Tang
 	jpStart[2] = jpInitial[2];
-  jpStart[2][0] = jpStart[2][0] + M_PI/6.0; // Home + pi/6
+  jpStart[2][0] = jpStart[2][0] + M_PI/6.0; // right: Home + pi/6. left: pi - pi/6
 	jpStart[2][1] = jpStopLow[1] + tangBuffer[1];
 	jpStart[2][2] = jpStopLow[2] + tangBuffer[2];
 
@@ -368,7 +369,7 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	
 	// Move to the other end [in this case, through the safe position]
 	jpSlack2[2] = jpSlack1[2];
-	jpSlack2[2][0] = M_PI/2.0;
+	jpSlack2[2][0] = M_PI - M_PI/2.0; // right = pi - pi/2, left = pi + p/2 
 	jpSlack2[2][1] = jpStopHigh[1] - stopBuffer[1];
 	jpSlack2[2][2] = jpStopHigh[2] - stopBuffer[2];
 	jpSlack2[2][3] = jpStopLow[3] - stopBuffer[3];
