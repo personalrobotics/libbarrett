@@ -1,0 +1,40 @@
+FILE(REMOVE_RECURSE
+  "CMakeFiles/tests.dir/log/reader.cpp.o"
+  "CMakeFiles/tests.dir/log/real_time_writer.cpp.o"
+  "CMakeFiles/tests.dir/log/verify_file_contents.cpp.o"
+  "CMakeFiles/tests.dir/log/writer.cpp.o"
+  "CMakeFiles/tests.dir/math/first_order_filter.cpp.o"
+  "CMakeFiles/tests.dir/math/kinematics.cpp.o"
+  "CMakeFiles/tests.dir/math/matrix.cpp.o"
+  "CMakeFiles/tests.dir/math/spline.cpp.o"
+  "CMakeFiles/tests.dir/math/traits.cpp.o"
+  "CMakeFiles/tests.dir/math/utils.cpp.o"
+  "CMakeFiles/tests.dir/math/vector.cpp.o"
+  "CMakeFiles/tests.dir/products/puck.cpp.o"
+  "CMakeFiles/tests.dir/systems/abstract/controller.cpp.o"
+  "CMakeFiles/tests.dir/systems/abstract/execution_manager.cpp.o"
+  "CMakeFiles/tests.dir/systems/abstract/single_io.cpp.o"
+  "CMakeFiles/tests.dir/systems/abstract/system.cpp.o"
+  "CMakeFiles/tests.dir/systems/callback.cpp.o"
+  "CMakeFiles/tests.dir/systems/constant.cpp.o"
+  "CMakeFiles/tests.dir/systems/converter.cpp.o"
+  "CMakeFiles/tests.dir/systems/first_order_filter.cpp.o"
+  "CMakeFiles/tests.dir/systems/gain.cpp.o"
+  "CMakeFiles/tests.dir/systems/helpers.cpp.o"
+  "CMakeFiles/tests.dir/systems/io_conversion.cpp.o"
+  "CMakeFiles/tests.dir/systems/manual_execution_manager.cpp.o"
+  "CMakeFiles/tests.dir/systems/pid_controller.cpp.o"
+  "CMakeFiles/tests.dir/systems/print_to_stream.cpp.o"
+  "CMakeFiles/tests.dir/systems/ramp.cpp.o"
+  "CMakeFiles/tests.dir/systems/rate_limiter.cpp.o"
+  "CMakeFiles/tests.dir/systems/summer.cpp.o"
+  "CMakeFiles/tests.dir/systems/summer-polarity.cpp.o"
+  "CMakeFiles/tests.dir/os.cpp.o"
+  "tests.pdb"
+  "tests"
+)
+
+# Per-language clean rules from dependency scanning.
+FOREACH(lang CXX)
+  INCLUDE(CMakeFiles/tests.dir/cmake_clean_${lang}.cmake OPTIONAL)
+ENDFOREACH(lang)
