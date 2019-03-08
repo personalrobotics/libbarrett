@@ -64,7 +64,7 @@ void validate_args(std::vector<int>& jointsToAutotension)
 		printf("\nProgram will autotension joints ");
 		for (int j = 0; j < jointsToAutotension.size(); j++) 
 		{
-			std::cout << jointsToAutotension[i] << ", ";
+			std::cout << jointsToAutotension[j] << ", ";
 		}
 		std::cout << std::endl;
 	}
@@ -373,7 +373,7 @@ void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args)
 	
 	// Move to the other end [in this case, through the safe position]
 	jpSlack2[2] = jpSlack1[2];
-	if (armToAutotension)
+	if (armToAutotension == "left")
 		jpSlack2[2][0] = M_PI + M_PI/2.0; // Left = pi + p/2 
 	else
 		jpSlack2[2][0] = M_PI - M_PI/2.0; // Right = pi - pi/2
@@ -838,7 +838,7 @@ int main(int argc, char** argv)
   desc.add_options()
       ("help,h", "Produce help message")
       ("arm,a", po::value<std::string>()->required(), "left / right")
-      ("joints,j", po::value<std::vector<int>>()->multitoken(), "Joints to Autotension")
+      ("joints,j", po::value<std::vector<int> >()->multitoken(), "Joints to Autotension")
   ;
 
   // Read arguments
