@@ -61,8 +61,8 @@ template<typename Scalar> struct CwiseBinaryDeadbandOp;
  */
 template<typename Derived>
 const Eigen::CwiseUnaryOp<
-	detail::CwiseSignOp<typename Eigen::ei_traits<Derived>::Scalar>,
-	Derived
+	detail::CwiseSignOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
 > sign(const Eigen::MatrixBase<Derived>& x);
 
 double sign(double x);
@@ -78,8 +78,8 @@ double sign(double x);
  */
 template<typename Derived>
 const Eigen::CwiseUnaryOp<
-	Eigen::ei_scalar_abs_op<typename Eigen::ei_traits<Derived>::Scalar>,
-	Derived
+	Eigen::internal::scalar_abs_op<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
 > abs(const Eigen::MatrixBase<Derived>& x);
 
 /** Returns the minimum of its two inputs.
@@ -94,9 +94,9 @@ const Eigen::CwiseUnaryOp<
  */
 template<typename Derived1, typename Derived2>
 const Eigen::CwiseBinaryOp<
-	Eigen::ei_scalar_min_op<typename Eigen::ei_traits<Derived1>::Scalar>,
-	Derived1,
-	Derived2
+	Eigen::internal::scalar_min_op<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
 > min(const Eigen::MatrixBase<Derived1>& a, const Eigen::MatrixBase<Derived2>& b);
 
 double min(double a, double b);
@@ -113,9 +113,9 @@ double min(double a, double b);
  */
 template<typename Derived1, typename Derived2>
 const Eigen::CwiseBinaryOp<
-	Eigen::ei_scalar_max_op<typename Eigen::ei_traits<Derived1>::Scalar>,
-	Derived1,
-	Derived2
+	Eigen::internal::scalar_max_op<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
 > max(const Eigen::MatrixBase<Derived1>& a, const Eigen::MatrixBase<Derived2>& b);
 
 double max(double a, double b);
@@ -134,15 +134,15 @@ double max(double a, double b);
  */
 template<typename Derived>
 const Eigen::CwiseUnaryOp<
-	detail::CwiseUnarySaturateOp<typename Eigen::ei_traits<Derived>::Scalar>,
-	Derived
+	detail::CwiseUnarySaturateOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
 > saturate(const Eigen::MatrixBase<Derived>& x, double limit);
 
 template<typename Derived1, typename Derived2>
 inline const Eigen::CwiseBinaryOp<
-	detail::CwiseBinarySaturateOp<typename Eigen::ei_traits<Derived1>::Scalar>,
-	Derived1,
-	Derived2
+	detail::CwiseBinarySaturateOp<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
 > saturate(const Eigen::MatrixBase<Derived1>& x, const Eigen::MatrixBase<Derived2>& limit);
 
 double saturate(double x, double limit);
@@ -150,8 +150,8 @@ double saturate(double x, double limit);
 
 template<typename Derived>
 const Eigen::CwiseUnaryOp<
-	detail::CwiseUnarySaturateOp<typename Eigen::ei_traits<Derived>::Scalar>,
-	Derived
+	detail::CwiseUnarySaturateOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
 > saturate(const Eigen::MatrixBase<Derived>& x, double lowerLimit, double upperLimit);
 
 double saturate(double x, double lowerLimit, double upperLimit);
@@ -170,15 +170,15 @@ double saturate(double x, double lowerLimit, double upperLimit);
  */
 template<typename Derived>
 const Eigen::CwiseUnaryOp<
-	detail::CwiseUnaryDeadbandOp<typename Eigen::ei_traits<Derived>::Scalar>,
-	Derived
+	detail::CwiseUnaryDeadbandOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
 > deadband(const Eigen::MatrixBase<Derived>& x, double cutoff);
 
 template<typename Derived1, typename Derived2>
 const Eigen::CwiseBinaryOp<
-	detail::CwiseBinaryDeadbandOp<typename Eigen::ei_traits<Derived1>::Scalar>,
-	Derived1,
-	Derived2
+	detail::CwiseBinaryDeadbandOp<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
 > deadband(const Eigen::MatrixBase<Derived1>& x, const Eigen::MatrixBase<Derived2>& cutoff);
 
 double deadband(double x, double cutoff);

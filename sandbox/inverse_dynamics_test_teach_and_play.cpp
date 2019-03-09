@@ -10,6 +10,9 @@
 
 #include <boost/tuple/tuple.hpp>
 
+#define EIGEN_USE_NEW_STDVECTOR
+#include <Eigen/StdVector>
+
 #include <libconfig.h++>
 
 #include <barrett/log.h>
@@ -117,7 +120,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 	typedef boost::tuple<double, jp_type> jp_sample_type;
 	systems::Ramp moveTime(pm.getExecutionManager(), 1.0);
 	log::Reader<jp_sample_type> inputLr("/home/robot/libbarrett/sandbox/fastMove.bin");
-	std::vector<jp_sample_type> vec;
+	std::vector<jp_sample_type, Eigen::aligned_allocator<jp_sample_type> > vec;
 	for (size_t i = 0; i < inputLr.numRecords(); ++i) {
 		vec.push_back(inputLr.getRecord());
 	}

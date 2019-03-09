@@ -14,6 +14,9 @@
 #include <boost/thread.hpp>
 #include <boost/array.hpp>
 
+#define EIGEN_USE_NEW_STDVECTOR
+#include <Eigen/StdVector>
+
 #include <barrett/units.h>
 #include <barrett/systems.h>
 #include <barrett/log.h>
@@ -83,7 +86,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 
 
 	jp_type tmp;
-	std::vector<jp_type> poses;
+	std::vector<jp_type, Eigen::aligned_allocator<jp_type> > poses;
 
 	// J1
 	tmp.setZero();

@@ -224,7 +224,7 @@ public:
 
 					// Record the motor angles that affect this joint
 					const sqm_type& m2jp = llw.getMotorToJointPositionTransform();
-					double tolerance = m2jp.cwise().abs().maxCoeff() * 1e-5;
+					double tolerance = m2jp.cwiseAbs().maxCoeff() * 1e-5;
 					for (size_t i = 0; i < DOF; ++i) {
 						// If the j,i entry is non-zero, then Motor i is in some way connected to Joint j
 						if (math::abs(m2jp(j,i)) > tolerance) {
@@ -317,6 +317,9 @@ protected:
 	v_type& zeroAngle;
 
 	int state, digit;
+
+public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 // The Exit menu item.

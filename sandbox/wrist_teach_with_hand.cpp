@@ -14,6 +14,9 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/thread.hpp>
 
+#define EIGEN_USE_NEW_STDVECTOR
+#include <Eigen/StdVector>
+
 #include <barrett/exception.h>
 #include <barrett/detail/stl_utils.h>  // waitForEnter()
 #include <barrett/math.h>
@@ -89,7 +92,7 @@ void displayEntryPoint() {
 
 
 void handEntryPoint(Hand& hand) {
-	std::vector<Hand::jp_type> positions;
+	std::vector<Hand::jp_type, Eigen::aligned_allocator<Hand::jp_type> > positions;
 
 	const double O = 0.0;
 	const double C = 2.4;
@@ -174,7 +177,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 
 		// Build spline between recorded points
 		log::Reader<jp_sample_type> lr(tmpFile);
-		std::vector<jp_sample_type> vec;
+		std::vector<jp_sample_type, Eigen::aligned_allocator<jp_sample_type> > vec;
 		for (size_t i = 0; i < lr.numRecords(); ++i) {
 			vec.push_back(lr.getRecord());
 		}

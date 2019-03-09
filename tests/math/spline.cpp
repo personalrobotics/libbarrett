@@ -10,6 +10,9 @@
 #include <vector>
 #include <boost/tuple/tuple.hpp>
 
+#define EIGEN_USE_NEW_STDVECTOR
+#include <Eigen/StdVector>
+
 #include <gtest/gtest.h>
 
 #include <barrett/units.h>
@@ -27,7 +30,7 @@ typedef units::JointPositions<DOF>::type jp_type;
 
 TEST(SplineTest, ImplicitParameter) {
 	jp_type jp;
-	std::vector<jp_type> points;
+	std::vector<jp_type, Eigen::aligned_allocator<jp_type> > points;
 
 	jp.setConstant(0);
 	points.push_back(jp);
@@ -48,7 +51,7 @@ TEST(SplineTest, ImplicitParameter) {
 /*
 TEST(SplineTest, InitialDirection) {
 	jp_type jp;
-	std::vector<jp_type> points;
+	std::vector<jp_type, Eigen::aligned_allocator<jp_type> > points;
 
 	jp.setConstant(0);
 	points.push_back(jp);
@@ -65,14 +68,14 @@ TEST(SplineTest, InitialDirection) {
 
 	// the spline should go the "wrong" direction at first...
 	jp.setConstant(0.0);
-	EXPECT_TRUE((spline.eval(spline.changeInS() * 0.1).cwise() < jp).all());
+	EXPECT_TRUE((spline.eval(spline.changeInS() * 0.1).array() < jp).all());
 }
 */
 
 TEST(SplineTest, ExplicitParameter) {
 	typedef math::Spline<jp_type>::tuple_type tuple_type;
 	tuple_type sample;
-	std::vector<tuple_type> samples;
+	std::vector<tuple_type, Eigen::aligned_allocator<tuple_type> > samples;
 
 	sample.get<0>() = -2.0;
 	sample.get<1>().setConstant(-12.8);
@@ -105,7 +108,7 @@ TEST(SplineTest, ExplicitParameter) {
 TEST(SplineTest, SaturateByDefault) {
 	typedef math::Spline<jp_type>::tuple_type tuple_type;
 	tuple_type sample;
-	std::vector<tuple_type> samples;
+	std::vector<tuple_type, Eigen::aligned_allocator<tuple_type> > samples;
 
 	sample.get<0>() = -2.0;
 	sample.get<1>().setConstant(-12.8);
@@ -138,7 +141,7 @@ TEST(SplineTest, SaturateByDefault) {
 TEST(SplineTest, NoSaturateCtor) {
 	typedef math::Spline<jp_type>::tuple_type tuple_type;
 	tuple_type sample;
-	std::vector<tuple_type> samples;
+	std::vector<tuple_type, Eigen::aligned_allocator<tuple_type> > samples;
 
 	sample.get<0>() = -2.0;
 	sample.get<1>().setConstant(-12.8);

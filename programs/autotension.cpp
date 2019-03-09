@@ -9,6 +9,9 @@
 #include <vector>
 #include <algorithm>
 
+#define EIGEN_USE_NEW_STDVECTOR
+#include <Eigen/StdVector>
+
 #include <libconfig.h++>
 
 #include <barrett/math.h>
@@ -163,7 +166,7 @@ protected:
 	systems::ExposedOutput<double> tensionValue;
 	systems::Ramp motorRamp;
 
-	std::vector<jp_type> jpInitial, jpStart, jpSlack1, jpSlack2;
+	std::vector<jp_type, Eigen::aligned_allocator<jp_type> > jpInitial, jpStart, jpSlack1, jpSlack2;
 	jp_type tensionDefaults, jpStopHigh, jpStopLow, tangBuffer, tangMiss, stopBuffer, slackThreshold;
 	sqm_type j2mp;
 	double motorSlackPulled, j1SlackPulled, j5TangPos, j6TangPos;
@@ -212,7 +215,7 @@ public:
 	}
 
 	std::vector<int> tensionJoint(std::vector<int> joint_list);
-	bool engage(int motor, double timeout);
+	bool engage(int motor, double timeout = 20.0);
 	double pullTension(int motor);
 	void connectSystems();
 };
@@ -550,7 +553,7 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 }
 
 template<size_t DOF>
-bool AutoTension<DOF>::engage(int motor, double timeout = 20.0) {
+bool AutoTension<DOF>::engage(int motor, double timeout) {
 	btsleep(1.0); // Let system settle, tang engage
 	holdJP.setValue(wam.getJointPositions()); // Hold Position
 	motorRamp.setSlope(0.8);

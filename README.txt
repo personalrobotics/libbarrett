@@ -1,10 +1,9 @@
 libbarrett -- README
 Barrett Technology
-2013-07-17
-
+Updated October 7, 2016
 
 Libbarrett is a real-time controls library written in C++ that runs Barrett
-Technology's products, including the WAM Arm, Proficio and the BH8-280 BarrettHand. For
+Technology's products, including the WAM Arm, Proficio and the BH8-280/282 BarrettHand. For
 support, please email:
     support@barrett.com
 
@@ -14,10 +13,10 @@ Source based install
 
 Pre-requisites:
 
-$ sudo apt-get install python-dev python-argparse
-$ sudo apt-get install libeigen2-dev libboost-all-dev libgsl0-dev
+$ sudo apt-get install git g++ cmake libncurses5-dev python-dev python-argparse
+$ sudo apt-get install libeigen3-dev libboost-all-dev libgsl0-dev
 $ sudo apt-get install libxenomai-dev libxenomai1
-$ wget http://web.barrett.com/svn/libbarrett/dependencies/libconfig-1.4.5-PATCHED.tar.gz
+$ wget http://web.barrett.com/support/WAM_Installer/libconfig-1.4.5-PATCHED.tar.gz
 $ tar -xf libconfig-1.4.5-PATCHED.tar.gz
 $ cd libconfig-1.4.5
 $ ./configure && make && sudo make install
@@ -27,7 +26,7 @@ $ rm -rf libconfig-1.4.5 libconfig-1.4.5-PATCHED.tar.gz
 Download and install libbarrett:
 
 $ cd ~/
-$ git clone https://github.com/BarrettTechnology/libbarrett.git
+$ git clone https://git.barrett.com/software/libbarrett.git
 $ cd libbarrett
 $ cmake .
 $ make
@@ -35,11 +34,23 @@ $ sudo make install
 
 Configuration Files for the robots:
 
-Upon installation of libbarrett, the configuration files of the robot are installed to the /etc/barrett directory. However, to give an additional flexibility of each user maintaining their own configurations for the same robot, by default, the configuration files are read from ~/.barrett directory if it exists. If not, then libbarrett reads the necessary configuration files from /etc/barrett/ directory. It is upto the user to maintain and populate the ~/.barrett directory
+Upon installation of libbarrett, the configuration files of the robot are 
+installed to the /etc/barrett directory. However, to give an additional 
+flexibility of each user maintaining their own configurations for the same 
+robot, by default, the configuration files are read from ~/.barrett directory 
+if it exists. If not, then libbarrett reads the necessary configuration files 
+from /etc/barrett/ directory. It is upto the user to maintain and populate the 
+~/.barrett directory
 
 For Proficio support only:
 
-In addition to the above, there are two different configuration files for the Proficio to account for its variant.. So, the right set of configuration files have to be copied either to the /etc/barrett/ or ~/.barrett folder depending on the configuration of the robot in use. In order to ease this process, there is a bash aliases that copies the corresponding configuration files to the /etc/barrett directory. As before, copying it to the ~/.barrett directory has to be done manually by the user.
+In addition to the above, there are two different configuration files for the 
+Proficio to account for its variant.. So, the right set of configuration files 
+have to be copied either to the /etc/barrett/ or ~/.barrett folder depending on 
+the configuration of the robot in use. In order to ease this process, there is a 
+bash aliases that copies the corresponding configuration files to the 
+/etc/barrett directory. As before, copying it to the ~/.barrett directory has to 
+be done manually by the user.
 
 To set it up for the first time after installing libbarrett,
 
@@ -55,19 +66,24 @@ Rerun the bash script
 
 $ . ~/.bashrc
 
-- Before running the Proficio in a particular configuration or immediately after switching the configuration of the proficio, type either of the following based on the configuration of the robot
+- Before running the Proficio in a particular configuration or immediately after 
+switching the configuration of the proficio, type either of the following based 
+on the configuration of the robot
 
 $ leftConfig
 or
 $ rightConfig
 
-The above bash aliases copies the particular configuration of the proficio from ~/libbarrett/proficio_sandbox/configurations into /etc/barrett directory.
+The above bash aliases copies the particular configuration of the proficio from 
+~/libbarrett/proficio_sandbox/configurations into /etc/barrett directory.
 
 - Hit E-STOP and shift+idle.
 
-- If the outer elbow of the proficio is swapped, do gravity calibration before running the examples.
+- If the outer elbow of the proficio is swapped, do gravity calibration before 
+running the examples.
 
-P.S Some of the examples above may not work with any robot if the libbarrett is not installed from this source.
+P.S Some of the examples above may not work with any robot if the libbarrett is 
+not installed from this source.
 
 Headers and shared libraries will be installed to their typical locations for
 your system. Configuration files will be installed to the /etc/barrett/
@@ -77,7 +93,7 @@ folder.
 To get started, look through libbarrett's example code. For additional
 documentation, see:
     http://support.barrett.com/            - Barrett product support site
-    http://barrett.com/robot/support.htm   - File download area
+    http://barrett.com/support.htm         - File download area
     http://web.barrett.com/libbarrett/     - API documentation for libbarrett
 
 It is possible to use CMake to generate several output formats, including
@@ -95,9 +111,6 @@ for your application, you may use the SocketCAN driver from the standard Linux
 kernel. To use the Linux SocketCAN driver, add "-DNON_REALTIME=true" to your
 cmake command.
 
-For additional dependencies, see:
-    http://web.barrett.com/svn/libbarrett/dependencies/
-
 Additional Makefile targets include:
     make install_config      # Update or install configuration files only
     make package             # Package the library as a tar-ball
@@ -113,6 +126,6 @@ http://www.barrett.com/
 +1-617-252-9000
 
 Barrett Technology 
-625 Mount Auburn Street
-Cambridge, MA 02138
+73 Chapel Street
+Newton, MA 02458
 USA

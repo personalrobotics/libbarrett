@@ -76,13 +76,13 @@ protected:
 	virtual void operate() {
 		pos = input.getValue() - c;
 
-		bool outside = (pos.cwise().abs().cwise() > halfSize).any();
+		bool outside = (pos.array().abs() > halfSize.array()).any();
 
 		// if we are inside the box and we shouldn't be
 		if (keepOutside  &&  !outside) {
 			if ( !inBox ) {  // if we weren't in the box last time
 				// find out what side we entered on
-				(halfSize - pos.cwise().abs()).minCoeff(&index);
+				(halfSize - pos.cwiseAbs()).minCoeff(&index);
 			}
 
 			depth = halfSize[index] - math::abs(pos[index]);
@@ -101,9 +101,9 @@ protected:
 
 			// if we are outside the box and we shouldn't be
 			if (!keepOutside  &&  outside) {
-				dir = halfSize - pos.cwise().abs();
-				dir = dir.cwise() * (dir.cwise() < 0.0).cast<double>();
-				dir = dir.cwise() * math::sign(pos);
+				dir = halfSize - pos.cwiseAbs();
+				dir = (dir.array() * (dir.array() < 0.0).cast<double>()).matrix();
+				dir = (dir.array() * math::sign(pos).array()).matrix();
 
 				depth = dir.norm();
 				if (depth > 0.02) {

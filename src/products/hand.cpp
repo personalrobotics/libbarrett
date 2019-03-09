@@ -155,7 +155,7 @@ void Hand::close(unsigned int whichDigits, bool blocking) const {
 /** trapezoidalMove Method */
 void Hand::trapezoidalMove(const jp_type& jp, unsigned int whichDigits, bool blocking) const
 {
-	setProperty(whichDigits, Puck::E, j2pp.cwise() * jp);
+	setProperty(whichDigits, Puck::E, (j2pp.array() * jp.array()).matrix());
 	setProperty(whichDigits, Puck::MODE, MotorPuck::MODE_TRAPEZOIDAL);
 	blockIf(blocking, whichDigits);
 }
@@ -163,7 +163,7 @@ void Hand::trapezoidalMove(const jp_type& jp, unsigned int whichDigits, bool blo
 void Hand::velocityMove(const jv_type& jv, unsigned int whichDigits) const
 {
 	// Convert to counts/millisecond
-	setProperty(whichDigits, Puck::V, (j2pp.cwise() * jv) / 1000.0);
+	setProperty(whichDigits, Puck::V, (j2pp.array() * jv.array()).matrix() / 1000.0);
 	setProperty(whichDigits, Puck::MODE, MotorPuck::MODE_VELOCITY);
 }
 
@@ -174,7 +174,7 @@ void Hand::setPositionMode(unsigned int whichDigits) const {
 /** setPositionCommand Method */
 void Hand::setPositionCommand(const jp_type& jp, unsigned int whichDigits) const
 {
-	setProperty(whichDigits, Puck::P, j2pp.cwise() * jp);
+	setProperty(whichDigits, Puck::P, (j2pp.array() * jp.array()).matrix());
 }
 /** setTorqueMode Method */
 void Hand::setTorqueMode(unsigned int whichDigits) const {
@@ -183,7 +183,7 @@ void Hand::setTorqueMode(unsigned int whichDigits) const {
 /** setTorqueCommand Method */
 void Hand::setTorqueCommand(const jt_type& jt, unsigned int whichDigits) const
 {
-	pt = j2pt.cwise() * jt;
+	pt = (j2pt.array() * jt.array()).matrix();
 	if (whichDigits == WHOLE_HAND) {
 		MotorPuck::sendPackedTorques(pucks[0]->getBus(), group.getId(), Puck::T, pt.data(), DOF);
 	} else {
