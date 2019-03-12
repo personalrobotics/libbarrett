@@ -834,6 +834,7 @@ tests/tests: tests/CMakeFiles/tests.dir/build.make
 tests/tests: src/libbarrett.so.1.2.4
 tests/tests: /usr/lib/x86_64-linux-gnu/libboost_system.so
 tests/tests: /usr/lib/x86_64-linux-gnu/libboost_thread.so
+tests/tests: /usr/lib/x86_64-linux-gnu/libboost_program_options.so
 tests/tests: /usr/lib/x86_64-linux-gnu/libboost_python.so
 tests/tests: /usr/lib/x86_64-linux-gnu/libpthread.so
 tests/tests: /usr/lib/libxenomai.so

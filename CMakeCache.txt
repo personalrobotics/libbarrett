@@ -29,6 +29,12 @@ Boost_INCLUDE_DIR:PATH=/usr/include
 //Boost library directory
 Boost_LIBRARY_DIR:PATH=/usr/lib/x86_64-linux-gnu
 
+//Boost program_options library (debug)
+Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG:FILEPATH=/usr/lib/x86_64-linux-gnu/libboost_program_options.so
+
+//Boost program_options library (release)
+Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE:FILEPATH=/usr/lib/x86_64-linux-gnu/libboost_program_options.so
+
 //Boost python library (debug)
 Boost_PYTHON_LIBRARY_DEBUG:FILEPATH=/usr/lib/x86_64-linux-gnu/libboost_python.so
 
@@ -314,7 +320,7 @@ XENOMAI_LIBRARY_XENOMAI:FILEPATH=/usr/lib/libxenomai.so
 XENOMAI_POSIX_WRAPPERS:FILEPATH=/usr/lib/posix.wrappers
 
 //Dependencies for the target
-barrett_LIB_DEPENDS:STATIC=general;/usr/lib/x86_64-linux-gnu/libboost_system.so;general;/usr/lib/x86_64-linux-gnu/libboost_thread.so;general;/usr/lib/x86_64-linux-gnu/libboost_python.so;general;/usr/lib/x86_64-linux-gnu/libpthread.so;general;-L/usr/lib;general;-lgsl;general;-lgslcblas;general;-lm;general;config;general;config++;general;/usr/lib/libnative.so;general;/usr/lib/libxenomai.so;general;/usr/lib/librtdm.so;general;/usr/lib/x86_64-linux-gnu/libpython2.7.so;
+barrett_LIB_DEPENDS:STATIC=general;/usr/lib/x86_64-linux-gnu/libboost_system.so;general;/usr/lib/x86_64-linux-gnu/libboost_thread.so;general;/usr/lib/x86_64-linux-gnu/libboost_program_options.so;general;/usr/lib/x86_64-linux-gnu/libboost_python.so;general;/usr/lib/x86_64-linux-gnu/libpthread.so;general;-L/usr/lib;general;-lgsl;general;-lgslcblas;general;-lm;general;config;general;config++;general;/usr/lib/libnative.so;general;/usr/lib/libxenomai.so;general;/usr/lib/librtdm.so;general;/usr/lib/x86_64-linux-gnu/libpython2.7.so;
 
 //Value Computed by CMake
 libbarrett_BINARY_DIR:STATIC=/home/herb_admin/libbarrett
@@ -351,6 +357,10 @@ Boost_DIR-ADVANCED:INTERNAL=1
 Boost_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Boost_LIBRARY_DIR
 Boost_LIBRARY_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG
+Boost_PROGRAM_OPTIONS_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE
+Boost_PROGRAM_OPTIONS_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Boost_PYTHON_LIBRARY_DEBUG
 Boost_PYTHON_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Boost_PYTHON_LIBRARY_RELEASE
@@ -559,7 +569,7 @@ PYTHON_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 //Last used Boost_ADDITIONAL_VERSIONS value.
 _Boost_ADDITIONAL_VERSIONS_LAST:INTERNAL=1.45;1.45.0;1.46;1.46.0;1.47;1.47.0;1.48;1.48.0;1.49;1.49.0;1.50;1.50.0;1.51;1.51.0;1.52;1.52.0;1.53;1.53.0;1.54;1.54.0;1.55;1.55.0;1.56;1.56.0;1.57;1.57.0;1.58;1.58.0;1.59;1.59.0
 //Components requested for this build tree.
-_Boost_COMPONENTS_SEARCHED:INTERNAL=python;system;thread
+_Boost_COMPONENTS_SEARCHED:INTERNAL=program_options;python;system;thread
 //Last used Boost_INCLUDE_DIR value.
 _Boost_INCLUDE_DIR_LAST:INTERNAL=/usr/include
 //Last used Boost_LIBRARY_DIR value.

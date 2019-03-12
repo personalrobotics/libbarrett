@@ -136,6 +136,7 @@ programs/bt-wam-zerocal: /usr/lib/x86_64-linux-gnu/libcurses.so
 programs/bt-wam-zerocal: /usr/lib/x86_64-linux-gnu/libform.so
 programs/bt-wam-zerocal: /usr/lib/x86_64-linux-gnu/libboost_system.so
 programs/bt-wam-zerocal: /usr/lib/x86_64-linux-gnu/libboost_thread.so
+programs/bt-wam-zerocal: /usr/lib/x86_64-linux-gnu/libboost_program_options.so
 programs/bt-wam-zerocal: /usr/lib/x86_64-linux-gnu/libboost_python.so
 programs/bt-wam-zerocal: /usr/lib/x86_64-linux-gnu/libpthread.so
 programs/bt-wam-zerocal: /usr/lib/libxenomai.so

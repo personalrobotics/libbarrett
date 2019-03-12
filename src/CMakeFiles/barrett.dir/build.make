@@ -983,6 +983,7 @@ src/libbarrett.so.1.2.4: src/CMakeFiles/barrett.dir/products/python/puck.cpp.o
 src/libbarrett.so.1.2.4: src/CMakeFiles/barrett.dir/build.make
 src/libbarrett.so.1.2.4: /usr/lib/x86_64-linux-gnu/libboost_system.so
 src/libbarrett.so.1.2.4: /usr/lib/x86_64-linux-gnu/libboost_thread.so
+src/libbarrett.so.1.2.4: /usr/lib/x86_64-linux-gnu/libboost_program_options.so
 src/libbarrett.so.1.2.4: /usr/lib/x86_64-linux-gnu/libboost_python.so
 src/libbarrett.so.1.2.4: /usr/lib/x86_64-linux-gnu/libpthread.so
 src/libbarrett.so.1.2.4: /usr/lib/libnative.so
