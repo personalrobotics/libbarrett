@@ -862,7 +862,7 @@ int main(int argc, char** argv)
   	return 1;
   }
 
-  if (jointsToAutotension.size() == 1 && jointsToAutotension[0] = -1)
+  if (jointsToAutotension.size() == 1 && jointsToAutotension[0] == -1)
   {
   	jointsToAutotension.clear();
   }
