@@ -853,7 +853,7 @@ int main(int argc, char** argv)
   }
 
   std::string armToAutotension(vm["arm"].as<std::string>());
-  std::vector<int> jointsToAutotension(vm["joints"].as<std::vector<int>>());
+  std::vector<int> jointsToAutotension(vm["joints"].as< std::vector<int> >());
 
   // Check for sanity.
   if (armToAutotension != "left" && armToAutotension != "right")
