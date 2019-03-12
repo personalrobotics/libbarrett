@@ -838,7 +838,7 @@ int main(int argc, char** argv)
   desc.add_options()
       ("help,h", "Produce help message")
       ("arm,a", po::value<std::string>()->required(), "left / right")
-      ("joints,j", po::value<std::vector<int> >()->multitoken(), "Joints to Autotension")
+      ("joints,j", po::value<std::vector<int> >()->multitoken(), "Joints to Autotension. Set to -1 if tensioning all joints.")
   ;
 
   // Read arguments
@@ -860,6 +860,11 @@ int main(int argc, char** argv)
   {
   	std::cout << "Arm needs to be either left or right" << std::endl;
   	return 1;
+  }
+
+  if (jointsToAutotension.size() == 1 && jointsToAutotension[0] = -1)
+  {
+  	jointsToAutotension.clear();
   }
 
 	// For clean stack traces
