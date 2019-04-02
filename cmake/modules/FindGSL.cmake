@@ -112,8 +112,11 @@ else( WIN32 AND NOT CYGWIN AND NOT MSYS )
           GSL_LIBRARY_DIRS "${GSL_LIBRARY_DIRS}" )
 
         # extract libraries (-l)
-        string( REGEX MATCHALL "-l[^;]+"
+        # ignore "x86_64-linux-gnu"
+        string( REGEX MATCHALL ";-l[^;]+"
           GSL_LIBRARIES "${GSL_CONFIG_LIBRARIES}" )
+        string( REGEX MATCHALL "-l[^;]+"
+          GSL_LIBRARIES "${GSL_LIBRARIES}" )
         string( REPLACE "-l" ""
           GSL_LIBRARIES "${GSL_LIBRARIES}" )
 
