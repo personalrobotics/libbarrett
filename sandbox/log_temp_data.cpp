@@ -9,7 +9,7 @@
 #include <vector>
 
 #include <signal.h>
-#include <native/timer.h>
+#include <alchemy/timer.h>
 
 #include <boost/thread.hpp>
 #include <boost/array.hpp>

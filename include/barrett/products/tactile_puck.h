@@ -120,7 +120,7 @@ protected:
 
 	static const size_t NUM_FULL_MESSAGES = 5;
 	static const size_t NUM_SENSORS_PER_FULL_MESSAGE = 5;
-	static const double FULL_SCALE_FACTOR = 256.0;
+	static constexpr double FULL_SCALE_FACTOR = 256.0;
 
 
 	friend class Hand;

@@ -66,7 +66,7 @@ public:
 // include the generated file containing the list of available properties
 #	include <barrett/products/detail/property_list.h>
 	static const char* getPropertyStr(enum Property prop);
-	static enum Property getPropertyEnum(const char* str) throw(std::invalid_argument);
+	static enum Property getPropertyEnum(const char* str);
 	static enum Property getPropertyEnumNoThrow(const char* str);
 
 
@@ -90,7 +90,7 @@ public:
 	bool respondsToProperty(enum Property prop) const {
 		return respondsToProperty(prop, effectiveType, vers);
 	}
-	int getPropertyId(enum Property prop) const throw(std::runtime_error) {
+	int getPropertyId(enum Property prop) const {
 		return getPropertyId(prop, effectiveType, vers);
 	}
 	int getPropertyIdNoThrow(enum Property prop) const {
@@ -131,8 +131,7 @@ public:
 	static bool respondsToProperty(enum Property prop, enum PuckType pt, int fwVers) {
 		return getPropertyIdNoThrow(prop, pt, fwVers) != -1;
 	}
-	static int getPropertyId(enum Property prop, enum PuckType pt, int fwVers)
-			throw(std::runtime_error);
+	static int getPropertyId(enum Property prop, enum PuckType pt, int fwVers);
 	static int getPropertyIdNoThrow(enum Property prop, enum PuckType pt, int fwVers);
 
 
@@ -165,8 +164,8 @@ public:
 	static const int SET_MASK = 0x80;
 	static const int PROPERTY_MASK = 0x7f;
 
-	static const double WAKE_UP_TIME = 1.0;  // seconds
-	static const double TURN_OFF_TIME = 0.01;  // seconds
+	static constexpr double WAKE_UP_TIME = 1.0;  // seconds
+	static constexpr double TURN_OFF_TIME = 0.01;  // seconds
 
 	struct StandardParser {
 		static int busId(int id, int propId);

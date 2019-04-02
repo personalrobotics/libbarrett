@@ -40,6 +40,7 @@
 
 #include <errno.h>
 
+#include <rtdm/rtdm.h>
 #include <rtdm/rtcan.h>
 
 #include <barrett/os.h>
@@ -91,7 +92,7 @@ CANSocket::~CANSocket()
 }
 
 
-void CANSocket::open(int port) throw(std::logic_error, std::runtime_error)
+void CANSocket::open(int port)
 {
 	if (isOpen()) {
 		(logMessage("CANSocket::%s(): This object is already associated with a CAN port.")

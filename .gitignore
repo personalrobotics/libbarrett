@@ -44,3 +44,8 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 barrett-config.cmake
+
+# Build Artifacts
+build/
+Doxyfile
+cmake/barrett-config.cmake

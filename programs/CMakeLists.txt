@@ -12,7 +12,9 @@ foreach (prog ${programs})
 		${CURSES_LIBRARIES}
 		${Boost_LIBRARIES}
 		${GSL_LIBRARIES}
-		${XENOMAI_LIBRARY_XENOMAI} ${XENOMAI_LIBRARY_NATIVE}
+		${XENOMAI_LIBRARY_XENOMAI} ${XENOMAI_LIBRARY_ALCHEMY}
+		"-Wl,--wrap=malloc"
+		"-Wl,--wrap=free"
 	)
 	set_target_properties(${prog} PROPERTIES
 		PREFIX "bt-wam-"

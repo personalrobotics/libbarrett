@@ -57,6 +57,17 @@
 
 #include "utils.h"
 
+void *
+__wrap_malloc (size_t c)
+{
+  return __real_malloc (c);
+}
+
+void __wrap_free(void *ptr)
+{
+  __real_free(ptr);
+}
+
 
 using namespace barrett;
 

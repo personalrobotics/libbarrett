@@ -15,8 +15,8 @@
 #include <boost/thread.hpp>
 #include <boost/tuple/tuple.hpp>
 
-#include <native/task.h>
-#include <native/timer.h>
+#include <alchemy/task.h>
+#include <alchemy/timer.h>
 
 #include <barrett/products/product_manager.h>
 #include <barrett/log.h>
