@@ -6,14 +6,14 @@
 #define BARRETT_LOGGER_H_
 
 #include <string>
-#include <boost/thread/thread.hpp> 
+#include <boost/thread/thread.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <iostream>
 #include <fstream>
 #include <queue>
 #include <barrett/os.h>
 
-#include <native/timer.h>
+#include <alchemy/timer.h>
 
 
 namespace barrett {

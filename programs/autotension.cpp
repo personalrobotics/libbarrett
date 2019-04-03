@@ -63,7 +63,7 @@ void validate_args(std::vector<int>& jointsToAutotension)
 	} 
 	else 
 	{
-		for (int i = 0; i < jointsToAutotension.size(); i++) 
+		for (size_t i = 0; i < jointsToAutotension.size(); i++) 
 		{
 			if (jointsToAutotension[i] < 1 || jointsToAutotension[i] > jnts2Tens)
 			{
@@ -73,7 +73,7 @@ void validate_args(std::vector<int>& jointsToAutotension)
 			}
 		}
 		printf("\nProgram will autotension joints ");
-		for (int j = 0; j < jointsToAutotension.size(); j++) 
+		for (size_t j = 0; j < jointsToAutotension.size(); j++) 
 		{
 			std::cout << jointsToAutotension[j] << ", ";
 		}

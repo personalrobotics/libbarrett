@@ -78,7 +78,7 @@ CANSocket::CANSocket() :
 	barrett::detail::syslog_stacktrace();
 }
 
-CANSocket::CANSocket(int port) throw(std::runtime_error) :
+CANSocket::CANSocket(int port) :
 	mutex(), handle(new detail::can_handle), logger(printCycle,  filename)
 {
 	open(port);
