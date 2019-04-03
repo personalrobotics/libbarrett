@@ -28,6 +28,8 @@
 
 #include <boost/program_options.hpp>
 
+#include <alchemy/task.h>
+
 void *
 __wrap_malloc (size_t c)
 {
@@ -824,10 +826,45 @@ int wam_main(std::string armToAutotension, std::vector<int>& jointsToAutotension
 	return 0;
 }
 
+static RT_TASK at_task;
+static po::variables_map vm;
+void mainThread(void* arg)
+{
+  std::string armToAutotension(vm["arm"].as<std::string>());
+  std::vector<int> jointsToAutotension(vm["joints"].as< std::vector<int> >());
+
+  // Check for sanity.
+  if (armToAutotension != "left" && armToAutotension != "right")
+  {
+  	std::cout << "Arm needs to be either left or right" << std::endl;
+  	return;
+  }
+
+  if (jointsToAutotension.size() == 1 && jointsToAutotension[0] == -1)
+  {
+  	jointsToAutotension.clear();
+  }
+
+	// For clean stack traces
+	barrett::installExceptionHandler();
+
+	// Create our product manager
+	ProductManager pm;
+	pm.waitForWam();
+
+	if (pm.foundWam4()) 
+	{
+		wam_main<4>(armToAutotension, jointsToAutotension, pm, *pm.getWam4(true, NULL));
+	} 
+	else if (pm.foundWam7()) 
+	{
+		wam_main<7>(armToAutotension, jointsToAutotension, pm, *pm.getWam7(true, NULL));
+	}
+}
+
 int main(int argc, char** argv) 
 {
-
-	// Message to user
+  // Message to user
 	printf("\n"
 			"                  *** Barrett WAM Autotensioning Utility ***\n"
 			"\n"
@@ -853,7 +890,6 @@ int main(int argc, char** argv)
   ;
 
   // Read arguments
-  po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, desc), vm);
   po::notify(vm);
 
@@ -863,34 +899,14 @@ int main(int argc, char** argv)
     return 1;
   }
 
-  std::string armToAutotension(vm["arm"].as<std::string>());
-  std::vector<int> jointsToAutotension(vm["joints"].as< std::vector<int> >());
+  // Start Autotention Thread
+  char threadName[20];
+  sprintf(threadName, "at_thread");
+  rt_task_create(&at_task, threadName, 0, 50, T_JOINABLE);
+  rt_task_start(&at_task, &mainThread, 0);
+  int ret = rt_task_join(&at_task);
 
-  // Check for sanity.
-  if (armToAutotension != "left" && armToAutotension != "right")
-  {
-  	std::cout << "Arm needs to be either left or right" << std::endl;
-  	return 1;
-  }
-
-  if (jointsToAutotension.size() == 1 && jointsToAutotension[0] == -1)
-  {
-  	jointsToAutotension.clear();
-  }
-
-	// For clean stack traces
-	barrett::installExceptionHandler();
-
-	// Create our product manager
-	ProductManager pm;
-	pm.waitForWam();
-
-	if (pm.foundWam4()) 
-	{
-		return wam_main<4>(armToAutotension, jointsToAutotension, pm, *pm.getWam4(true, NULL));
-	} 
-	else if (pm.foundWam7()) 
-	{
-		return wam_main<7>(armToAutotension, jointsToAutotension, pm, *pm.getWam7(true, NULL));
-	}
+  printf("Autotensioning completed!\n");
+  return ret;
 }
+
