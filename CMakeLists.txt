@@ -146,6 +146,18 @@ include_directories(${CURSES_INCLUDE_DIR})
 # barrett-config.cmake is generated.
 add_subdirectory(src)
 
+### Auto Format
+include(ClangFormat)
+clang_format_setup(VERSION 3.8)
+
+if (CLANG_FORMAT_EXECUTABLE)
+  clang_format_add_sources(${barrett_SOURCES})
+
+  file(GLOB_RECURSE barrett_HEADERS *.h)
+  clang_format_add_sources(${barrett_HEADERS})
+
+  clang_format_add_targets()
+endif()
 
 
 ### Installation
