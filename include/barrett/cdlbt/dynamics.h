@@ -96,93 +96,99 @@ dynamics:
 extern "C" {
 #endif
 
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_vector.h>
 #include <libconfig.h>
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_matrix.h>
 
 #include <barrett/cdlbt/kinematics.h>
+
 
 /** Link-specific data, including mass and inertial parameters,
  *  the center-of-mass, and vectors/matrices to hold the results of
  *  dynamics calculations.  For an overview of the dynamics module,
  *  see dynamics.h.
  */
-struct bt_dynamics_link {
-	/** \name Doubly-linked for convenience
-	 *  \{ */
-	struct bt_dynamics_link *next;
-	struct bt_dynamics_link *prev;
-	/** \} */
+struct bt_dynamics_link
+{
+   /** \name Doubly-linked for convenience
+    *  \{ */
+   struct bt_dynamics_link * next;
+   struct bt_dynamics_link * prev;
+   /** \} */
 
-	/** \name Geometrical and inertial parameters
-	 *  \{ */
-	double mass;     /**< Mass of link (kg) */
-	gsl_vector *com; /**< Center of mass of link (m), in DH link frame */
-	gsl_matrix *I;   /**< Inertia matrix of link,
-	                  *   around link center-of-mass */
-	/** \} */
+   /** \name Geometrical and inertial parameters
+    *  \{ */
+   double mass;      /**< Mass of link (kg) */
+   gsl_vector * com; /**< Center of mass of link (m), in DH link frame */
+   gsl_matrix * I;   /**< Inertia matrix of link,
+                      *   around link center-of-mass */
+   /** \} */
+   
+   /* NOTE:
+    * Do we need rotor inertia here?? */
+   
+   /* Next, a place to hold the results from calculations */
+   
+   /** \name Forward-calculated vectors (in local link frame)
+    *  \{ */
+   gsl_vector * omega;      /**< angular velocity of local frame
+                             *   w.r.t. base frame */
+   gsl_vector * omega_prev; /**< Previous frame's ang vel in my frame */
+   gsl_vector * alpha;      /**< angular acceleration of local frame
+                             *   w.r.t. base frame */
+   gsl_vector * a;          /**< linear acceleration of frame origin */
+   /** \} */
+   
+   /* A couple of caches, also expressed in local link frame */
 
-	/* NOTE:
-	 * Do we need rotor inertia here?? */
-
-	/* Next, a place to hold the results from calculations */
-
-	/** \name Forward-calculated vectors (in local link frame)
-	 *  \{ */
-	gsl_vector *omega;      /**< angular velocity of local frame
-	                         *   w.r.t. base frame */
-	gsl_vector *omega_prev; /**< Previous frame's ang vel in my frame */
-	gsl_vector *alpha;      /**< angular acceleration of local frame
-	                         *   w.r.t. base frame */
-	gsl_vector *a;          /**< linear acceleration of frame origin */
-	                        /** \} */
-
-	/* A couple of caches, also expressed in local link frame */
-
-	/** \name Backward-calculated vectors (in local link frame)
-	 *  \{ */
-	gsl_vector *fnet;
-	gsl_vector *tnet;
-	gsl_vector *f;      /**< force exerted on this link by previous link */
-	gsl_vector *f_next; /**< Next frame's force in my frame */
-	gsl_vector *t;      /**< torque exerted on this link by previous link */
-	                    /** \} */
-
-	/** \name Jacobian computed at the center-of-mass (used for JSIM calc)
-	 *  \{ */
-	gsl_matrix *com_jacobian;
-	gsl_matrix *com_jacobian_linear;  /**< Matrix view of linear jacobian
-	                                   *   (upper half) */
-	gsl_matrix *com_jacobian_angular; /**< Matrix view of angular jacobian
-	                                   *   (lower half) */
-	/** \} */
+   /** \name Backward-calculated vectors (in local link frame)
+    *  \{ */
+   gsl_vector * fnet;
+   gsl_vector * tnet;
+   gsl_vector * f;      /**< force exerted on this link by previous link */
+   gsl_vector * f_next; /**< Next frame's force in my frame */
+   gsl_vector * t;      /**< torque exerted on this link by previous link */
+   /** \} */
+   
+   /** \name Jacobian computed at the center-of-mass (used for JSIM calc)
+    *  \{ */
+   gsl_matrix * com_jacobian;
+   gsl_matrix * com_jacobian_linear;  /**< Matrix view of linear jacobian
+                                       *   (upper half) */
+   gsl_matrix * com_jacobian_angular; /**< Matrix view of angular jacobian
+                                       *   (lower half) */
+   /** \} */
+   
 };
+
 
 /** Robot dynamics data, holding an array of links (mirroring the structure
  *  of the bt_kinematics module described in kinematics.h), along with
  *  a place to calculate the JSIM and some temporary vectors and matrices.
  */
-struct bt_dynamics {
-	int dof;
-	int nlinks;
-	struct bt_dynamics_link **link_array;
-
-	struct bt_dynamics_link *base;
-	struct bt_dynamics_link **link; /* Moving links array */
-	struct bt_dynamics_link *toolplate;
-
-	/* Yay JSIM! */
-	gsl_matrix *jsim;
-
-	/* Temporary Vectors */
-	gsl_vector *temp1_v3;
-	gsl_vector *temp2_v3;
-
-	/* Temporary Matrices */
-	gsl_matrix *temp3x3_1;
-	gsl_matrix *temp3x3_2;
-	gsl_matrix *temp3xn_1;
+struct bt_dynamics
+{
+   int dof;
+   int nlinks;
+   struct bt_dynamics_link ** link_array;
+   
+   struct bt_dynamics_link * base;
+   struct bt_dynamics_link ** link; /* Moving links array */
+   struct bt_dynamics_link * toolplate;
+   
+   /* Yay JSIM! */
+   gsl_matrix * jsim;
+   
+   /* Temporary Vectors */
+   gsl_vector * temp1_v3;
+   gsl_vector * temp2_v3;
+   
+   /* Temporary Matrices */
+   gsl_matrix * temp3x3_1;
+   gsl_matrix * temp3x3_2;
+   gsl_matrix * temp3xn_1;
 };
+
 
 /** Create a bt_dynamics object from a given configuration.
  *
@@ -199,8 +205,9 @@ struct bt_dynamics {
  * \param[in] kin Previously-created bt_kinematics object describing robot
  * \retval 0 Success
  */
-int bt_dynamics_create(struct bt_dynamics **dynptr, config_setting_t *dynconfig,
-                       int ndofs);
+int bt_dynamics_create(struct bt_dynamics ** dynptr,
+                       config_setting_t * dynconfig, int ndofs);
+
 
 /** Destroy a bt_dynamics object.
  *
@@ -210,7 +217,8 @@ int bt_dynamics_create(struct bt_dynamics **dynptr, config_setting_t *dynconfig,
  * \param[in] dyn bt_dynamics object to destroy
  * \retval 0 Success
  */
-int bt_dynamics_destroy(struct bt_dynamics *dyn);
+int bt_dynamics_destroy(struct bt_dynamics * dyn);
+
 
 /** Evaluate inverse dynamics using the RNEA, both forward and backward.
  *
@@ -229,10 +237,11 @@ int bt_dynamics_destroy(struct bt_dynamics *dyn);
  * \param[out] jtor Computed joint torque vector
  * \retval 0 Success
  */
-int bt_dynamics_eval_inverse(struct bt_dynamics *dyn,
-                             const struct bt_kinematics *kin,
-                             const gsl_vector *jvel, const gsl_vector *jacc,
-                             gsl_vector *jtor);
+int bt_dynamics_eval_inverse(struct bt_dynamics * dyn,
+                             const struct bt_kinematics * kin,
+                             const gsl_vector * jvel, const gsl_vector * jacc,
+                             gsl_vector * jtor);
+
 
 /** Calculate the Joint-Space Inertia Matrix (JSIM).
  *
@@ -242,7 +251,8 @@ int bt_dynamics_eval_inverse(struct bt_dynamics *dyn,
  *
  * \param[in] dyn bt_dynamics object
  */
-int bt_dynamics_eval_jsim(struct bt_dynamics *dyn, struct bt_kinematics *kin);
+int bt_dynamics_eval_jsim(struct bt_dynamics * dyn, struct bt_kinematics * kin);
+
 
 #ifdef __cplusplus
 }

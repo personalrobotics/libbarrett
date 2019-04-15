@@ -65,8 +65,9 @@ extern "C" {
 #endif
 
 #include <gsl/gsl_vector.h>
-
+   
 #include <barrett/cdlbt/kinematics.h>
+
 
 /* gravity compensation
  * only needs a couple of additional
@@ -75,20 +76,22 @@ extern "C" {
 /** Robot calibrated gravity data, holding the world gravity vector,
  *  along with arrays of vectors for each moving link.
  */
-struct bt_calgrav {
-	/** We need to know about each link's kinematics */
-	/*struct bt_kinematics * kin;*/
+struct bt_calgrav
+{
+   /** We need to know about each link's kinematics */
+   /*struct bt_kinematics * kin;*/
 	size_t dof;
 
-	/** Gravity vector in the world frame. This is initialized to
-	 *  < 0, 0, -9.805 > in bt_calgrav_create(). */
-	gsl_vector *world_g;
-
-	gsl_vector **g;  /**< Gravity vector in each frame */
-	gsl_vector **mu; /**< First-moment vector in each frame */
-	gsl_vector **t;  /**< My torque vector in my frame */
-	gsl_vector **pt; /**< My torque vector in previous frame */
+   /** Gravity vector in the world frame. This is initialized to 
+    *  < 0, 0, -9.805 > in bt_calgrav_create(). */
+   gsl_vector * world_g;
+   
+   gsl_vector ** g;  /**< Gravity vector in each frame */
+   gsl_vector ** mu; /**< First-moment vector in each frame */
+   gsl_vector ** t;  /**< My torque vector in my frame */
+   gsl_vector ** pt; /**< My torque vector in previous frame */
 };
+
 
 /** Create a bt_calgrav object from a given configuration.
  *
@@ -99,10 +102,11 @@ struct bt_calgrav {
  * \param[out] gravptr The bt_calgrav object on success, or 0 on failure
  * \param[in] gravconfig Calgrav configuration, from libconfig
  * \param[in] dof Degrees of freedom
- * \retval 0 Success
+ * \retval 0 Success 
  */
-int bt_calgrav_create(struct bt_calgrav **gravptr, config_setting_t *gravconfig,
-                      size_t dof);
+int bt_calgrav_create(struct bt_calgrav ** gravptr,
+                      config_setting_t * gravconfig, size_t dof);
+
 
 /** Destroy a bt_calgrav object.
  *
@@ -112,7 +116,8 @@ int bt_calgrav_create(struct bt_calgrav **gravptr, config_setting_t *gravconfig,
  * \param[in] grav bt_calgrav object to destroy
  * \retval 0 Success
  */
-int bt_calgrav_destroy(struct bt_calgrav *grav);
+int bt_calgrav_destroy(struct bt_calgrav * grav);
+
 
 /** Evaluate first-moment gravity compensation torques.
  *
@@ -126,8 +131,8 @@ int bt_calgrav_destroy(struct bt_calgrav *grav);
  * \param[out] jtorque Computed joint torque vector
  * \retval 0 Success
  */
-int bt_calgrav_eval(struct bt_calgrav *grav, struct bt_kinematics *kin,
-                    gsl_vector *jtorque);
+int bt_calgrav_eval(struct bt_calgrav * grav,
+        struct bt_kinematics * kin, gsl_vector * jtorque);
 
 /** Updates the world gravity.
  *
@@ -138,7 +143,7 @@ int bt_calgrav_eval(struct bt_calgrav *grav, struct bt_kinematics *kin,
  * \param[in] val new gravity value to be updated
  * \retval 0 Success
  */
-int bt_calgrav_update(struct bt_calgrav *grav, double val);
+int bt_calgrav_update(struct bt_calgrav * grav, double val);
 #ifdef __cplusplus
 }
 #endif

@@ -34,36 +34,38 @@
 #ifndef BARRETT_PRODUCTS_PRODUCT_MANAGER_H_
 #define BARRETT_PRODUCTS_PRODUCT_MANAGER_H_
 
+
 #include <vector>
 
 #include <libconfig.h++>
 
-#include <barrett/bus/abstract/communications_bus.h>
 #include <barrett/detail/ca_macro.h>
-#include <barrett/products/force_torque_sensor.h>
-#include <barrett/products/gimbals_hand_controller.h>
-#include <barrett/products/hand.h>
-#include <barrett/products/puck.h>
-#include <barrett/products/safety_module.h>
 #include <barrett/thread/abstract/mutex.h>
+#include <barrett/bus/abstract/communications_bus.h>
+#include <barrett/products/puck.h>
+#include <barrett/products/hand.h>
+#include <barrett/products/gimbals_hand_controller.h>
+#include <barrett/products/safety_module.h>
+#include <barrett/products/force_torque_sensor.h>
+
 
 namespace barrett {
 
 // Forward declarations
-namespace systems {
+namespace systems{
 
-template <size_t DOF> class Wam;
+template<size_t DOF> class Wam;
 class ExecutionManager;
 class RealTimeExecutionManager;
+
 }
 
-class ProductManager {
-  public:
-	static const std::string
-	    DEFAULT_CONFIG_FILE; // = "/etc/barrett/default.conf"
 
-	explicit ProductManager(const char *configFile = NULL,
-	                        bus::CommunicationsBus *bus = NULL);
+class ProductManager {
+public:
+	static const std::string DEFAULT_CONFIG_FILE;  // = "/etc/barrett/default.conf"
+
+	explicit ProductManager(const char* configFile = NULL, bus::CommunicationsBus* bus = NULL);
 	virtual ~ProductManager();
 
 	void enumerate();
@@ -71,10 +73,10 @@ class ProductManager {
 	void wakeAllPucks() const { Puck::wake(getPucks()); }
 
 	bool foundSafetyModule() const;
-	SafetyModule *getSafetyModule();
+	SafetyModule* getSafetyModule();
 
-	const std::vector<Puck *> &getWamPucks() const;
-	bool foundWam() const { return foundWam3() || foundWam4() || foundWam7(); }
+	const std::vector<Puck*>& getWamPucks() const;
+	bool foundWam() const { return foundWam3() || foundWam4() || foundWam7(); } 
 	bool foundWam3() const;
 	bool foundWam4() const;
 	bool foundWam7() const;
@@ -82,36 +84,33 @@ class ProductManager {
 	bool foundWam7Gimbals() const;
 
 	void waitForWam(bool promptOnZeroing = true);
-	const char *getWamDefaultConfigPath();
-	systems::Wam<3> *getWam3(bool waitForShiftActivate = true,
-	                         const char *configPath = NULL);
-	systems::Wam<4> *getWam4(bool waitForShiftActivate = true,
-	                         const char *configPath = NULL);
-	systems::Wam<7> *getWam7(bool waitForShiftActivate = true,
-	                         const char *configPath = NULL);
+	const char* getWamDefaultConfigPath();
+	systems::Wam<3>* getWam3(bool waitForShiftActivate = true, const char* configPath = NULL);
+	systems::Wam<4>* getWam4(bool waitForShiftActivate = true, const char* configPath = NULL);
+	systems::Wam<7>* getWam7(bool waitForShiftActivate = true, const char* configPath = NULL);
 
-	systems::RealTimeExecutionManager *
-	getExecutionManager(double period_s = DEFAULT_LOOP_PERIOD,
-	                    int rt_priority = 50);
+	systems::RealTimeExecutionManager* getExecutionManager(
+			double period_s = DEFAULT_LOOP_PERIOD, int rt_priority = 50);
 	void startExecutionManager();
 
 	bool foundForceTorqueSensor() const;
-	ForceTorqueSensor *getForceTorqueSensor();
+	ForceTorqueSensor* getForceTorqueSensor();
 
-	const std::vector<Puck *> &getHandPucks() const;
+	const std::vector<Puck*>& getHandPucks() const;
 	bool foundHand() const;
-	Hand *getHand();
+	Hand* getHand();
 
 	bool foundGimbalsHandController() const;
-	GimbalsHandController *getGimbalsHandController();
+	GimbalsHandController* getGimbalsHandController();
 
-	const std::vector<Puck *> &getPucks() const { return pucks; }
-	Puck *getPuck(int id) const;
-	void deletePuck(Puck *p);
+	const std::vector<Puck*>& getPucks() const { return pucks; }
+	Puck* getPuck(int id) const;
+	void deletePuck(Puck* p);
 
-	libconfig::Config &getConfig() { return config; }
-	const bus::CommunicationsBus &getBus() const { return *bus; }
-	virtual thread::Mutex &getMutex() const { return bus->getMutex(); }
+	libconfig::Config& getConfig() { return config; }
+	const bus::CommunicationsBus& getBus() const { return *bus; }
+	virtual thread::Mutex& getMutex() const { return bus->getMutex(); }
+
 
 	static const size_t MAX_WAM_DOF = 7;
 	static constexpr double DEFAULT_LOOP_PERIOD = 0.002;
@@ -120,31 +119,34 @@ class ProductManager {
 	static const int FIRST_HAND_ID = 11;
 	static const int FORCE_TORQUE_SENSOR_ID = 8;
 
-  protected:
+protected:
 	void destroyEstopProducts();
 	bool verifyWamPucks(const size_t dof) const;
 
 	libconfig::Config config;
-	bus::CommunicationsBus *bus;
+	bus::CommunicationsBus* bus;
 	bool deleteBus;
-	std::vector<Puck *> pucks;
-	std::vector<Puck *> wamPucks;
-	std::vector<Puck *> handPucks;
+	std::vector<Puck*> pucks;
+	std::vector<Puck*> wamPucks;
+	std::vector<Puck*> handPucks;
 
-	SafetyModule *sm;
-	systems::RealTimeExecutionManager *rtem;
-	systems::Wam<3> *wam3;
-	systems::Wam<4> *wam4;
-	systems::Wam<7> *wam7;
-	ForceTorqueSensor *fts;
-	Hand *hand;
-	GimbalsHandController *ghc;
+	SafetyModule* sm;
+	systems::RealTimeExecutionManager* rtem;
+	systems::Wam<3>* wam3;
+	systems::Wam<4>* wam4;
+	systems::Wam<7>* wam7;
+	ForceTorqueSensor* fts;
+	Hand* hand;
+	GimbalsHandController* ghc;
 
-  private:
+private:
 	bool wam7FoundHelper(int poles) const;
 
 	DISALLOW_COPY_AND_ASSIGN(ProductManager);
 };
+
+
 }
+
 
 #endif /* BARRETT_PRODUCTS_PRODUCT_MANAGER_H_ */

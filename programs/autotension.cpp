@@ -7,67 +7,76 @@
 // Modified for PRL.
 // Date: 17th may 2018.
 
+#include <unistd.h>
+#include <math.h>
+#include <vector>
 #include <algorithm>
 #include <iostream>
-#include <math.h>
-#include <unistd.h>
-#include <vector>
 
 #define EIGEN_USE_NEW_STDVECTOR
 #include <Eigen/StdVector>
 
 #include <libconfig.h++>
 
-#include <barrett/config.h>
-#include <barrett/exception.h>
 #include <barrett/math.h>
+#include <barrett/units.h>
+#include <barrett/exception.h>
+#include <barrett/systems.h>
 #include <barrett/products/product_manager.h>
 #include <barrett/products/puck.h>
-#include <barrett/systems.h>
-#include <barrett/units.h>
+#include <barrett/config.h>
 
 #include <boost/program_options.hpp>
 
 #include <alchemy/task.h>
 
-void *__wrap_malloc(size_t c) { return __real_malloc(c); }
+void *
+__wrap_malloc (size_t c)
+{
+  return __real_malloc (c);
+}
 
-void __wrap_free(void *ptr) { __real_free(ptr); }
+void __wrap_free(void *ptr)
+{
+  __real_free(ptr);
+}
 
 using namespace barrett;
 namespace po = boost::program_options;
 
-const std::string CAL_CONFIG_FILE =
-    barrett::EtcPathRelative("autotension.conf");
+const std::string CAL_CONFIG_FILE = barrett::EtcPathRelative("autotension.conf");
 
-template <size_t DOF>
-void validate_args(std::vector<int> &jointsToAutotension) {
+template<size_t DOF>
+void validate_args(std::vector<int>& jointsToAutotension) 
+{
 	// Some DOF dependent items
 	int jnts2Tens = 4;
 	if (DOF == 7)
 		jnts2Tens = 6;
 
 	// Check our arguments and create vector accordingly.
-	if (jointsToAutotension.size() == 0) {
+	if (jointsToAutotension.size() == 0) 
+	{
 		printf("\nNo arguments provided - Default\n");
 		printf("Program will autotension joints 1-%d\n\n", (DOF == 4) ? 4 : 6);
 		jointsToAutotension.resize(jnts2Tens);
 		for (int i = 0; i < jnts2Tens; i++)
 			jointsToAutotension[i] = i + 1;
-	} else {
-		for (size_t i = 0; i < jointsToAutotension.size(); i++) {
-			if (jointsToAutotension[i] < 1 ||
-			    jointsToAutotension[i] > jnts2Tens) {
-				printf("\nEXITING: Arguments out of range - Must provide valid "
-				       "joints "
-				       "1-%d (ex. 1 2 4)\n\n",
-				       (DOF == 4) ? 4 : 6);
+	} 
+	else 
+	{
+		for (size_t i = 0; i < jointsToAutotension.size(); i++) 
+		{
+			if (jointsToAutotension[i] < 1 || jointsToAutotension[i] > jnts2Tens)
+			{
+				printf("\nEXITING: Arguments out of range - Must provide valid joints 1-%d (ex. 1 2 4)\n\n", (DOF == 4) ? 4 : 6);
 				jointsToAutotension.clear();
 				return;
 			}
 		}
 		printf("\nProgram will autotension joints ");
-		for (size_t j = 0; j < jointsToAutotension.size(); j++) {
+		for (size_t j = 0; j < jointsToAutotension.size(); j++) 
+		{
 			std::cout << jointsToAutotension[j] << ", ";
 		}
 		std::cout << std::endl;
@@ -76,27 +85,33 @@ void validate_args(std::vector<int> &jointsToAutotension) {
 }
 
 // TorqueWatchdog monitoring system
-template <size_t DOF>
-class TorqueWatchdog : public systems::SingleIO<
-                           typename barrett::units::JointTorques<DOF>::type,
-                           typename barrett::units::JointTorques<DOF>::type> {
+template<size_t DOF>
+class TorqueWatchdog: public systems::SingleIO<typename barrett::units::JointTorques<DOF>::type, typename barrett::units::JointTorques<DOF>::type> 
+{
 	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-  public:
-	explicit TorqueWatchdog(const std::string &sysName = "TorqueWatchdog")
-	    : barrett::systems::SingleIO<jt_type, jt_type>(sysName) {
+public:
+	explicit TorqueWatchdog(const std::string& sysName = "TorqueWatchdog")
+	:	barrett::systems::SingleIO<jt_type, jt_type>(sysName) 
+	{
 		watching = false, min_torque = 0.0, max_torque = 0.0;
 	}
 
-	virtual ~TorqueWatchdog() { this->mandatoryCleanUp(); }
+	virtual ~TorqueWatchdog() 
+	{
+		this->mandatoryCleanUp();
+	}
 
-	void activate(int m, double l) {
+	void activate(int m, double l) 
+	{
 		motor = m;
 		limit = l;
 		watching = true;
 	}
 
-	void deactivate() { watching = false; }
+	void deactivate() {
+		watching = false;
+	}
 
 	bool watching;
 	int motor;
@@ -104,9 +119,11 @@ class TorqueWatchdog : public systems::SingleIO<
 	double max_torque, min_torque;
 	jt_type torques;
 
-  protected:
-	virtual void operate() {
-		if (watching) {
+protected:
+	virtual void operate() 
+	{
+		if (watching) 
+		{
 			torques = this->input.getValue();
 			if (fabs(torques[motor]) > limit)
 				watching = false;
@@ -117,41 +134,54 @@ class TorqueWatchdog : public systems::SingleIO<
 		}
 	}
 
-  private:
+private:
 	DISALLOW_COPY_AND_ASSIGN(TorqueWatchdog);
 };
 
 // ExposedInput monitoring system
-template <typename T>
-class ExposedInput : public systems::System, public systems::SingleInput<T> {
-  public:
-	explicit ExposedInput(const std::string &sysName = "ExposedInput")
-	    : systems::System(sysName), systems::SingleInput<T>(this) {
+template<typename T>
+class ExposedInput: public systems::System, public systems::SingleInput<T> 
+{
+public:
+	explicit ExposedInput(const std::string& sysName = "ExposedInput") 
+	:	systems::System(sysName), systems::SingleInput<T>(this) 
+	{
 		// Do nothing
 	}
 
-	virtual ~ExposedInput() { this->mandatoryCleanUp(); }
+	virtual ~ExposedInput() 
+	{
+		this->mandatoryCleanUp();
+	}
 
-	T getValue() { return value; }
+	T getValue() 
+	{
+		return value;
+	}
 
 	T value;
 
-  protected:
-	virtual void operate() { value = this->input.getValue(); }
+protected:
+	virtual void operate() 
+	{
+		value = this->input.getValue();
+	}
 
-  private:
+private:
 	DISALLOW_COPY_AND_ASSIGN(ExposedInput);
 };
 
-// AutoTension Class
-template <size_t DOF> class AutoTension {
+//AutoTension Class
+template<size_t DOF>
+class AutoTension 
+{
 	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-  protected:
-	systems::Wam<DOF> &wam;
-	const libconfig::Setting &setting;
+protected:
+	systems::Wam<DOF>& wam;
+	const libconfig::Setting& setting;
 	std::string armToAutotension;
-	std::vector<Puck *> puck;
+	std::vector<Puck*> puck;
 
 	TorqueWatchdog<DOF> watchdog;
 	ExposedInput<jt_type> exposedGravity;
@@ -165,58 +195,63 @@ template <size_t DOF> class AutoTension {
 	systems::ExposedOutput<double> tensionValue;
 	systems::Ramp motorRamp;
 
-	std::vector<jp_type, Eigen::aligned_allocator<jp_type>> jpInitial, jpStart,
-	    jpSlack1, jpSlack2;
-	jp_type tensionDefaults, jpStopHigh, jpStopLow, tangBuffer, tangMiss,
-	    stopBuffer, slackThreshold;
+	std::vector<jp_type, Eigen::aligned_allocator<jp_type> > jpInitial, jpStart, jpSlack1, jpSlack2;
+	jp_type tensionDefaults, jpStopHigh, jpStopLow, tangBuffer, tangMiss, stopBuffer, slackThreshold;
 	sqm_type j2mp;
-	double motorSlackPulled, j5TangPos, j6TangPos, slackDifference,
-	    oldSlackPulled;
+	double motorSlackPulled, j5TangPos, j6TangPos, slackDifference, oldSlackPulled;
 	int motor;
 
 	// Safe positions for Joint 2 autotensioning
 	jp_type jointTwoSafePosition;
 
-  public:
-	Hand *hand;
-	AutoTension(systems::Wam<DOF> &wam_, const libconfig::Setting &setting_,
-	            const std::string armToAutotension_)
-	    : wam(wam_), setting(setting_), armToAutotension(armToAutotension_),
-	      puck(wam.getLowLevelWam().getPucks()),
-	      j2mtSys(wam.getLowLevelWam().getJointToMotorTorqueTransform()),
-	      gravtor2mtSys(wam.getLowLevelWam().getJointToMotorTorqueTransform()),
-	      m2jtSys(wam.getLowLevelWam()
-	                  .getJointToMotorPositionTransform()
-	                  .transpose()),
-	      m2jpSys(wam.getLowLevelWam().getMotorToJointPositionTransform()),
-	      j2mpSys(wam.getLowLevelWam().getJointToMotorPositionTransform()),
-	      motorRamp(NULL, 0.8), tensionDefaults(setting["tens_default"]),
-	      jpStopHigh(setting["jp_stop_high"]),
-	      jpStopLow(setting["jp_stop_low"]), tangBuffer(setting["tang_buffer"]),
-	      tangMiss(setting["tang_miss"]), stopBuffer(setting["stop_buffer"]),
-	      slackThreshold(setting["slack_thresh"]),
-	      j2mp(wam.getLowLevelWam().getJointToMotorPositionTransform()),
-	      j5TangPos(0.0), j6TangPos(0.0), hand(NULL) {
+public:
+	Hand* hand;
+	AutoTension(systems::Wam<DOF>& wam_, const libconfig::Setting& setting_, const std::string armToAutotension_)
+	:	wam(wam_)
+	,	setting(setting_)
+	, armToAutotension(armToAutotension_)
+	,	puck(wam.getLowLevelWam().getPucks())
+	,	j2mtSys(wam.getLowLevelWam().getJointToMotorTorqueTransform())
+	,	gravtor2mtSys(wam.getLowLevelWam().getJointToMotorTorqueTransform())
+	,	m2jtSys(wam.getLowLevelWam().getJointToMotorPositionTransform().transpose())
+	,	m2jpSys(wam.getLowLevelWam().getMotorToJointPositionTransform())
+	,	j2mpSys(wam.getLowLevelWam().getJointToMotorPositionTransform())
+	,	motorRamp(NULL,	0.8)
+	,	tensionDefaults(setting["tens_default"])
+	,	jpStopHigh(setting["jp_stop_high"])
+	,	jpStopLow(setting["jp_stop_low"])
+	,	tangBuffer(setting["tang_buffer"])
+	,	tangMiss(setting["tang_miss"])
+	,	stopBuffer(setting["stop_buffer"])
+	,	slackThreshold(setting["slack_thresh"])
+	,	j2mp(wam.getLowLevelWam().getJointToMotorPositionTransform())
+	,	j5TangPos(0.0)
+	,	j6TangPos(0.0)
+	,	hand(NULL)
+	{
 		// Do nothing
 	}
 
-	void init(ProductManager &pm, std::vector<int> args);
+	void init(ProductManager& pm, std::vector<int> args);
 
-	void updateJ5(double jpInc, bool reset = false) {
+	void updateJ5(double jpInc, bool reset = false) 
+	{
 		if (!reset)
 			jpStart[5][4] -= jpInc * M_PI / 180.0;
 		else
 			jpStart[5][4] = jpStopHigh[4] - tangBuffer[4];
 	}
 
-	void updateJ6(double jpInc, bool reset = false) {
+	void updateJ6(double jpInc, bool reset = false) 
+	{
 		if (!reset)
 			jpStart[4][5] += jpInc * M_PI / 180.0;
 		else
 			jpStart[4][5] = jpStopLow[5] + tangBuffer[5];
 	}
 
-	~AutoTension() {
+	~AutoTension() 
+	{
 		// Do nothing
 	}
 
@@ -226,13 +261,15 @@ template <size_t DOF> class AutoTension {
 	void connectSystems();
 };
 
-template <size_t DOF>
-void AutoTension<DOF>::init(ProductManager &pm, std::vector<int> args) {
+template<size_t DOF>
+void AutoTension<DOF>::init(ProductManager& pm, std::vector<int> args) 
+{
 	// Turning on Gravity Compenstation
 	wam.gravityCompensate(true);
 
 	// Make sure all tangs are released correctly
-	for (size_t m = 0; m < args.size(); m++) {
+	for (size_t m = 0; m < args.size(); m++) 
+	{
 		// Motor 6 tensions using the single tang for 5 & 6
 		if (args[m] == 6)
 			puck[4]->setProperty(Puck::TENSION, false);
@@ -255,23 +292,23 @@ void AutoTension<DOF>::init(ProductManager &pm, std::vector<int> args) {
 	jpSlack1.resize(DOF);
 	jpSlack2.resize(DOF);
 
-	// Commenting the following block of code: the stack is
+	// Commenting the following block of code: the stack is 
 	// going out of real-time control when trying to initialize hand.
 	// TODO (avk): Find out what the issue is.
 	/* ==================================================================
 	// Initialize hand if present
-	if (pm.foundHand())
+	if (pm.foundHand()) 
 	{
-	    jp_type handBufJT = wam.getJointPositions();
-	    if (DOF == 4)
-	        handBufJT[3] -= 0.35; // Lift the elbow to give room for BHand HI
-	    else
-	        handBufJT[5] = jpStopLow[5]; // Set J6 on its positive stop
-	    wam.moveTo(handBufJT);
-	    hand = pm.getHand();
-	    hand->initialize();
-	    hand->close(Hand::GRASP);
-	}
+		jp_type handBufJT = wam.getJointPositions();
+		if (DOF == 4)
+			handBufJT[3] -= 0.35; // Lift the elbow to give room for BHand HI
+		else
+			handBufJT[5] = jpStopLow[5]; // Set J6 on its positive stop
+		wam.moveTo(handBufJT);
+		hand = pm.getHand();
+		hand->initialize();
+		hand->close(Hand::GRASP);
+	} 
 	================================================================== */
 
 	// ==================================================================
@@ -287,11 +324,11 @@ void AutoTension<DOF>::init(ProductManager &pm, std::vector<int> args) {
 	// Start Position: Engage the Tang
 	jpStart[0] = jpInitial[0];
 	jpStart[0][0] = jpStopLow[0] + tangBuffer[0];
-
+	
 	// Move to one end
 	jpSlack1[0] = jpStart[0];
-	jpSlack1[0][0] = jpStart[0][0] - tangBuffer[0] / 2.0;
-
+	jpSlack1[0][0] = jpStart[0][0] - tangBuffer[0]/2.0;
+	
 	// Move to the other end
 	jpSlack2[0] = jpStart[0];
 	jpSlack2[0][0] = jpStopHigh[0] - tangBuffer[0] / 2.0;
@@ -301,34 +338,30 @@ void AutoTension<DOF>::init(ProductManager &pm, std::vector<int> args) {
 	// Initial Position takes the arm to a safe location.
 	jpInitial[1] = wam.getJointPositions();
 	jpInitial[1][1] = 0.0; // Stretched forward
-	jpInitial[1][3] =
-	    jpStopHigh[3] - stopBuffer[3]; // Folded opposite side as HERB home
+	jpInitial[1][3] = jpStopHigh[3] - stopBuffer[3]; // Folded opposite side as HERB home
 
 	// Start Position: Engage the Tang
 	jpStart[1] = jpInitial[1];
 	if (armToAutotension == "left")
-		jpStart[1][0] = M_PI + M_PI / 6.0; // Left arm = pi + pi/6
-	else
-		jpStart[1][0] = M_PI - M_PI / 6.0; // Right arm = pi - pi/6
-	jpStart[1][1] =
-	    jpStopHigh[1] -
-	    tangBuffer[1]; // Move joint 2 to positive end (towards the base)
-	jpStart[1][2] =
-	    jpStopLow[2] + tangBuffer[2]; // Move joint 3 towards negative extreme
+  	jpStart[1][0] = M_PI + M_PI/6.0; // Left arm = pi + pi/6
+  else
+  	jpStart[1][0] = M_PI - M_PI/6.0; // Right arm = pi - pi/6 
+	jpStart[1][1] = jpStopHigh[1] - tangBuffer[1]; // Move joint 2 to positive end (towards the base)
+	jpStart[1][2] = jpStopLow[2] + tangBuffer[2]; // Move joint 3 towards negative extreme
 
-	// Move to one end
+	// Move to one end 
 	jpSlack1[1] = jpStart[1];
 	jpSlack1[1][1] = jpStopHigh[1] - stopBuffer[1];
 	jpSlack1[1][2] = jpStopLow[2] + stopBuffer[2];
-
+	
 	// Move to the other end
 	jpSlack2[1] = jpSlack1[1];
 	if (armToAutotension == "left")
-		jpSlack2[1][0] = jpInitial[1][0] - M_PI / 6.0; // Left: pi - pi/6
+		jpSlack2[1][0] = jpInitial[1][0] - M_PI/6.0; // Left: pi - pi/6
 	else
-		jpSlack2[1][0] = jpInitial[1][0] + M_PI / 6.0; // Right: pi + pi/6.
-	jpSlack2[1][1] = jpStopLow[1] + stopBuffer[1];     // Near the Head
-	jpSlack2[1][2] = 0.0;                              // Home Position
+		jpSlack2[1][0] = jpInitial[1][0] + M_PI/6.0; // Right: pi + pi/6.
+	jpSlack2[1][1] = jpStopLow[1] + stopBuffer[1]; // Near the Head
+	jpSlack2[1][2] = 0.0; // Home Position
 
 	// ==================================================================
 	// Joint 3: This is different for the two arms.
@@ -340,9 +373,9 @@ void AutoTension<DOF>::init(ProductManager &pm, std::vector<int> args) {
 	// Start Position: Engage the Tang
 	jpStart[2] = jpInitial[2];
 	if (armToAutotension == "left")
-		jpStart[2][0] = jpStart[2][0] - M_PI / 6.0; // Left: pi - pi/6
+		jpStart[2][0] = jpStart[2][0] - M_PI/6.0; // Left: pi - pi/6
 	else
-		jpStart[2][0] = jpStart[2][0] + M_PI / 6.0; // Right: pi + pi/6
+		jpStart[2][0] = jpStart[2][0] + M_PI/6.0; // Right: pi + pi/6
 	jpStart[2][1] = jpStopLow[1] + tangBuffer[1];
 	jpStart[2][2] = jpStopLow[2] + tangBuffer[2];
 
@@ -350,13 +383,13 @@ void AutoTension<DOF>::init(ProductManager &pm, std::vector<int> args) {
 	jpSlack1[2] = jpStart[2];
 	jpSlack1[2][1] = jpStopLow[1] + stopBuffer[1];
 	jpSlack1[2][2] = jpStopLow[2] + stopBuffer[2];
-
+	
 	// Move to the other end [in this case, through the safe position]
 	jpSlack2[2] = jpSlack1[2];
 	if (armToAutotension == "left")
-		jpSlack2[2][0] = M_PI + M_PI / 2.0; // Left = pi + p/2
+		jpSlack2[2][0] = M_PI + M_PI/2.0; // Left = pi + p/2 
 	else
-		jpSlack2[2][0] = M_PI - M_PI / 2.0; // Right = pi - pi/2
+		jpSlack2[2][0] = M_PI - M_PI/2.0; // Right = pi - pi/2
 	jpSlack2[2][1] = jpStopHigh[1] - stopBuffer[1];
 	jpSlack2[2][2] = jpStopHigh[2] - stopBuffer[2];
 	jpSlack2[2][3] = jpStopLow[3] - stopBuffer[3];
@@ -365,7 +398,7 @@ void AutoTension<DOF>::init(ProductManager &pm, std::vector<int> args) {
 	// Joint 4: This is common for both left and right arms.
 	// Initial Position is same as Home Position.
 	jpInitial[3] = wam.getJointPositions();
-
+	
 	// Start Position: Engage the Tang.
 	jpStart[3] = jpInitial[3];
 	jpStart[3][3] = jpStopLow[3] + tangBuffer[3];
@@ -418,116 +451,123 @@ void AutoTension<DOF>::init(ProductManager &pm, std::vector<int> args) {
 	jpSlack2[5][4] = jpStopLow[4] + stopBuffer[4];
 	jpSlack2[5][5] = jpStopLow[5] + stopBuffer[5];
 
-	// Connect our systems and tell the supervisory control to control
-	// jpController in motor space.
+	// Connect our systems and tell the supervisory control to control jpController in motor space.
 	connectSystems();
 }
 
-template <size_t DOF>
-std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
+template<size_t DOF>
+std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) 
+{
 	int joint = joint_list[joint_list.size() - 1];
 	bool diff_tens = false;
 
 	motor = joint - 1; // Joint indexing
-	motorSlackPulled = 1.0;
-	slackDifference = 1.0;
+  motorSlackPulled = 1.0;
+  slackDifference = 1.0;
 
 	// Check to see if we have met the slack thresholds
-	while (
-	    (motorSlackPulled > slackThreshold[motor] && slackDifference > 1e-3) ||
-	    !diff_tens) {
+	while ((motorSlackPulled > slackThreshold[motor] && slackDifference > 1e-3) || !diff_tens)
+	{
 		// Move to the initial safe position
 		wam.moveTo(jpInitial[motor], 1.2, 0.75);
 		printf("\n**************************\n");
 
-		switch (joint) {
-		case 2:
-		case 3:
-			diff_tens = false;
-			joint = 3;
-			motor = 2;
+		switch (joint) 
+		{
+			case 2:
+			case 3:
+				diff_tens = false;
+				joint = 3;
+				motor = 2;
 
-			printf("Tensioning Joints 2 and 3");
-			// Pull tension from J2
-			wam.moveTo(jpStart[1], 1.2, 0.75);
-			puck[1]->setProperty(Puck::TENSION, true);
-			btsleep(2.0);
+				printf("Tensioning Joints 2 and 3");
+				// Pull tension from J2
+				wam.moveTo(jpStart[1], 1.2, 0.75);
+				puck[1]->setProperty(Puck::TENSION, true);
+				btsleep(2.0);
 
-			if (!engage(1)) {
+				if (!engage(1)) 
+				{
+					puck[1]->setProperty(Puck::TENSION, false);
+					joint_list.resize(0);
+					printf("Error - Failed to engage autotensioner for joint 2\n");
+					return joint_list;
+				} 
+				else
+				{
+					printf("Successfully engaged joint 2 autotensioner.\n");
+				}
+
+				btsleep(0.5);
+
+				if (pullTension(1) < slackThreshold[1])
+					diff_tens = true;
 				puck[1]->setProperty(Puck::TENSION, false);
-				joint_list.resize(0);
-				printf("Error - Failed to engage autotensioner for joint 2\n");
-				return joint_list;
-			} else {
-				printf("Successfully engaged joint 2 autotensioner.\n");
-			}
+				break;
+			case 5:
+			case 6:
+				diff_tens = false;
+				joint = 6;
+				motor = 5;
 
-			btsleep(0.5);
-
-			if (pullTension(1) < slackThreshold[1])
-				diff_tens = true;
-			puck[1]->setProperty(Puck::TENSION, false);
-			break;
-		case 5:
-		case 6:
-			diff_tens = false;
-			joint = 6;
-			motor = 5;
-
-			printf("Tensioning Joints 5 and 6");
-			// Pull tension from J5
-			wam.moveTo(jpStart[4], 1.2, 0.75);
-			puck[4]->setProperty(Puck::TENSION, true);
-
-			if (j6TangPos == 0.0) {
-				while (!engage(5, 10.0)) {
-					updateJ6(3.5);
+				printf("Tensioning Joints 5 and 6");
+				// Pull tension from J5
+				wam.moveTo(jpStart[4], 1.2, 0.75);
+				puck[4]->setProperty(Puck::TENSION, true);
+				
+				if (j6TangPos == 0.0) 
+				{
+					while (!engage(5, 10.0)) 
+					{
+						updateJ6(3.5);
+						wam.moveTo(jpStart[4]);
+						if (wam.getJointPositions()[5] < jpStopLow[5] + tangMiss[5]) 
+						{
+							puck[4]->setProperty(Puck::TENSION, false);
+							joint_list.resize(0);
+							printf("Error - Failed to engage autotensioner for joint 6\n");
+							return joint_list;
+						}
+						wam.moveTo(jpStart[4]);
+					}
+					j6TangPos = wam.getJointPositions()[5];
+				} 
+				else 
+				{
+					jpStart[4][5] = j6TangPos + tangBuffer[5];
 					wam.moveTo(jpStart[4]);
-					if (wam.getJointPositions()[5] <
-					    jpStopLow[5] + tangMiss[5]) {
+					if (!engage(5)) 
+					{ // Engage joint 6
 						puck[4]->setProperty(Puck::TENSION, false);
 						joint_list.resize(0);
-						printf("Error - Failed to engage autotensioner for "
-						       "joint 6\n");
+						printf("Error - Failed to engage autotensioner for joint 6\n");
 						return joint_list;
 					}
-					wam.moveTo(jpStart[4]);
 				}
-				j6TangPos = wam.getJointPositions()[5];
-			} else {
-				jpStart[4][5] = j6TangPos + tangBuffer[5];
-				wam.moveTo(jpStart[4]);
-				if (!engage(5)) { // Engage joint 6
+				
+				printf("Successfully engaged joint 6 autotensioner.\n");
+
+				if (!engage(4)) 
+				{ // Engage joint 5
 					puck[4]->setProperty(Puck::TENSION, false);
 					joint_list.resize(0);
-					printf(
-					    "Error - Failed to engage autotensioner for joint 6\n");
+					printf("Error - Failed to engage autotensioner for joint 5\n");
 					return joint_list;
 				}
-			}
 
-			printf("Successfully engaged joint 6 autotensioner.\n");
+				printf("Successfully engaged joint 5 autotensioner.\n");
+				updateJ6(0.0, true);
+				btsleep(0.5);
 
-			if (!engage(4)) { // Engage joint 5
-				puck[4]->setProperty(Puck::TENSION, false);
-				joint_list.resize(0);
-				printf("Error - Failed to engage autotensioner for joint 5\n");
-				return joint_list;
-			}
-
-			printf("Successfully engaged joint 5 autotensioner.\n");
-			updateJ6(0.0, true);
-			btsleep(0.5);
-
-			if (pullTension(4) < slackThreshold[4])
+				if (pullTension(4) < slackThreshold[4])
+					diff_tens = true;
+				
+				puck[4]->setProperty(Puck::TENSION, false); // Release Tang
+				break;
+			default: // Joint 4
+				printf("Tensioning Joint %d\n", joint);
 				diff_tens = true;
-
-			puck[4]->setProperty(Puck::TENSION, false); // Release Tang
-			break;
-		default: // Joint 4
-			printf("Tensioning Joint %d\n", joint);
-			diff_tens = true;
-			break;
+				break;
 		}
 
 		wam.moveTo(jpStart[motor], 1.2, 0.75);
@@ -538,40 +578,44 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 
 		btsleep(2.0);
 
-		if (joint == 6) {
+		if (joint == 6) 
+		{
 			puck[4]->setProperty(Puck::TENSION, true);
 			btsleep(2.0);
 
-			if (j5TangPos == 0.0) {
-				while (!engage(4, 10.0)) {
+			if (j5TangPos == 0.0) 
+			{
+				while (!engage(4, 10.0)) 
+				{
 					updateJ5(3.5);
 					wam.moveTo(jpStart[motor]);
-					if (wam.getJointPositions()[4] <
-					    jpStopLow[4] + tangMiss[4]) {
+					if (wam.getJointPositions()[4] < jpStopLow[4] + tangMiss[4]) 
+					{
 						puck[4]->setProperty(Puck::TENSION, false);
 						joint_list.resize(0);
-						printf("Error - Failed to engage autotensioner for "
-						       "joint 5\n");
+						printf("Error - Failed to engage autotensioner for joint 5\n");
 						return joint_list;
 					}
 					wam.moveTo(jpStart[motor]);
 				}
 				j5TangPos = wam.getJointPositions()[4];
-			} else {
+			} 
+			else 
+			{
 				jpStart[motor][4] = j5TangPos + tangBuffer[4];
 				wam.moveTo(jpStart[motor]);
 				if (!engage(4)) { // Engage joint 5
 					puck[4]->setProperty(Puck::TENSION, false);
 					joint_list.resize(0);
-					printf(
-					    "Error - Failed to engage autotensioner for joint 5\n");
+					printf("Error - Failed to engage autotensioner for joint 5\n");
 					return joint_list;
 				}
 			}
 
 			printf("Successfully engaged joint 5 autotensioner.\n");
 
-			if (!engage(motor)) {
+			if (!engage(motor)) 
+			{ 
 				// Engage joint 6
 				puck[4]->setProperty(Puck::TENSION, false);
 				joint_list.resize(0);
@@ -583,46 +627,50 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 
 			updateJ5(0.0, true); // Reset J6 Start values
 			btsleep(0.5);
-
+			
 			oldSlackPulled = motorSlackPulled;
 			motorSlackPulled = pullTension(5);
 			slackDifference = fabs(motorSlackPulled - oldSlackPulled);
 			puck[4]->setProperty(Puck::TENSION, false); // Release Tang
-		} else if (engage(motor)) {
+		} 
+		else if (engage(motor)) 
+		{
 			printf("Successfully engaged joint %d autotensioner.\n", joint);
 			fflush(stdout);
 			btsleep(0.5);
-
+			
 			// Pull Tension
 			oldSlackPulled = motorSlackPulled;
 			motorSlackPulled = pullTension(motor);
 			slackDifference = fabs(motorSlackPulled - oldSlackPulled);
-			printf("Slack Threshold = %f, Slack Difference = %f \n",
-			       slackThreshold[motor], slackDifference);
+			printf("Slack Threshold = %f, Slack Difference = %f \n", slackThreshold[motor], slackDifference);
 			puck[motor]->setProperty(Puck::TENSION, false);
-		} else {
+		} 
+		else 
+		{
 			puck[motor]->setProperty(Puck::TENSION, false);
 			joint_list.resize(0);
-			printf("Error - Failed to engage autotensioner for joint %d\n",
-			       joint);
+			printf("Error - Failed to engage autotensioner for joint %d\n", joint);
 			return joint_list;
 		}
 
 		int rep_cnt = 0;
-		int reps = 5; // Number of times to travel through joint range to
-		              // distribute slack.
+		int reps = 5; // Number of times to travel through joint range to distribute slack.
 		printf("Distributing slack through joints\n");
 
-		while (rep_cnt < reps) {
+		while (rep_cnt < reps) 
+		{
 			printf("%dx.. ", reps - rep_cnt);
 			fflush(stdout);
 			wam.moveTo(jpSlack2[motor], 1.2, 0.75);
 			wam.moveTo(jpSlack1[motor], 1.2, 0.75);
-			if (joint == 3) {
+			if (joint == 3) 
+			{
 				wam.moveTo(jpSlack1[1], 1.2, 0.75);
 				wam.moveTo(jpSlack2[1], 1.2, 0.75);
 			}
-			if (joint == 6) {
+			if (joint == 6) 
+			{
 				wam.moveTo(jpSlack1[4], 1.2, 0.75);
 				wam.moveTo(jpSlack2[4], 1.2, 0.75);
 			}
@@ -632,58 +680,45 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 		wam.moveTo(jpInitial[motor], 1.2, 0.75);
 		wam.moveHome();
 	}
-	switch (joint) {
-	case 2:
-	case 3:
-		printf("Successfully Tensioned Joint 2 and 3\n");
-		joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), 2),
-		                 joint_list.end());
-		joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), 3),
-		                 joint_list.end());
-		break;
-	case 5:
-	case 6:
-		printf("Successfully Tensioned Joint 5 and 6\n");
-		joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), 5),
-		                 joint_list.end());
-		joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), 6),
-		                 joint_list.end());
-		break;
-	default:
-		printf("Successfully Tensioned Joint %d\n", joint);
-		joint_list.erase(
-		    std::remove(joint_list.begin(), joint_list.end(), joint),
-		    joint_list.end());
-		break;
+	switch (joint) 
+	{
+		case 2:
+		case 3:
+			printf("Successfully Tensioned Joint 2 and 3\n");
+			joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), 2), joint_list.end());
+			joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), 3), joint_list.end());
+			break;
+		case 5:
+		case 6:
+			printf("Successfully Tensioned Joint 5 and 6\n");
+			joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), 5), joint_list.end());
+			joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), 6), joint_list.end());
+			break;
+		default:
+			printf("Successfully Tensioned Joint %d\n", joint);
+			joint_list.erase(std::remove(joint_list.begin(), joint_list.end(), joint), joint_list.end());
+			break;
 	}
 	return joint_list;
 }
 
-template <size_t DOF> bool AutoTension<DOF>::engage(int motor, double timeout) {
-	btsleep(1.0);                             // Let system settle, tang engage
+template<size_t DOF>
+bool AutoTension<DOF>::engage(int motor, double timeout) 
+{
+	btsleep(1.0); // Let system settle, tang engage
 	holdJP.setValue(wam.getJointPositions()); // Hold Position
 	motorRamp.setSlope(0.8);
-	motorRamp.setOutput(
-	    (j2mp * wam.getJointPositions())[motor]); // Set the ramp
-	                                              // to the proper
-	                                              // start
-	                                              // position
-	wam.trackReferenceSignal(
-	    m2jpSys.output); // Start following the motor position controller
-	systems::forceConnect(
-	    motorRamp.output,
-	    mpCommand.getElementInput(
-	        motor)); // Increase the commanded motor position using the ramp.
+	motorRamp.setOutput((j2mp * wam.getJointPositions())[motor]); //Set the ramp to the proper start position
+	wam.trackReferenceSignal(m2jpSys.output); // Start following the motor position controller
+	systems::forceConnect(motorRamp.output, mpCommand.getElementInput(motor)); // Increase the commanded motor position using the ramp.
 	motorRamp.smoothStart(10); // start the ramp
 	double timer = 0.0;
 	btsleep(0.1); // eliminate obscure transient torque readings
 	watchdog.activate(motor, 0.5); // Start watching for the torque spike
-	while (
-	    watchdog.watching && timer < timeout &&
-	    wam.getJointPositions()[motor] > jpStopLow[motor] + tangMiss[motor] &&
-	    wam.getJointPositions()[motor] < jpStopHigh[motor] - tangMiss[motor]) {
-		btsleep(0.05); // waiting for the torque spike indicating the tang has
-		               // engaged
+	while (watchdog.watching && timer < timeout && wam.getJointPositions()[motor] > jpStopLow[motor] + tangMiss[motor]
+			&& wam.getJointPositions()[motor] < jpStopHigh[motor] - tangMiss[motor]) 
+	{
+		btsleep(0.05); // waiting for the torque spike indicating the tang has engaged
 		timer += 0.05;
 	}
 
@@ -691,40 +726,32 @@ template <size_t DOF> bool AutoTension<DOF>::engage(int motor, double timeout) {
 		return false;
 
 	watchdog.deactivate();
-	motorRamp.stop();                         // stop the ramp
+	motorRamp.stop(); // stop the ramp
 	holdJP.setValue(wam.getJointPositions()); // Update the hold position
-	systems::disconnect(motorRamp.output);    // disconnect the ramp leaving the
-	                                          // commanded motor position at the
-	                                          // value.
+	systems::disconnect(motorRamp.output); // disconnect the ramp leaving the commanded motor position at the value.
 	return true;
 }
 
-template <size_t DOF> double AutoTension<DOF>::pullTension(int motor) {
-	double start_pos =
-	    (j2mp * wam.getJointPositions())[motor]; // record our starting point
-	tensionValue.setValue(
-	    tensionDefaults[motor] -
-	    exposedGravity.getValue()[motor]); // set the torque - this will be the
-	                                       // torque applied to pull tension
-	// subtracting the torque already being
-	// applied by the gravity compensator
-	systems::connect(tensionValue.output,
-	                 mtCommand.getElementInput(motor)); // apply the torque
-	sleep(5.0);                                         // wait a few seconds
-	double end_pos =
-	    (j2mp * wam.getJointPositions())[motor]; // record our ending point
+template<size_t DOF>
+double AutoTension<DOF>::pullTension(int motor) 
+{
+	double start_pos = (j2mp * wam.getJointPositions())[motor]; // record our starting point
+	tensionValue.setValue(tensionDefaults[motor] - exposedGravity.getValue()[motor]); // set the torque - this will be the torque applied to pull tension subtracting the torque already being applied by the gravity compensator
+	systems::connect(tensionValue.output, mtCommand.getElementInput(motor)); // apply the torque
+	sleep(5.0); // wait a few seconds
+	double end_pos = (j2mp * wam.getJointPositions())[motor]; //record our ending point
 	tensionValue.setValue(0.0);
-	systems::disconnect(tensionValue.output); // stop applying the torque
+	systems::disconnect(tensionValue.output); //stop applying the torque
 	btsleep(2.0);
 
-	holdJP.setValue(
-	    wam.getJointPositions()); // Update setPoint to account for movement
-	printf("Slack taken up from motor %d  = %f radians\n", motor + 1,
-	       fabs(start_pos - end_pos));
+	holdJP.setValue(wam.getJointPositions()); // Update setPoint to account for movement
+	printf("Slack taken up from motor %d  = %f radians\n", motor + 1, fabs(start_pos - end_pos));
 	return fabs(start_pos - end_pos);
 }
 
-template <size_t DOF> void AutoTension<DOF>::connectSystems() {
+template<size_t DOF>
+void AutoTension<DOF>::connectSystems() 
+{
 	// Position control portion
 	systems::connect(holdJP.output, j2mpSys.input);
 	systems::connect(j2mpSys.output, mpCommand.input);
@@ -740,37 +767,38 @@ template <size_t DOF> void AutoTension<DOF>::connectSystems() {
 	systems::connect(j2mtSys.output, watchdog.input);
 	systems::connect(mtCommand.output, m2jtSys.input);
 
-	wam.supervisoryController.registerConversion(
-	    makeIOConversion(wam.jpController.referenceInput, m2jtSys.output));
+	wam.supervisoryController.registerConversion(makeIOConversion(wam.jpController.referenceInput, m2jtSys.output));
 }
 
 // WAM Main Function.
-template <size_t DOF>
-int wam_main(std::string armToAutotension,
-             std::vector<int> &jointsToAutotension, ProductManager &pm,
-             systems::Wam<DOF> &wam) {
+template<size_t DOF>
+int wam_main(std::string armToAutotension, std::vector<int>& jointsToAutotension, ProductManager& pm, systems::Wam<DOF>& wam) 
+{
 	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
 	/* Read configuration file */
 	libconfig::Config config;
-	try {
+	try 
+	{
 		config.readFile(CAL_CONFIG_FILE.c_str());
-	} catch (const libconfig::FileIOException &fioex) {
-		printf("EXITING: I/O error while reading %s\n",
-		       CAL_CONFIG_FILE.c_str());
+	} 
+	catch (const libconfig::FileIOException &fioex) 
+	{
+		printf("EXITING: I/O error while reading %s\n", CAL_CONFIG_FILE.c_str());
 		btsleep(5.0);
 		return (false);
-	} catch (const libconfig::ParseException &pex) {
-		printf("EXITING: Parse error at %s: %d - %s\n", pex.getFile(),
-		       pex.getLine(), pex.getError());
+	} 
+	catch (const libconfig::ParseException &pex) 
+	{
+		printf("EXITING: Parse error at %s: %d - %s\n", pex.getFile(), pex.getLine(), pex.getError());
 		btsleep(5.0);
 		return (false);
 	}
-	const libconfig::Setting &setting =
-	    config.lookup("autotension")[pm.getWamDefaultConfigPath()];
+	const libconfig::Setting& setting = config.lookup("autotension")[pm.getWamDefaultConfigPath()];
 
 	validate_args<DOF>(jointsToAutotension);
-	if (jointsToAutotension.size() == 0) {
+	if (jointsToAutotension.size() == 0) 
+	{
 		pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
 		return 1;
 	}
@@ -789,8 +817,7 @@ int wam_main(std::string armToAutotension,
 	if (autotension.hand != 0) {
 		autotension.hand->open(Hand::GRASP);
 		autotension.hand->close(Hand::SPREAD);
-		autotension.hand->trapezoidalMove(Hand::jp_type(M_PI / 2.0),
-		                                  Hand::GRASP);
+		autotension.hand->trapezoidalMove(Hand::jp_type(M_PI / 2.0), Hand::GRASP);
 	}
 	wam.moveHome();
 	printf("\n**************************\n");
@@ -801,19 +828,22 @@ int wam_main(std::string armToAutotension,
 
 static RT_TASK at_task;
 static po::variables_map vm;
-void mainThread(void *arg) {
-	std::string armToAutotension(vm["arm"].as<std::string>());
-	std::vector<int> jointsToAutotension(vm["joints"].as<std::vector<int>>());
+void mainThread(void* arg)
+{
+  std::string armToAutotension(vm["arm"].as<std::string>());
+  std::vector<int> jointsToAutotension(vm["joints"].as< std::vector<int> >());
 
-	// Check for sanity.
-	if (armToAutotension != "left" && armToAutotension != "right") {
-		std::cout << "Arm needs to be either left or right" << std::endl;
-		return;
-	}
+  // Check for sanity.
+  if (armToAutotension != "left" && armToAutotension != "right")
+  {
+  	std::cout << "Arm needs to be either left or right" << std::endl;
+  	return;
+  }
 
-	if (jointsToAutotension.size() == 1 && jointsToAutotension[0] == -1) {
-		jointsToAutotension.clear();
-	}
+  if (jointsToAutotension.size() == 1 && jointsToAutotension[0] == -1)
+  {
+  	jointsToAutotension.clear();
+  }
 
 	// For clean stack traces
 	barrett::installExceptionHandler();
@@ -822,62 +852,61 @@ void mainThread(void *arg) {
 	ProductManager pm;
 	pm.waitForWam();
 
-	if (pm.foundWam4()) {
-		wam_main<4>(armToAutotension, jointsToAutotension, pm,
-		            *pm.getWam4(true, NULL));
-	} else if (pm.foundWam7()) {
-		wam_main<7>(armToAutotension, jointsToAutotension, pm,
-		            *pm.getWam7(true, NULL));
+	if (pm.foundWam4()) 
+	{
+		wam_main<4>(armToAutotension, jointsToAutotension, pm, *pm.getWam4(true, NULL));
+	} 
+	else if (pm.foundWam7()) 
+	{
+		wam_main<7>(armToAutotension, jointsToAutotension, pm, *pm.getWam7(true, NULL));
 	}
 }
 
-int main(int argc, char **argv) {
-	// Message to user
-	printf(
-	    "\n"
-	    "                  *** Barrett WAM Autotensioning Utility ***\n"
-	    "\n"
-	    "This utility will autotension the specified cables of your WAM Arm.\n"
-	    "Cable tensioning is necessary after signs of the WAM cables becoming\n"
-	    "loose after extended use, or after replacing any cables on your WAM "
-	    "Arm.\n"
-	    "After completion of this routine, you must zero calibrate and "
-	    "gravity\n"
-	    "calibrate the WAM, as pulling tension from the cables will introduce\n"
-	    "offsets to your previous calibrations.\n"
-	    "\n"
-	    "WAMs with serial numbers < 5 and WAM wrists with serial numbers < 9 "
-	    "are "
-	    "not\n"
-	    "eligible for autotensioning.\n"
-	    "\n"
-	    "This program assumes the WAM is mounted such that the base is "
-	    "horizontal.\n"
-	    "\n"
-	    "\n");
+int main(int argc, char** argv) 
+{
+  // Message to user
+	printf("\n"
+			"                  *** Barrett WAM Autotensioning Utility ***\n"
+			"\n"
+			"This utility will autotension the specified cables of your WAM Arm.\n"
+			"Cable tensioning is necessary after signs of the WAM cables becoming\n"
+			"loose after extended use, or after replacing any cables on your WAM Arm.\n"
+			"After completion of this routine, you must zero calibrate and gravity\n"
+			"calibrate the WAM, as pulling tension from the cables will introduce\n"
+			"offsets to your previous calibrations.\n"
+			"\n"
+			"WAMs with serial numbers < 5 and WAM wrists with serial numbers < 9 are not\n"
+			"eligible for autotensioning.\n"
+			"\n"
+			"This program assumes the WAM is mounted such that the base is horizontal.\n"
+			"\n"
+			"\n");
 
-	po::options_description desc("Autotensioning Options");
-	desc.add_options()("help,h", "Produce help message")(
-	    "arm,a", po::value<std::string>()->required(), "left / right")(
-	    "joints,j", po::value<std::vector<int>>()->multitoken(),
-	    "Joints to Autotension. Set to -1 if tensioning all joints.");
+  po::options_description desc("Autotensioning Options");
+  desc.add_options()
+      ("help,h", "Produce help message")
+      ("arm,a", po::value<std::string>()->required(), "left / right")
+      ("joints,j", po::value<std::vector<int> >()->multitoken(), "Joints to Autotension. Set to -1 if tensioning all joints.")
+  ;
 
-	// Read arguments
-	po::store(po::parse_command_line(argc, argv, desc), vm);
-	po::notify(vm);
+  // Read arguments
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
 
-	if (vm.count("help")) {
-		std::cout << desc << std::endl;
-		return 1;
-	}
+  if (vm.count("help"))
+  {
+    std::cout << desc << std::endl;
+    return 1;
+  }
 
-	// Start Autotention Thread
-	char threadName[20];
-	sprintf(threadName, "at_thread");
-	rt_task_create(&at_task, threadName, 0, 50, T_JOINABLE);
-	rt_task_start(&at_task, &mainThread, 0);
-	int ret = rt_task_join(&at_task);
+  // Start Autotention Thread
+  char threadName[20];
+  sprintf(threadName, "at_thread");
+  rt_task_create(&at_task, threadName, 0, 50, T_JOINABLE);
+  rt_task_start(&at_task, &mainThread, 0);
+  int ret = rt_task_join(&at_task);
 
-	printf("Autotensioning completed!\n");
-	return ret;
+  printf("Autotensioning completed!\n");
+  return ret;
 }
+

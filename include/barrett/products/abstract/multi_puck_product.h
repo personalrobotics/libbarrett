@@ -26,45 +26,49 @@
  * @file multi_puck_product.h
  * @date 11/11/2010
  * @author Dan Cody
- *
+ * 
  */
 
 #ifndef MULTI_PUCK_PRODUCT_H_
 #define MULTI_PUCK_PRODUCT_H_
 
+
 #include <vector>
 
-#include <barrett/bus/abstract/communications_bus.h>
 #include <barrett/detail/ca_macro.h>
-#include <barrett/products/motor_puck.h>
+#include <barrett/bus/abstract/communications_bus.h>
 #include <barrett/products/puck.h>
 #include <barrett/products/puck_group.h>
+#include <barrett/products/motor_puck.h>
+
 
 namespace barrett {
 
+
 class MultiPuckProduct {
-  public:
+public:
 	/** MultiPuckProduct Constructor */
-	MultiPuckProduct(size_t DOF, const std::vector<Puck *> &pucks, int groupId,
-	                 const enum Puck::Property props[], const size_t numProps,
-	                 const char *syslogStr = NULL);
+	MultiPuckProduct(size_t DOF, const std::vector<Puck*>& pucks, int groupId, const enum Puck::Property props[], const size_t numProps, const char* syslogStr = NULL);
 	~MultiPuckProduct();
 	/** getPucks Method generates a vector of Points to each puck */
-	const std::vector<Puck *> &getPucks() const { return pucks; }
+	const std::vector<Puck*>& getPucks() const { return pucks; }
 	/** getMotorPucks Method generates a vector */
-	const std::vector<MotorPuck> &getMotorPucks() const { return motorPucks; }
+	const std::vector<MotorPuck>& getMotorPucks() const { return motorPucks; }
 	/** getPuckGroup Method gets point to pucks with appropriate role */
-	const PuckGroup &getPuckGroup() const { return group; }
+	const PuckGroup& getPuckGroup() const { return group; }
 
-  protected:
-	const bus::CommunicationsBus &bus;
-	std::vector<Puck *> pucks;
+protected:
+	const bus::CommunicationsBus& bus;
+	std::vector<Puck*> pucks;
 	std::vector<MotorPuck> motorPucks;
 	PuckGroup group;
 
-  private:
+private:
 	DISALLOW_COPY_AND_ASSIGN(MultiPuckProduct);
 };
+
+
 }
+
 
 #endif /* MULTI_PUCK_PRODUCT_H_ */

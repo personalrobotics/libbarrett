@@ -25,46 +25,50 @@
 
 /**
  * @file special_puck.h
- * @date 11/04/2010
+ * @date 11/04/2010 
  * @author Dan Cody
- *
+ * 
  */
 
 #ifndef BARRETT_PRODUCTS_ABSTRACT_SPECIAL_PUCK_H_
 #define BARRETT_PRODUCTS_ABSTRACT_SPECIAL_PUCK_H_
+
 
 #include <stdexcept>
 
 #include <barrett/os.h>
 #include <barrett/products/puck.h>
 
+
 namespace barrett {
 
+
 class SpecialPuck {
-  public:
+public:
 	/** SpecialPuck Constructor */
-	SpecialPuck(enum Puck::PuckType _type = Puck::PT_Unknown)
-	    : type(_type), p(NULL) {}
+	SpecialPuck(enum Puck::PuckType _type = Puck::PT_Unknown) :
+		type(_type), p(NULL) {}
 	~SpecialPuck() {}
 	/** getPuck Method*/
-	Puck *getPuck() const { return p; }
+	Puck* getPuck() const { return p; }
 	/** setPuck Method used to define what type of puck is being used */
-	void setPuck(Puck *puck) {
-		if (puck != NULL && type != Puck::PT_Unknown &&
-		    puck->getType() != type) {
+	void setPuck(Puck* puck) {
+		if (puck != NULL  &&  type != Puck::PT_Unknown  &&  puck->getType() != type) {
 			(logMessage("SpecialPuck::%s(): Bad PuckType. "
-			            "Expected Puck with type %s, got Puck with type %s.") %
-			 __func__ % Puck::getPuckTypeStr(type) %
-			 Puck::getPuckTypeStr(puck->getType()))
-			    .raise<std::logic_error>();
+					"Expected Puck with type %s, got Puck with type %s.")
+					% __func__ % Puck::getPuckTypeStr(type) % Puck::getPuckTypeStr(puck->getType())
+			).raise<std::logic_error>();
 		}
 		p = puck;
 	}
 
-  protected:
+protected:
 	enum Puck::PuckType type;
-	Puck *p;
+	Puck* p;
 };
+
+
 }
+
 
 #endif /* BARRETT_PRODUCTS_ABSTRACT_SPECIAL_PUCK_H_ */

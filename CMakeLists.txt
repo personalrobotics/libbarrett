@@ -153,13 +153,8 @@ clang_format_setup(VERSION 3.8)
 if (CLANG_FORMAT_EXECUTABLE)
   clang_format_add_sources(${barrett_SOURCES})
 
-  # Add Headers
   file(GLOB_RECURSE barrett_HEADERS *.h)
   clang_format_add_sources(${barrett_HEADERS})
-
-  # Add Programs
-  file(GLOB program_SOURCES programs/*.cpp programs/*.h)
-  clang_format_add_sources(${program_SOURCES})
 
   clang_format_add_targets()
 endif()

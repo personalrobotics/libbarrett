@@ -27,22 +27,25 @@
  * @file puck.h
  * @date 08/20/2010
  * @author Dan Cody
- *
+ *  
  */
 
 #ifndef BARRETT_PRODUCTS_PUCK_H_
 #define BARRETT_PRODUCTS_PUCK_H_
+
 
 #include <stdexcept>
 #include <vector>
 
 #include <barrett/bus/abstract/communications_bus.h>
 
+
 namespace barrett {
+
 
 class Puck {
 
-  public:
+public:
 	enum RoleOption {
 		RO_MagEncOnSerial = 0x0100,
 		RO_MagEncOnHall = 0x0200,
@@ -53,35 +56,30 @@ class Puck {
 		RO_OpticalEncOnEnc = 0x4000
 	};
 	enum PuckType {
-		PT_Monitor,
-		PT_Safety,
-		PT_Motor,
-		PT_ForceTorque,
-		PT_Unknown
+		PT_Monitor, PT_Safety, PT_Motor, PT_ForceTorque, PT_Unknown
 	};
 
-	static const char *getPuckTypeStr(enum PuckType pt) {
+	static const char* getPuckTypeStr(enum PuckType pt) {
 		return puckTypeStrs[pt];
 	}
 
 // include the generated file containing the list of available properties
-#include <barrett/products/detail/property_list.h>
-	static const char *getPropertyStr(enum Property prop);
-	static enum Property getPropertyEnum(const char *str);
-	static enum Property getPropertyEnumNoThrow(const char *str);
+#	include <barrett/products/detail/property_list.h>
+	static const char* getPropertyStr(enum Property prop);
+	static enum Property getPropertyEnum(const char* str);
+	static enum Property getPropertyEnumNoThrow(const char* str);
 
-  public:
-	Puck(const bus::CommunicationsBus &bus, int id);
+
+public:
+	Puck(const bus::CommunicationsBus& bus, int id);
 	~Puck();
 
 	void wake();
 
 	int getProperty(enum Property prop, bool realtime = false) const;
-	template <typename Parser>
-	void getProperty(enum Property prop, typename Parser::result_type *result,
-	                 bool realtime = false) const;
-	void setProperty(enum Property prop, int value,
-	                 bool blocking = false) const {
+	template<typename Parser> void getProperty(enum Property prop,
+			typename Parser::result_type* result, bool realtime = false) const;
+	void setProperty(enum Property prop, int value, bool blocking = false) const {
 		setProperty(bus, id, getPropertyId(prop), value, blocking);
 	}
 
@@ -102,7 +100,7 @@ class Puck {
 	void updateRole();
 	void updateStatus();
 
-	const bus::CommunicationsBus &getBus() const { return bus; }
+	const bus::CommunicationsBus& getBus() const { return bus; }
 	int getId() const { return id; }
 	int getVers() const { return vers; }
 	int getRole() const { return role; }
@@ -110,48 +108,38 @@ class Puck {
 	enum PuckType getType() const { return type; }
 	enum PuckType getEffectiveType() const { return effectiveType; }
 
-	static void wake(std::vector<Puck *> pucks);
 
-	static int getProperty(const bus::CommunicationsBus &bus, int id,
-	                       int propId, bool realtime = false);
-	template <typename Parser>
-	static void getProperty(const bus::CommunicationsBus &bus, int id,
-	                        int propId, typename Parser::result_type *result,
-	                        bool realtime = false);
-	static int tryGetProperty(const bus::CommunicationsBus &bus, int id,
-	                          int propId, int *result,
-	                          double timeout_s = 0.001);
-	template <typename Parser>
-	static int tryGetProperty(const bus::CommunicationsBus &bus, int id,
-	                          int propId, typename Parser::result_type *result,
-	                          double timeout_s = 0.001);
-	static void setProperty(const bus::CommunicationsBus &bus, int id,
-	                        int propId, int value, bool blocking = false);
+	static void wake(std::vector<Puck*> pucks);
 
-	static int sendGetPropertyRequest(const bus::CommunicationsBus &bus, int id,
-	                                  int propId);
-	static int receiveGetPropertyReply(const bus::CommunicationsBus &bus,
-	                                   int id, int propId, int *result,
-	                                   bool blocking, bool realtime);
-	template <typename Parser>
-	static int receiveGetPropertyReply(const bus::CommunicationsBus &bus,
-	                                   int id, int propId,
-	                                   typename Parser::result_type *result,
-	                                   bool blocking, bool realtime);
+	static int getProperty(const bus::CommunicationsBus& bus, int id, int propId, bool realtime = false);
+	template<typename Parser> static void getProperty(
+			const bus::CommunicationsBus& bus, int id, int propId, typename Parser::result_type* result, bool realtime = false);
+	static int tryGetProperty(const bus::CommunicationsBus& bus, int id, int propId,
+			int* result, double timeout_s = 0.001);
+	template<typename Parser> static int tryGetProperty(
+			const bus::CommunicationsBus& bus, int id, int propId, typename Parser::result_type* result,
+			double timeout_s = 0.001);
+	static void setProperty(const bus::CommunicationsBus& bus, int id, int propId,
+			int value, bool blocking = false);
 
-	static bool respondsToProperty(enum Property prop, enum PuckType pt,
-	                               int fwVers) {
+	static int sendGetPropertyRequest(const bus::CommunicationsBus& bus, int id, int propId);
+	static int receiveGetPropertyReply(const bus::CommunicationsBus& bus, int id, int propId,
+			int* result, bool blocking, bool realtime);
+	template<typename Parser> static int receiveGetPropertyReply(
+			const bus::CommunicationsBus& bus, int id, int propId, typename Parser::result_type* result, bool blocking, bool realtime);
+
+	static bool respondsToProperty(enum Property prop, enum PuckType pt, int fwVers) {
 		return getPropertyIdNoThrow(prop, pt, fwVers) != -1;
 	}
 	static int getPropertyId(enum Property prop, enum PuckType pt, int fwVers);
-	static int getPropertyIdNoThrow(enum Property prop, enum PuckType pt,
-	                                int fwVers);
+	static int getPropertyIdNoThrow(enum Property prop, enum PuckType pt, int fwVers);
+
 
 	static const int DEFAULT_IPNM = 2700;
 
 	static const int MIN_ID = 1;
 	static const int MAX_ID = 31;
-	static const int HOST_ID = 0; // the Node ID of the control PC
+	static const int HOST_ID = 0;  // the Node ID of the control PC
 	static const int NODE_ID_WIDTH = 5;
 	static const int NODE_ID_MASK = 0x1f;
 
@@ -164,7 +152,7 @@ class Puck {
 	static int encodeBusId(int fromId, int toId) {
 		return (toId & TO_MASK) | ((fromId & NODE_ID_MASK) << NODE_ID_WIDTH);
 	}
-	static void decodeBusId(int busId, int *fromId, int *toId) {
+	static void decodeBusId(int busId, int* fromId, int* toId) {
 		*fromId = (busId & FROM_MASK) >> NODE_ID_WIDTH;
 		*toId = busId & TO_MASK;
 	}
@@ -176,20 +164,22 @@ class Puck {
 	static const int SET_MASK = 0x80;
 	static const int PROPERTY_MASK = 0x7f;
 
-	static constexpr double WAKE_UP_TIME = 1.0;   // seconds
-	static constexpr double TURN_OFF_TIME = 0.01; // seconds
+	static constexpr double WAKE_UP_TIME = 1.0;  // seconds
+	static constexpr double TURN_OFF_TIME = 0.01;  // seconds
 
 	struct StandardParser {
 		static int busId(int id, int propId);
 
 		typedef int result_type;
-		static int parse(int id, int propId, result_type *result,
-		                 const unsigned char *data, size_t len);
+		static int parse(int id, int propId, result_type* result, const unsigned char* data, size_t len);
 	};
 
-  protected:
+
+protected:
 	// From puck2:PARSE.H
-	enum { STATUS_RESET, STATUS_ERR, STATUS_READY };
+	enum {
+		STATUS_RESET, STATUS_ERR, STATUS_READY
+	};
 
 	static const int ROLE_MASK = 0x1f;
 	enum {
@@ -202,23 +192,26 @@ class Puck {
 		ROLE_FORCE
 	};
 
-	const bus::CommunicationsBus &bus;
+
+	const bus::CommunicationsBus& bus;
 	int id;
 	int vers, role;
 	enum PuckType type, effectiveType;
 
-  private:
-	template <typename Parser>
-	static int
-	getPropertyHelper(const bus::CommunicationsBus &bus, int id, int propId,
-	                  typename Parser::result_type *result, bool blocking,
-	                  bool realtime, double timeout_s);
+private:
+	template<typename Parser>
+	static int getPropertyHelper(const bus::CommunicationsBus& bus,
+			int id, int propId, typename Parser::result_type* result, bool blocking, bool realtime, double timeout_s);
 
 	static const char puckTypeStrs[][12];
 };
+
+
 }
+
 
 // include template definitions
 #include <barrett/products/detail/puck-inl.h>
+
 
 #endif /* BARRETT_PRODUCTS_PUCK_H_ */

@@ -28,25 +28,29 @@
  * @file os.h
  * @date 03/28/2012
  * @author Dan Cody
- *
+ * 
  */
 
 #ifndef BARRETT_DETAIL_OS_H_
 #define BARRETT_DETAIL_OS_H_
 
-#include <boost/format.hpp>
+
 #include <string>
+#include <boost/format.hpp>
+
 
 namespace barrett {
 namespace detail {
 
+
 class LogFormatter : public boost::format {
-  public:
-	LogFormatter(const std::string &fmt, bool outputToStderr)
-	    : boost::format(fmt), ose(outputToStderr), printed(false) {}
+public:
+	LogFormatter(const std::string& fmt, bool outputToStderr) :
+		boost::format(fmt), ose(outputToStderr), printed(false) {}
 	~LogFormatter() { print(); }
 
-	template <typename ExceptionType> void raise(bool alsoPrint = false) {
+	template <typename ExceptionType>
+	void raise(bool alsoPrint = false) {
 		if (alsoPrint) {
 			print();
 		} else {
@@ -58,19 +62,24 @@ class LogFormatter : public boost::format {
 		throw ExceptionType(str());
 	}
 
+
 	// Reimplemented in order to return LogFormatter instead of boost::format
-	template <class T> LogFormatter &operator%(const T &x) {
-		boost::format::operator%(x); // Call super
+	template<class T>
+	LogFormatter& operator%(const T& x) {
+		boost::format::operator%(x);  // Call super
 		return *this;
 	}
 
-  protected:
+protected:
 	void print();
 
 	bool ose;
 	bool printed;
 };
+
+
 }
 }
+
 
 #endif /* BARRETT_DETAIL_OS_H_ */

@@ -40,8 +40,8 @@
 extern "C" {
 #endif
 
-#include <gsl/gsl_interp.h>
 #include <gsl/gsl_vector.h>
+#include <gsl/gsl_interp.h>
 
 /** A profile is a mapping from elapsed time to location along an arc-length.
  *
@@ -55,27 +55,26 @@ extern "C" {
  * as well as the initial velocity and arc length.
  */
 struct bt_profile {
-	double vel; /* Note - we may want this to be different for different
-	               dimensions */
-	double acc;
-	double v_init;
-	double time_endup;
-	double time_startdown;
-	double time_end;
-	double s_endup;
-	double s_startdown;
-	double s_end;
+   double vel; /* Note - we may want this to be different for different dimensions */
+   double acc;
+   double v_init;
+   double time_endup;
+   double time_startdown;
+   double time_end;
+   double s_endup;
+   double s_startdown;
+   double s_end;
 };
 
 /** bt_profile create function */
-int bt_profile_create(struct bt_profile **profileptr, double vel, double acc,
-                      double v_init, double length);
+int bt_profile_create(struct bt_profile ** profileptr, double vel,
+                      double acc, double v_init, double length);
 
 /** bt_profile destroy function */
-int bt_profile_destroy(struct bt_profile *profile);
+int bt_profile_destroy( struct bt_profile * profile );
 
 /** Function to get the distance s at a given time t from a bt_profile */
-int bt_profile_get(struct bt_profile *profile, double *s, double t);
+int bt_profile_get( struct bt_profile * profile, double * s, double t );
 
 #ifdef __cplusplus
 }

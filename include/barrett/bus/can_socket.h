@@ -32,36 +32,37 @@
 #ifndef BARRETT_BUS_CAN_SOCKET_H_
 #define BARRETT_BUS_CAN_SOCKET_H_
 
+
 #include <stdexcept>
 
-#include <barrett/bus/abstract/communications_bus.h>
 #include <barrett/detail/ca_macro.h>
-#include <barrett/logger.h>
 #include <barrett/thread/real_time_mutex.h>
+#include <barrett/bus/abstract/communications_bus.h>
+#include <barrett/logger.h>
 
 namespace barrett {
 namespace bus {
 
+
 namespace detail {
-struct can_handle; // OS-dependent implementation
+struct can_handle;  // OS-dependent implementation
 }
+
 
 // TODO(dc): expose a receive timeout option?
 class CANSocket : public CommunicationsBus {
-  public:
-	static const size_t MAX_MESSAGE_LEN =
-	    8; /** The maximum length of a CANbus message. Make sure to update
-	          CommunicationsBus::MAX_MESSAGE_LEN! */
-
+public:
+	
+	static const size_t MAX_MESSAGE_LEN = 8;  /** The maximum length of a CANbus message. Make sure to update CommunicationsBus::MAX_MESSAGE_LEN! */
+	
 	/** CANSocket() Constructors
 	 */
 	CANSocket();
 	CANSocket(int port);
 	~CANSocket();
-	/** getMutex() method gets and locks interthread data exchange assuring
-	 * nothing critical is happening in either thread.
+	/** getMutex() method gets and locks interthread data exchange assuring nothing critical is happening in either thread.
 	 */
-	virtual thread::RealTimeMutex &getMutex() const { return mutex; }
+	virtual thread::RealTimeMutex& getMutex() const { return mutex; }
 	/** open() method creates socket communication on a specific port.
 	 */
 	virtual void open(int port);
@@ -71,24 +72,25 @@ class CANSocket : public CommunicationsBus {
 	/** isOpen() method returns a flag signifying socket Communication is open.
 	 */
 	virtual bool isOpen() const;
-	/** send() method pushes data onto socket.
+	/** send() method pushes data onto socket. 
 	 */
-	virtual int send(int busId, const unsigned char *data, size_t len) const;
-	/** receiveRaw() method loads data from socket buffer in a realtime safe
-	 * manner.
+	virtual int send(int busId, const unsigned char* data, size_t len) const;
+	/** receiveRaw() method loads data from socket buffer in a realtime safe manner.
 	 */
-	virtual int receiveRaw(int &busId, unsigned char *data, size_t &len,
-	                       bool blocking = true) const;
+	virtual int receiveRaw(int& busId, unsigned char* data, size_t& len, bool blocking = true) const;
 
-  protected:
+protected:
 	mutable thread::RealTimeMutex mutex;
-	detail::can_handle *handle;
+	detail::can_handle* handle;
 	mutable barrett::Logger logger;
 
-  private:
+private:
 	DISALLOW_COPY_AND_ASSIGN(CANSocket);
+
 };
+
 }
 }
+
 
 #endif /* BARRETT_BUS_CAN_SOCKET_H_ */

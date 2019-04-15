@@ -8,18 +8,22 @@
 #ifndef BARRETT_THREAD_REAL_TIME_MUTEX_H_
 #define BARRETT_THREAD_REAL_TIME_MUTEX_H_
 
+
 #include <barrett/detail/ca_macro.h>
 #include <barrett/thread/abstract/mutex.h>
+
 
 namespace barrett {
 namespace thread {
 
+
 namespace detail {
-class mutex_impl; // OS-dependent implementation
+class mutex_impl;  // OS-dependent implementation
 }
 
+
 class RealTimeMutex : public Mutex {
-  public:
+public:
 	RealTimeMutex();
 	virtual ~RealTimeMutex();
 
@@ -30,14 +34,17 @@ class RealTimeMutex : public Mutex {
 	virtual int fullUnlock();
 	virtual void relock(int lc);
 
-  protected:
-	detail::mutex_impl *mutex;
+protected:
+	detail::mutex_impl* mutex;
 	int lockCount;
 
-  private:
+private:
 	DISALLOW_COPY_AND_ASSIGN(RealTimeMutex);
 };
+
+
 }
 }
+
 
 #endif /* BARRETT_THREAD_REAL_TIME_MUTEX_H_ */

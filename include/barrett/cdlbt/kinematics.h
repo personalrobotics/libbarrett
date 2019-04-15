@@ -106,79 +106,84 @@ kinematics:
 extern "C" {
 #endif
 
-#include <gsl/gsl_matrix.h>
-#include <gsl/gsl_vector.h>
 #include <libconfig.h>
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_matrix.h>
+
 
 /** Link-specific data, including geometric parameters, transform matrices,
  *  and pointers to adjacent links.  For details about the kinematics module,
  *  see bt_kinematics.
  */
-struct bt_kinematics_link {
-	/** \name Doubly-linked for convenience
-	 *  \{ */
-	struct bt_kinematics_link *next; /**< The next link in the chain */
-	struct bt_kinematics_link *prev; /**< The previous link in the chain */
-	                                 /** \} */
+struct bt_kinematics_link
+{
+   /** \name Doubly-linked for convenience
+    *  \{ */
+   struct bt_kinematics_link * next; /**< The next link in the chain */
+   struct bt_kinematics_link * prev; /**< The previous link in the chain */
+   /** \} */
 
-	/** \name Denavit-Hartenberg Parameters
-	 *  \{ */
-	double alpha;
-	double theta;
-	double a;
-	double d;
-	/** \} */
+   /** \name Denavit-Hartenberg Parameters
+    *  \{ */
+   double alpha;
+   double theta;
+   double a;
+   double d;
+   /** \} */
+   
+   /** \name Cached D-H values
+    *  \{ */
+   double cos_alpha;
+   double sin_alpha;
+   /** \} */
+   
+   /** \name 4x4 Homogeneous Transform Matrices
+    *  \{ */
+   gsl_matrix * trans_to_prev; /**< transform matrix to previous frame */
+   gsl_matrix * trans_to_world; /**< transform matrix to world frame */
+   /** \} */
+   
+   /** \name Vector views into the trans_to_prev matrix
+    *  \{ */
+   gsl_matrix * rot_to_prev; /**< Rotation matrix to the previous frame */
+   gsl_vector * prev_axis_z; /**< My joint's rotation axis, in my coords */
+   gsl_vector * prev_origin_pos; /**< My origin position, in prev coords */
+   /** \} */
 
-	/** \name Cached D-H values
-	 *  \{ */
-	double cos_alpha;
-	double sin_alpha;
-	/** \} */
-
-	/** \name 4x4 Homogeneous Transform Matrices
-	 *  \{ */
-	gsl_matrix *trans_to_prev;  /**< transform matrix to previous frame */
-	gsl_matrix *trans_to_world; /**< transform matrix to world frame */
-	                            /** \} */
-
-	/** \name Vector views into the trans_to_prev matrix
-	 *  \{ */
-	gsl_matrix *rot_to_prev;     /**< Rotation matrix to the previous frame */
-	gsl_vector *prev_axis_z;     /**< My joint's rotation axis, in my coords */
-	gsl_vector *prev_origin_pos; /**< My origin position, in prev coords */
-	                             /** \} */
-
-	/** \name Vector views into the trans_to_world matrix
-	 *  \{ */
-	gsl_matrix *rot_to_world; /**< Rotation matrix to the world frame */
-	gsl_vector *axis_z;       /**< z axis unit vector, in base coords */
-	gsl_vector *origin_pos;   /**< Origin Position, in base coords */
-	                          /** \} */
+   /** \name Vector views into the trans_to_world matrix
+    *  \{ */
+   gsl_matrix * rot_to_world; /**< Rotation matrix to the world frame */
+   gsl_vector * axis_z; /**< z axis unit vector, in base coords */
+   gsl_vector * origin_pos; /**< Origin Position, in base coords */   
+   /** \} */
 };
+
 
 /** Robot kinematics data, holding an array of links, and a set of tool
  *  jacobians.
  */
-struct bt_kinematics {
-	int dof;
-	int nlinks;
-	struct bt_kinematics_link **link_array;
-
-	struct bt_kinematics_link *base;
-	struct bt_kinematics_link **link; /* Moving links array */
-	struct bt_kinematics_link *toolplate;
-	struct bt_kinematics_link *tool;
-
-	/* Toolplate Jacobian */
-	gsl_matrix *tool_jacobian;
-	gsl_matrix *tool_jacobian_linear;  /* matrix view */
-	gsl_matrix *tool_jacobian_angular; /* matrix view */
-	gsl_vector *tool_velocity;
-	gsl_vector *tool_velocity_angular;
-
-	/* Temp vector */
-	gsl_vector *temp_v3;
+struct bt_kinematics
+{
+   int dof;
+   int nlinks;
+   struct bt_kinematics_link ** link_array;
+   
+   struct bt_kinematics_link * base;
+   struct bt_kinematics_link ** link; /* Moving links array */
+   struct bt_kinematics_link * toolplate;
+   struct bt_kinematics_link * tool;
+   
+   /* Toolplate Jacobian */
+   gsl_matrix * tool_jacobian;
+   gsl_matrix * tool_jacobian_linear; /* matrix view */
+   gsl_matrix * tool_jacobian_angular; /* matrix view */
+   gsl_vector * tool_velocity;
+   gsl_vector * tool_velocity_angular;
+   
+   /* Temp vector */
+   gsl_vector * temp_v3;
 };
+
 
 /** Create a bt_kinematics object from a given configuration.
  *
@@ -193,8 +198,9 @@ struct bt_kinematics {
  * \param[in] ndofs Expected number of moving links
  * \retval 0 Success
  */
-int bt_kinematics_create(struct bt_kinematics **kinptr,
-                         config_setting_t *kinconfig, int ndofs);
+int bt_kinematics_create(struct bt_kinematics ** kinptr,
+                         config_setting_t * kinconfig, int ndofs);
+
 
 /** Destroy a bt_kinematics object.
  *
@@ -204,7 +210,8 @@ int bt_kinematics_create(struct bt_kinematics **kinptr,
  * \param[in] kin bt_kinematics object to destroy
  * \retval 0 Success
  */
-int bt_kinematics_destroy(struct bt_kinematics *kin);
+int bt_kinematics_destroy(struct bt_kinematics * kin);
+
 
 /** Evaluate all link transforms, including the toolplate jacobian.
  *
@@ -217,8 +224,9 @@ int bt_kinematics_destroy(struct bt_kinematics *kin);
  * \param[in] jvelocity Joint velocity vector
  * \retval 0 Success
  */
-int bt_kinematics_eval(struct bt_kinematics *kin, const gsl_vector *jposition,
-                       const gsl_vector *jvelocity);
+int bt_kinematics_eval(struct bt_kinematics * kin, const gsl_vector * jposition,
+                       const gsl_vector * jvelocity);
+
 
 /** Evalulate the Jacobian matrix at a paticular point on a particular link.
  *
@@ -234,8 +242,8 @@ int bt_kinematics_eval(struct bt_kinematics *kin, const gsl_vector *jposition,
  *                 an alread-allocated 6-N matrix.
  * \retval 0 Success
  */
-int bt_kinematics_eval_jacobian(struct bt_kinematics *kin, int jlimit,
-                                gsl_vector *point, gsl_matrix *jac);
+int bt_kinematics_eval_jacobian(struct bt_kinematics * kin, int jlimit,
+                                gsl_vector * point, gsl_matrix * jac);
 
 #ifdef __cplusplus
 }

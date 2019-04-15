@@ -27,62 +27,69 @@
  * @file reader.h
  * @date 12/29/2009
  * @author Dan Cody
- *
+ *  
  */
 
 #ifndef BARRETT_LOG_READER_H_
 #define BARRETT_LOG_READER_H_
 
+
+#include <fstream>
 #include <barrett/detail/ca_macro.h>
 #include <barrett/log/traits.h>
-#include <fstream>
+
 
 namespace barrett {
 namespace log {
 
-template <typename T, typename Traits = Traits<T>> class Reader {
-  public:
+
+template<typename T, typename Traits = Traits<T> >
+class Reader {
+public:
 	typedef typename Traits::parameter_type parameter_type;
 	/** Constructor and Destructors for Reader.
 	 *
 	 */
-	Reader(const char *fileName);
+	Reader(const char* fileName);
 	~Reader();
 
-	/** numRecords Method returns the number of lines in the file being
-	 * processed.
-	 *
-	 */
+/** numRecords Method returns the number of lines in the file being processed.
+ *
+ */
 	size_t numRecords() const;
-	/** getRecord Method returns the line of the file currently being processed.
-	 *
-	 */
+/** getRecord Method returns the line of the file currently being processed.
+ *
+ */
 	T getRecord();
-	/** exportCSV method writes binary data to comma separated text file.
-	 *
-	 */
-	void exportCSV(const char *outputFileName);
-	/** exportCSV method writes binary data to comma separated text file.
-	 *
-	 */
-	void exportCSV(std::ostream &os);
-	/** close Method destroys file being written to.
-	 *
-	 */
+/** exportCSV method writes binary data to comma separated text file.
+ *
+ */
+	void exportCSV(const char* outputFileName);
+/** exportCSV method writes binary data to comma separated text file.
+ *
+ */
+	void exportCSV(std::ostream& os);
+/** close Method destroys file being written to. 
+ *
+ */
 	void close();
 
-  protected:
+protected:
 	std::ifstream file;
 	size_t recordLength, recordCount;
-	char *buffer;
+	char* buffer;
 
-  private:
+private:
 	DISALLOW_COPY_AND_ASSIGN(Reader);
 };
+
+
 }
 }
+
 
 // include template definitions
 #include <barrett/log/detail/reader-inl.h>
+
 
 #endif /* BARRETT_LOG_READER_H_ */

@@ -8,19 +8,22 @@
 #ifndef BARRETT_THREAD_ABSTRACT_MUTEX_H_
 #define BARRETT_THREAD_ABSTRACT_MUTEX_H_
 
-#include <barrett/detail/ca_macro.h>
-#include <boost/thread.hpp>
 
-#define BARRETT_SCOPED_LOCK(mutex)                                             \
-	::boost::lock_guard<::barrett::thread::Mutex> _barrett_scoped_lock_lg(mutex)
+#include <boost/thread.hpp>
+#include <barrett/detail/ca_macro.h>
+
+
+#define BARRETT_SCOPED_LOCK(mutex)  \
+	::boost::lock_guard< ::barrett::thread::Mutex> _barrett_scoped_lock_lg(mutex)
+
 
 namespace barrett {
 namespace thread {
 
-// An abstract, recursive mutex object. Is a model of the
-// boost::thread::Lockable concept.
+
+// An abstract, recursive mutex object. Is a model of the boost::thread::Lockable concept.
 class Mutex {
-  public:
+public:
 	Mutex() {}
 	virtual ~Mutex() {}
 
@@ -31,10 +34,13 @@ class Mutex {
 	virtual int fullUnlock() = 0;
 	virtual void relock(int lc) = 0;
 
-  private:
+private:
 	DISALLOW_COPY_AND_ASSIGN(Mutex);
 };
+
+
 }
 }
+
 
 #endif /* BARRETT_THREAD_ABSTRACT_MUTEX_H_ */

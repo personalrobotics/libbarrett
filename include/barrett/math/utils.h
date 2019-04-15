@@ -28,20 +28,24 @@
  * <http://wiki.barrett.com/libbarrett/wiki/LicenseNotes>
  */
 
+
 #ifndef BARRETT_MATH_UTILS_H_
 #define BARRETT_MATH_UTILS_H_
 
+
 #include <Eigen/Core>
+
 
 namespace barrett {
 namespace math {
 
+
 namespace detail {
-template <typename Scalar> struct CwiseSignOp;
-template <typename Scalar> struct CwiseUnarySaturateOp;
-template <typename Scalar> struct CwiseBinarySaturateOp;
-template <typename Scalar> struct CwiseUnaryDeadbandOp;
-template <typename Scalar> struct CwiseBinaryDeadbandOp;
+template<typename Scalar> struct CwiseSignOp;
+template<typename Scalar> struct CwiseUnarySaturateOp;
+template<typename Scalar> struct CwiseBinarySaturateOp;
+template<typename Scalar> struct CwiseUnaryDeadbandOp;
+template<typename Scalar> struct CwiseBinaryDeadbandOp;
 }
 
 /** Computes the sign (positive, zero, or negative) of its input.
@@ -55,11 +59,11 @@ template <typename Scalar> struct CwiseBinaryDeadbandOp;
  * @retval 0 if <tt> x == 0 </tt>
  * @retval -1 if <tt> x < 0 </tt>
  */
-template <typename Derived>
+template<typename Derived>
 const Eigen::CwiseUnaryOp<
-    detail::CwiseSignOp<typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-sign(const Eigen::MatrixBase<Derived> &x);
+	detail::CwiseSignOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> sign(const Eigen::MatrixBase<Derived>& x);
 
 double sign(double x);
 
@@ -72,12 +76,11 @@ double sign(double x);
  * @retval x if <tt> x >= 0 </tt>
  * @retval -x if <tt> x < 0 </tt>
  */
-template <typename Derived>
+template<typename Derived>
 const Eigen::CwiseUnaryOp<
-    Eigen::internal::scalar_abs_op<
-        typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-abs(const Eigen::MatrixBase<Derived> &x);
+	Eigen::internal::scalar_abs_op<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> abs(const Eigen::MatrixBase<Derived>& x);
 
 /** Returns the minimum of its two inputs.
  *
@@ -89,12 +92,12 @@ abs(const Eigen::MatrixBase<Derived> &x);
  * @retval a if <tt> a < b </tt>
  * @retval b otherwise.
  */
-template <typename Derived1, typename Derived2>
+template<typename Derived1, typename Derived2>
 const Eigen::CwiseBinaryOp<
-    Eigen::internal::scalar_min_op<
-        typename Eigen::internal::traits<Derived1>::Scalar>,
-    const Derived1, const Derived2>
-min(const Eigen::MatrixBase<Derived1> &a, const Eigen::MatrixBase<Derived2> &b);
+	Eigen::internal::scalar_min_op<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
+> min(const Eigen::MatrixBase<Derived1>& a, const Eigen::MatrixBase<Derived2>& b);
 
 double min(double a, double b);
 
@@ -108,17 +111,16 @@ double min(double a, double b);
  * @retval a if <tt> a > b </tt>
  * @retval b otherwise.
  */
-template <typename Derived1, typename Derived2>
+template<typename Derived1, typename Derived2>
 const Eigen::CwiseBinaryOp<
-    Eigen::internal::scalar_max_op<
-        typename Eigen::internal::traits<Derived1>::Scalar>,
-    const Derived1, const Derived2>
-max(const Eigen::MatrixBase<Derived1> &a, const Eigen::MatrixBase<Derived2> &b);
+	Eigen::internal::scalar_max_op<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
+> max(const Eigen::MatrixBase<Derived1>& a, const Eigen::MatrixBase<Derived2>& b);
 
 double max(double a, double b);
 
-// template<typename T> T max(const T& a, const T& b);  //NOLINT: this is not
-// the max() from <algorithm>
+//template<typename T> T max(const T& a, const T& b);  //NOLINT: this is not the max() from <algorithm>
 
 /** Ensures the input does not exceed the given limits.
  *
@@ -130,32 +132,30 @@ double max(double a, double b);
  * @retval x if <tt> abs(x) < limit </tt>
  * @retval sign(x)*limit otherwise.
  */
-template <typename Derived>
+template<typename Derived>
 const Eigen::CwiseUnaryOp<
-    detail::CwiseUnarySaturateOp<
-        typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-saturate(const Eigen::MatrixBase<Derived> &x, double limit);
+	detail::CwiseUnarySaturateOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> saturate(const Eigen::MatrixBase<Derived>& x, double limit);
 
-template <typename Derived1, typename Derived2>
+template<typename Derived1, typename Derived2>
 inline const Eigen::CwiseBinaryOp<
-    detail::CwiseBinarySaturateOp<
-        typename Eigen::internal::traits<Derived1>::Scalar>,
-    const Derived1, const Derived2>
-saturate(const Eigen::MatrixBase<Derived1> &x,
-         const Eigen::MatrixBase<Derived2> &limit);
+	detail::CwiseBinarySaturateOp<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
+> saturate(const Eigen::MatrixBase<Derived1>& x, const Eigen::MatrixBase<Derived2>& limit);
 
 double saturate(double x, double limit);
 
-template <typename Derived>
+
+template<typename Derived>
 const Eigen::CwiseUnaryOp<
-    detail::CwiseUnarySaturateOp<
-        typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-saturate(const Eigen::MatrixBase<Derived> &x, double lowerLimit,
-         double upperLimit);
+	detail::CwiseUnarySaturateOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> saturate(const Eigen::MatrixBase<Derived>& x, double lowerLimit, double upperLimit);
 
 double saturate(double x, double lowerLimit, double upperLimit);
+
 
 /** Maps input values smaller than the given cutoff to zero.
  *
@@ -168,29 +168,31 @@ double saturate(double x, double lowerLimit, double upperLimit);
  * @retval x-sign(x)*cutoff if <tt> abs(x) > cutoff </tt>
  * @retval 0 otherwise.
  */
-template <typename Derived>
+template<typename Derived>
 const Eigen::CwiseUnaryOp<
-    detail::CwiseUnaryDeadbandOp<
-        typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-deadband(const Eigen::MatrixBase<Derived> &x, double cutoff);
+	detail::CwiseUnaryDeadbandOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> deadband(const Eigen::MatrixBase<Derived>& x, double cutoff);
 
-template <typename Derived1, typename Derived2>
+template<typename Derived1, typename Derived2>
 const Eigen::CwiseBinaryOp<
-    detail::CwiseBinaryDeadbandOp<
-        typename Eigen::internal::traits<Derived1>::Scalar>,
-    const Derived1, const Derived2>
-deadband(const Eigen::MatrixBase<Derived1> &x,
-         const Eigen::MatrixBase<Derived2> &cutoff);
+	detail::CwiseBinaryDeadbandOp<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
+> deadband(const Eigen::MatrixBase<Derived1>& x, const Eigen::MatrixBase<Derived2>& cutoff);
 
 double deadband(double x, double cutoff);
 
-// template<typename T> T deadBand(const T& x,
+//template<typename T> T deadBand(const T& x,
 //		const T& lowerCutoff, const T& upperCutoff);
+
+
 }
 }
 
+
 // include template definitions
 #include <barrett/math/detail/utils-inl.h>
+
 
 #endif /* BARRETT_MATH_UTILS_H_ */

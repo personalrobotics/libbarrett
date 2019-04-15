@@ -27,29 +27,34 @@
  * <http://wiki.barrett.com/libbarrett/wiki/LicenseNotes>
  */
 
+
 #include <algorithm>
-#include <cassert>
 #include <cmath>
+#include <cassert>
 
 namespace barrett {
 namespace math {
 
+
 namespace detail {
-template <typename Scalar> struct CwiseSignOp {
-	inline const Scalar operator()(const Scalar &x) const { return sign(x); }
+template<typename Scalar> struct CwiseSignOp {
+	inline const Scalar operator() (const Scalar& x) const {
+		return sign(x);
+	}
 };
 }
 
-template <typename Derived>
+template<typename Derived>
 inline const Eigen::CwiseUnaryOp<
-    detail::CwiseSignOp<typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-sign(const Eigen::MatrixBase<Derived> &x) {
-	return x.unaryExpr(detail::CwiseSignOp<
-	                   typename Eigen::internal::traits<Derived>::Scalar>());
+	detail::CwiseSignOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> sign(const Eigen::MatrixBase<Derived>& x)
+{
+	return x.unaryExpr(detail::CwiseSignOp<typename Eigen::internal::traits<Derived>::Scalar>());
 }
 
-inline double sign(double x) {
+inline double sign(double x)
+{
 	if (x > 0.0) {
 		return 1.0;
 	} else if (x == 0.0) {
@@ -59,100 +64,105 @@ inline double sign(double x) {
 	}
 }
 
+
 using std::abs;
 
-template <typename Derived>
+template<typename Derived>
 inline const Eigen::CwiseUnaryOp<
-    Eigen::internal::scalar_abs_op<
-        typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-abs(const Eigen::MatrixBase<Derived> &x) {
+	Eigen::internal::scalar_abs_op<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> abs(const Eigen::MatrixBase<Derived>& x)
+{
 	return x.cwiseAbs();
 }
 
-template <typename Derived1, typename Derived2>
+
+template<typename Derived1, typename Derived2>
 inline const Eigen::CwiseBinaryOp<
-    Eigen::internal::scalar_min_op<
-        typename Eigen::internal::traits<Derived1>::Scalar>,
-    const Derived1, const Derived2>
-min(const Eigen::MatrixBase<Derived1> &a,
-    const Eigen::MatrixBase<Derived2> &b) {
+	Eigen::internal::scalar_min_op<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
+> min(const Eigen::MatrixBase<Derived1>& a, const Eigen::MatrixBase<Derived2>& b)
+{
 	return a.cwiseMin(b);
 }
 
-inline double min(double a, double b) { return std::min(a, b); }
+inline double min(double a, double b)
+{
+	return std::min(a, b);
+}
 
-template <typename Derived1, typename Derived2>
+
+template<typename Derived1, typename Derived2>
 inline const Eigen::CwiseBinaryOp<
-    Eigen::internal::scalar_max_op<
-        typename Eigen::internal::traits<Derived1>::Scalar>,
-    const Derived1, const Derived2>
-max(const Eigen::MatrixBase<Derived1> &a,
-    const Eigen::MatrixBase<Derived2> &b) {
+	Eigen::internal::scalar_max_op<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
+> max(const Eigen::MatrixBase<Derived1>& a, const Eigen::MatrixBase<Derived2>& b)
+{
 	return a.cwiseMax(b);
 }
 
-inline double max(double a, double b) { return std::max(a, b); }
+inline double max(double a, double b)
+{
+	return std::max(a, b);
+}
+
 
 namespace detail {
-template <typename Scalar> struct CwiseUnarySaturateOp {
-	CwiseUnarySaturateOp(Scalar lowerLimit, Scalar upperLimit)
-	    : lowerLimit(lowerLimit), upperLimit(upperLimit) {}
+template<typename Scalar> struct CwiseUnarySaturateOp {
+	CwiseUnarySaturateOp(Scalar lowerLimit, Scalar upperLimit) : lowerLimit(lowerLimit), upperLimit(upperLimit) {}
 
-	inline const Scalar operator()(const Scalar &x) const {
+	inline const Scalar operator() (const Scalar& x) const {
 		return saturate(x, lowerLimit, upperLimit);
 	}
 
 	Scalar lowerLimit, upperLimit;
 };
 
-template <typename Scalar> struct CwiseBinarySaturateOp {
-	inline const Scalar operator()(const Scalar &x, const Scalar &limit) const {
+template<typename Scalar> struct CwiseBinarySaturateOp {
+	inline const Scalar operator() (const Scalar& x, const Scalar& limit) const {
 		return saturate(x, limit);
 	}
 };
 }
 
-template <typename Derived>
+template<typename Derived>
 inline const Eigen::CwiseUnaryOp<
-    detail::CwiseUnarySaturateOp<
-        typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-saturate(const Eigen::MatrixBase<Derived> &x, double limit) {
-	return x.unaryExpr(
-	    detail::CwiseUnarySaturateOp<
-	        typename Eigen::internal::traits<Derived>::Scalar>(-limit, limit));
+	detail::CwiseUnarySaturateOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> saturate(const Eigen::MatrixBase<Derived>& x, double limit)
+{
+	return x.unaryExpr(detail::CwiseUnarySaturateOp<typename Eigen::internal::traits<Derived>::Scalar>(-limit, limit));
 }
 
-template <typename Derived1, typename Derived2>
+template<typename Derived1, typename Derived2>
 inline const Eigen::CwiseBinaryOp<
-    detail::CwiseBinarySaturateOp<
-        typename Eigen::internal::traits<Derived1>::Scalar>,
-    const Derived1, const Derived2>
-saturate(const Eigen::MatrixBase<Derived1> &x,
-         const Eigen::MatrixBase<Derived2> &limit) {
-	return x.binaryExpr(
-	    limit, detail::CwiseBinarySaturateOp<
-	               typename Eigen::internal::traits<Derived1>::Scalar>());
+	detail::CwiseBinarySaturateOp<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
+> saturate(const Eigen::MatrixBase<Derived1>& x, const Eigen::MatrixBase<Derived2>& limit)
+{
+	return x.binaryExpr(limit, detail::CwiseBinarySaturateOp<typename Eigen::internal::traits<Derived1>::Scalar>());
 }
 
-inline double saturate(double x, double limit) {
+inline double saturate(double x, double limit)
+{
 	return saturate(x, -limit, limit);
 }
 
-template <typename Derived>
+
+template<typename Derived>
 inline const Eigen::CwiseUnaryOp<
-    detail::CwiseUnarySaturateOp<
-        typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-saturate(const Eigen::MatrixBase<Derived> &x, double lowerLimit,
-         double upperLimit) {
-	return x.unaryExpr(detail::CwiseUnarySaturateOp<
-	                   typename Eigen::internal::traits<Derived>::Scalar>(
-	    lowerLimit, upperLimit));
+	detail::CwiseUnarySaturateOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> saturate(const Eigen::MatrixBase<Derived>& x, double lowerLimit, double upperLimit)
+{
+	return x.unaryExpr(detail::CwiseUnarySaturateOp<typename Eigen::internal::traits<Derived>::Scalar>(lowerLimit, upperLimit));
 }
 
-inline double saturate(double x, double lowerLimit, double upperLimit) {
+inline double saturate(double x, double lowerLimit, double upperLimit)
+{
 	assert(lowerLimit < upperLimit);
 
 	if (x > upperLimit) {
@@ -164,49 +174,46 @@ inline double saturate(double x, double lowerLimit, double upperLimit) {
 	}
 }
 
+
 namespace detail {
-template <typename Scalar> struct CwiseUnaryDeadbandOp {
+template<typename Scalar> struct CwiseUnaryDeadbandOp {
 	CwiseUnaryDeadbandOp(Scalar cutoff) : cutoff(cutoff) {}
 
-	inline const Scalar operator()(const Scalar &x) const {
+	inline const Scalar operator() (const Scalar& x) const {
 		return deadband(x, cutoff);
 	}
 
 	Scalar cutoff;
 };
 
-template <typename Scalar> struct CwiseBinaryDeadbandOp {
-	inline const Scalar operator()(const Scalar &x,
-	                               const Scalar &cutoff) const {
+template<typename Scalar> struct CwiseBinaryDeadbandOp {
+	inline const Scalar operator() (const Scalar& x, const Scalar& cutoff) const {
 		return deadband(x, cutoff);
 	}
 };
 }
 
-template <typename Derived>
+template<typename Derived>
 inline const Eigen::CwiseUnaryOp<
-    detail::CwiseUnaryDeadbandOp<
-        typename Eigen::internal::traits<Derived>::Scalar>,
-    const Derived>
-deadband(const Eigen::MatrixBase<Derived> &x, double cutoff) {
-	return x.unaryExpr(
-	    detail::CwiseUnaryDeadbandOp<
-	        typename Eigen::internal::traits<Derived>::Scalar>(cutoff));
+	detail::CwiseUnaryDeadbandOp<typename Eigen::internal::traits<Derived>::Scalar>,
+	const Derived
+> deadband(const Eigen::MatrixBase<Derived>& x, double cutoff)
+{
+	return x.unaryExpr(detail::CwiseUnaryDeadbandOp<typename Eigen::internal::traits<Derived>::Scalar>(cutoff));
 }
 
-template <typename Derived1, typename Derived2>
+template<typename Derived1, typename Derived2>
 inline const Eigen::CwiseBinaryOp<
-    detail::CwiseBinaryDeadbandOp<
-        typename Eigen::internal::traits<Derived1>::Scalar>,
-    const Derived1, const Derived2>
-deadband(const Eigen::MatrixBase<Derived1> &x,
-         const Eigen::MatrixBase<Derived2> &cutoff) {
-	return x.binaryExpr(
-	    cutoff, detail::CwiseBinaryDeadbandOp<
-	                typename Eigen::internal::traits<Derived1>::Scalar>());
+	detail::CwiseBinaryDeadbandOp<typename Eigen::internal::traits<Derived1>::Scalar>,
+	const Derived1,
+	const Derived2
+> deadband(const Eigen::MatrixBase<Derived1>& x, const Eigen::MatrixBase<Derived2>& cutoff)
+{
+	return x.binaryExpr(cutoff, detail::CwiseBinaryDeadbandOp<typename Eigen::internal::traits<Derived1>::Scalar>());
 }
 
-inline double deadband(double x, double cutoff) {
+inline double deadband(double x, double cutoff)
+{
 	if (x > cutoff) {
 		return x - cutoff;
 	} else if (x < -cutoff) {
@@ -215,5 +222,7 @@ inline double deadband(double x, double cutoff) {
 		return 0.0;
 	}
 }
+
+
 }
 }
