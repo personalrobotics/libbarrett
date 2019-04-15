@@ -27,19 +27,19 @@
 /**
  *	@file ca_macro.h
  *  @date 12/2009
- *	copied from: http://greeness2008.blogspot.com/2008/10/google-c-coding-style.html
+ *	copied from:
+ *http://greeness2008.blogspot.com/2008/10/google-c-coding-style.html
  */
 #ifndef BARRETT_DETAIL_CA_MACRO_H_
 #define BARRETT_DETAIL_CA_MACRO_H_
 
 /** Disallow Copy and Assign Macro
- * 
+ *
  *	This macro disallows the copy ctor and operator= functions
- * 	and should be used in the private: declarations for a class 
+ * 	and should be used in the private: declarations for a class
  */
-#define DISALLOW_COPY_AND_ASSIGN(TypeName)		\
-		TypeName(const TypeName&);				\
-		void operator=(const TypeName&)
-
+#define DISALLOW_COPY_AND_ASSIGN(TypeName)                                     \
+  TypeName(const TypeName &);                                                  \
+  void operator=(const TypeName &)
 
 #endif /* BARRETT_DETAIL_CA_MACRO_H_ */

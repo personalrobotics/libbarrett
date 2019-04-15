@@ -1,5 +1,6 @@
 /*
-        Copyright 2009, 2010, 2011, 2012 Barrett Technology <support@barrett.com>
+        Copyright 2009, 2010, 2011, 2012 Barrett Technology
+   <support@barrett.com>
 
         This file is part of libbarrett.
 
@@ -31,47 +32,42 @@
 #ifndef BARRETT_SYSTEMS_TOOL_VELOCITY_H_
 #define BARRETT_SYSTEMS_TOOL_VELOCITY_H_
 
-
 #include <Eigen/Core>
 
 #include <barrett/detail/ca_macro.h>
-#include <barrett/units.h>
-#include <barrett/systems/abstract/system.h>
 #include <barrett/systems/abstract/single_io.h>
+#include <barrett/systems/abstract/system.h>
 #include <barrett/systems/kinematics_base.h>
-
+#include <barrett/units.h>
 
 namespace barrett {
 namespace systems {
 
-
-template<size_t DOF>
-class ToolVelocity : public System, public KinematicsInput<DOF>,
-                                         public SingleOutput<units::CartesianVelocity::type> {
+template <size_t DOF>
+class ToolVelocity : public System,
+                     public KinematicsInput<DOF>,
+                     public SingleOutput<units::CartesianVelocity::type> {
 public:
-        ToolVelocity(const std::string& sysName = "ToolVelocity") :
-                System(sysName), KinematicsInput<DOF>(this),
-                SingleOutput<units::CartesianVelocity::type>(this), data() {}
-        virtual ~ToolVelocity() { mandatoryCleanUp(); }
+  ToolVelocity(const std::string &sysName = "ToolVelocity")
+      : System(sysName), KinematicsInput<DOF>(this),
+        SingleOutput<units::CartesianVelocity::type>(this), data() {}
+  virtual ~ToolVelocity() { mandatoryCleanUp(); }
 
 protected:
-        virtual void operate() {
-                data.copyFrom(this->kinInput.getValue().impl->tool_velocity);
-                this->outputValue->setData(&data);
-        }
+  virtual void operate() {
+	data.copyFrom(this->kinInput.getValue().impl->tool_velocity);
+	this->outputValue->setData(&data);
+  }
 
-        units::CartesianVelocity::type data;
+  units::CartesianVelocity::type data;
 
 private:
-        DISALLOW_COPY_AND_ASSIGN(ToolVelocity);
+  DISALLOW_COPY_AND_ASSIGN(ToolVelocity);
 
 public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
-
-
 }
 }
-
 
 #endif /* BARRETT_SYSTEMS_TOOL_VELOCITY_H_ */

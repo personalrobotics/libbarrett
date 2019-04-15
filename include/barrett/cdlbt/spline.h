@@ -47,9 +47,8 @@
 extern "C" {
 #endif
 
-#include <gsl/gsl_vector.h>
 #include <gsl/gsl_interp.h>
-
+#include <gsl/gsl_vector.h>
 
 /** A bt_spline has two different parameterization modes, arclen and
  *  external.
@@ -66,28 +65,24 @@ extern "C" {
  * added. This mode is most often used with elapsed time serving as the
  * external parameter.
  */
-enum bt_spline_mode
-{
-   BT_SPLINE_MODE_ARCLEN, /* The spline uses computed arc-length */
-   BT_SPLINE_MODE_EXTERNAL /* The spline uses an external parameter */
+enum bt_spline_mode {
+  BT_SPLINE_MODE_ARCLEN,  /* The spline uses computed arc-length */
+  BT_SPLINE_MODE_EXTERNAL /* The spline uses an external parameter */
 };
-
 
 /** Spline data, including the dimensionality, array of saved points and
  *  parameters, and GSL interpolators / accelerators used when retrieving
  *  points.*/
-struct bt_spline
-{
-   enum bt_spline_mode mode;
-   int dimension;
-   int npoints;
-   double * ss;
-   double length;
-   double ** points;
-   gsl_interp_accel * acc;
-   gsl_interp ** interps;
+struct bt_spline {
+  enum bt_spline_mode mode;
+  int dimension;
+  int npoints;
+  double *ss;
+  double length;
+  double **points;
+  gsl_interp_accel *acc;
+  gsl_interp **interps;
 };
-
 
 /** Create a bt_spline object from a given start location.
  *
@@ -99,9 +94,8 @@ struct bt_spline
  * \param[in] mode Spline mode; either arclen or external.
  * \retval 0 Success
  */
-int bt_spline_create(struct bt_spline ** splineptr, const gsl_vector * start,
+int bt_spline_create(struct bt_spline **splineptr, const gsl_vector *start,
                      enum bt_spline_mode mode);
-
 
 /** Add a point to a bt_spline.
  *
@@ -116,8 +110,7 @@ int bt_spline_create(struct bt_spline ** splineptr, const gsl_vector * start,
  * \param[in] s The values of the external parameter at this point
  * \retval 0 Success
  */
-int bt_spline_add(struct bt_spline * spline, const gsl_vector * vec, double s);
-
+int bt_spline_add(struct bt_spline *spline, const gsl_vector *vec, double s);
 
 /** Initialize the bt_spline after adding all points.
  *
@@ -138,9 +131,8 @@ int bt_spline_add(struct bt_spline * spline, const gsl_vector * vec, double s);
  * \param[in] direction A vector to use as the direction of the new spline
  * \retval 0 Success
  */
-int bt_spline_init(struct bt_spline * spline, gsl_vector * start,
-                   gsl_vector * direction);
-
+int bt_spline_init(struct bt_spline *spline, gsl_vector *start,
+                   gsl_vector *direction);
 
 /** Destroy a bt_spline object.
  *
@@ -150,8 +142,7 @@ int bt_spline_init(struct bt_spline * spline, gsl_vector * start,
  * \param[in] spline The bt_spline object to destroy
  * \retval 0 Success
  */
-int bt_spline_destroy(struct bt_spline * spline);
-
+int bt_spline_destroy(struct bt_spline *spline);
 
 /** Retrieve the interpolated vector at a given parameter value.
  *
@@ -163,8 +154,7 @@ int bt_spline_destroy(struct bt_spline * spline);
  * \param[in] s The parameter value to use
  * \retval 0 Success
  */
-int bt_spline_get(struct bt_spline * spline, gsl_vector * result, double s);
-
+int bt_spline_get(struct bt_spline *spline, gsl_vector *result, double s);
 
 #ifdef __cplusplus
 }

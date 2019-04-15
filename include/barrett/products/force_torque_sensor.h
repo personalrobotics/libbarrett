@@ -27,110 +27,114 @@
  * @file force_torque_sensor.h
  * @date 11/08/2010
  * @author Dan Cody
- * 
+ *
  */
 
 #ifndef BARRETT_PRODUCTS_FT_SENSOR_H_
 #define BARRETT_PRODUCTS_FT_SENSOR_H_
 
-
 #include <Eigen/Core>
 
-#include <barrett/detail/ca_macro.h>
-#include <barrett/units.h>
 #include <barrett/bus/abstract/communications_bus.h>
-#include <barrett/products/puck.h>
+#include <barrett/detail/ca_macro.h>
 #include <barrett/products/abstract/special_puck.h>
-
+#include <barrett/products/puck.h>
+#include <barrett/units.h>
 
 namespace barrett {
 
-
 class ForceTorqueSensor : public SpecialPuck {
 public:
-	BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
+  BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
 
-	/** ForceTorqueSensor Constructor */
-	ForceTorqueSensor(Puck* puck = NULL) : SpecialPuck(/* TODO(dc): Puck::PT_ForceTorque */), bus(NULL) { setPuck(puck); }
-	/** ForceTorqueSensor Destructor */
-	~ForceTorqueSensor() {}
-	
-	/** setPuck Method changes puck properties to be ForceTorqueSensor settings  */
-	void setPuck(Puck* puck);
-	/** tare Method establishes new baseline for differential calculations. */
-	void tare() { Puck::setProperty(*bus, id, propId, 0); }
-	/** update Method establishes new force and torque values from the sensor */
-	void update(bool realtime = false);
-	/** getForce Method returns cartesian force values for each axis in n/m */
-	const cf_type& getForce() const { return cf; }
-	/** getTorque Method returns cartesian torque values for each axis in torque units */
-	const ct_type& getTorque() const { return ct; }
-	/** updateAccel Method clears stored acceleration values in each axis */
-	void updateAccel(bool realtime = false);
-	/** getAccel Method returns cartesian acceleration for each axis in n/m^2 */
-	const ca_type& getAccel() const { return ca; }
+  /** ForceTorqueSensor Constructor */
+  ForceTorqueSensor(Puck *puck = NULL)
+      : SpecialPuck(/* TODO(dc): Puck::PT_ForceTorque */), bus(NULL) {
+	setPuck(puck);
+  }
+  /** ForceTorqueSensor Destructor */
+  ~ForceTorqueSensor() {}
 
-	/** */
-	struct ForceParser {
-		static int busId(int id, int propId) {
-			return Puck::encodeBusId(id, PuckGroup::FGRP_FT_FORCE);
-		}
+  /** setPuck Method changes puck properties to be ForceTorqueSensor settings */
+  void setPuck(Puck *puck);
+  /** tare Method establishes new baseline for differential calculations. */
+  void tare() { Puck::setProperty(*bus, id, propId, 0); }
+  /** update Method establishes new force and torque values from the sensor */
+  void update(bool realtime = false);
+  /** getForce Method returns cartesian force values for each axis in n/m */
+  const cf_type &getForce() const { return cf; }
+  /** getTorque Method returns cartesian torque values for each axis in torque
+   * units */
+  const ct_type &getTorque() const { return ct; }
+  /** updateAccel Method clears stored acceleration values in each axis */
+  void updateAccel(bool realtime = false);
+  /** getAccel Method returns cartesian acceleration for each axis in n/m^2 */
+  const ca_type &getAccel() const { return ca; }
 
-		static constexpr double SCALE_FACTOR = 256.0;
-		typedef cf_type result_type;
-		static int parse(int id, int propId, result_type* result, const unsigned char* data, size_t len) {
-			return ForceTorqueSensor::parse(id, propId, result, data, len, SCALE_FACTOR);
-		}
-	};
-	/** */
-	struct TorqueParser {
-		static int busId(int id, int propId) {
-			return Puck::encodeBusId(id, PuckGroup::FGRP_FT_TORQUE);
-		}
+  /** */
+  struct ForceParser {
+	static int busId(int id, int propId) {
+	  return Puck::encodeBusId(id, PuckGroup::FGRP_FT_FORCE);
+	}
 
-		static constexpr double SCALE_FACTOR = 4096.0;
-		typedef ct_type result_type;
-		static int parse(int id, int propId, result_type* result, const unsigned char* data, size_t len) {
-			return ForceTorqueSensor::parse(id, propId, result, data, len, SCALE_FACTOR);
-		}
-	};
-	/** */
-	struct AccelParser {
-		static int busId(int id, int propId) {
-			return Puck::encodeBusId(id, PuckGroup::FGRP_FT_ACCEL);
-		}
+	static constexpr double SCALE_FACTOR = 256.0;
+	typedef cf_type result_type;
+	static int parse(int id, int propId, result_type *result,
+	                 const unsigned char *data, size_t len) {
+	  return ForceTorqueSensor::parse(id, propId, result, data, len,
+	                                  SCALE_FACTOR);
+	}
+  };
+  /** */
+  struct TorqueParser {
+	static int busId(int id, int propId) {
+	  return Puck::encodeBusId(id, PuckGroup::FGRP_FT_TORQUE);
+	}
 
-		static constexpr double SCALE_FACTOR = 1024.0;
-		typedef ca_type result_type;
-		static int parse(int id, int propId, result_type* result, const unsigned char* data, size_t len) {
-			return ForceTorqueSensor::parse(id, propId, result, data, len, SCALE_FACTOR);
-		}
-	};
+	static constexpr double SCALE_FACTOR = 4096.0;
+	typedef ct_type result_type;
+	static int parse(int id, int propId, result_type *result,
+	                 const unsigned char *data, size_t len) {
+	  return ForceTorqueSensor::parse(id, propId, result, data, len,
+	                                  SCALE_FACTOR);
+	}
+  };
+  /** */
+  struct AccelParser {
+	static int busId(int id, int propId) {
+	  return Puck::encodeBusId(id, PuckGroup::FGRP_FT_ACCEL);
+	}
 
+	static constexpr double SCALE_FACTOR = 1024.0;
+	typedef ca_type result_type;
+	static int parse(int id, int propId, result_type *result,
+	                 const unsigned char *data, size_t len) {
+	  return ForceTorqueSensor::parse(id, propId, result, data, len,
+	                                  SCALE_FACTOR);
+	}
+  };
 
 protected:
-	const bus::CommunicationsBus* bus;
-	int id;
-	int propId;
+  const bus::CommunicationsBus *bus;
+  int id;
+  int propId;
 
-	cf_type cf;
-	ct_type ct;
-	ca_type ca;
+  cf_type cf;
+  ct_type ct;
+  ca_type ca;
 
 private:
-	typedef cf_type::Base base_type;
+  typedef cf_type::Base base_type;
 
-	static int twoByte2int(unsigned char lsb, unsigned char msb);
-	static int parse(int id, int propId, base_type* result, const unsigned char* data, size_t len, double scaleFactor);
+  static int twoByte2int(unsigned char lsb, unsigned char msb);
+  static int parse(int id, int propId, base_type *result,
+                   const unsigned char *data, size_t len, double scaleFactor);
 
-	DISALLOW_COPY_AND_ASSIGN(ForceTorqueSensor);
+  DISALLOW_COPY_AND_ASSIGN(ForceTorqueSensor);
 
 public:
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
-
-
 }
-
 
 #endif /* BARRETT_PRODUCTS_FT_SENSOR_H_ */
