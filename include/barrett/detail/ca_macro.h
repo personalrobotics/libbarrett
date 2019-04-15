@@ -39,7 +39,7 @@
  * 	and should be used in the private: declarations for a class
  */
 #define DISALLOW_COPY_AND_ASSIGN(TypeName)                                     \
-  TypeName(const TypeName &);                                                  \
-  void operator=(const TypeName &)
+	TypeName(const TypeName &);                                                \
+	void operator=(const TypeName &)
 
 #endif /* BARRETT_DETAIL_CA_MACRO_H_ */

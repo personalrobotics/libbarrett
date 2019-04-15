@@ -41,42 +41,43 @@ namespace barrett {
 namespace log {
 
 template <typename T, typename Traits = Traits<T>> class Reader {
-public:
-  typedef typename Traits::parameter_type parameter_type;
-  /** Constructor and Destructors for Reader.
-   *
-   */
-  Reader(const char *fileName);
-  ~Reader();
+  public:
+	typedef typename Traits::parameter_type parameter_type;
+	/** Constructor and Destructors for Reader.
+	 *
+	 */
+	Reader(const char *fileName);
+	~Reader();
 
-  /** numRecords Method returns the number of lines in the file being processed.
-   *
-   */
-  size_t numRecords() const;
-  /** getRecord Method returns the line of the file currently being processed.
-   *
-   */
-  T getRecord();
-  /** exportCSV method writes binary data to comma separated text file.
-   *
-   */
-  void exportCSV(const char *outputFileName);
-  /** exportCSV method writes binary data to comma separated text file.
-   *
-   */
-  void exportCSV(std::ostream &os);
-  /** close Method destroys file being written to.
-   *
-   */
-  void close();
+	/** numRecords Method returns the number of lines in the file being
+	 * processed.
+	 *
+	 */
+	size_t numRecords() const;
+	/** getRecord Method returns the line of the file currently being processed.
+	 *
+	 */
+	T getRecord();
+	/** exportCSV method writes binary data to comma separated text file.
+	 *
+	 */
+	void exportCSV(const char *outputFileName);
+	/** exportCSV method writes binary data to comma separated text file.
+	 *
+	 */
+	void exportCSV(std::ostream &os);
+	/** close Method destroys file being written to.
+	 *
+	 */
+	void close();
 
-protected:
-  std::ifstream file;
-  size_t recordLength, recordCount;
-  char *buffer;
+  protected:
+	std::ifstream file;
+	size_t recordLength, recordCount;
+	char *buffer;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Reader);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Reader);
 };
 }
 }

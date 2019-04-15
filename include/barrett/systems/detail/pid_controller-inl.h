@@ -44,7 +44,7 @@ PIDController<InputType, OutputType, MathTraits>::PIDController(
     : Controller<InputType, OutputType>(sysName), T_s(0.0), error(0.0),
       error_1(0.0), intError(0.0), intErrorLimit(0.0), kp(0.0), ki(0.0),
       kd(0.0), controlSignal(0.0), controlSignalLimit(0.0) {
-  getSamplePeriodFromEM();
+	getSamplePeriodFromEM();
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
@@ -53,122 +53,122 @@ PIDController<InputType, OutputType, MathTraits>::PIDController(
     : Controller<InputType, OutputType>(sysName), T_s(0.0), error(0.0),
       error_1(0.0), intError(0.0), intErrorLimit(0.0), kp(0.0), ki(0.0),
       kd(0.0), controlSignal(0.0), controlSignalLimit(0.0) {
-  getSamplePeriodFromEM();
-  setFromConfig(setting);
+	getSamplePeriodFromEM();
+	setFromConfig(setting);
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::setFromConfig(
     const libconfig::Setting &setting) {
-  if (setting.exists("kp")) {
-	setKp(unitless_type(setting["kp"]));
-  } else {
-	setKp(unitless_type(0.0));
-  }
-  if (setting.exists("ki")) {
-	setKi(unitless_type(setting["ki"]));
-  } else {
-	setKi(unitless_type(0.0));
-  }
-  if (setting.exists("kd")) {
-	setKd(unitless_type(setting["kd"]));
-  } else {
-	setKd(unitless_type(0.0));
-  }
-  if (setting.exists("integrator_limit")) {
-	setIntegratorLimit(unitless_type(setting["integrator_limit"]));
-  } else {
-	setIntegratorLimit(unitless_type(0.0));
-  }
-  if (setting.exists("control_signal_limit")) {
-	setControlSignalLimit(unitless_type(setting["control_signal_limit"]));
-  } else {
-	setControlSignalLimit(unitless_type(0.0));
-  }
+	if (setting.exists("kp")) {
+		setKp(unitless_type(setting["kp"]));
+	} else {
+		setKp(unitless_type(0.0));
+	}
+	if (setting.exists("ki")) {
+		setKi(unitless_type(setting["ki"]));
+	} else {
+		setKi(unitless_type(0.0));
+	}
+	if (setting.exists("kd")) {
+		setKd(unitless_type(setting["kd"]));
+	} else {
+		setKd(unitless_type(0.0));
+	}
+	if (setting.exists("integrator_limit")) {
+		setIntegratorLimit(unitless_type(setting["integrator_limit"]));
+	} else {
+		setIntegratorLimit(unitless_type(0.0));
+	}
+	if (setting.exists("control_signal_limit")) {
+		setControlSignalLimit(unitless_type(setting["control_signal_limit"]));
+	} else {
+		setControlSignalLimit(unitless_type(0.0));
+	}
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::setSamplePeriod(
     double timeStep) {
-  T_s = timeStep;
+	T_s = timeStep;
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::setKp(
     const unitless_type &proportionalGains) {
-  kp = proportionalGains;
+	kp = proportionalGains;
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::setKi(
     const unitless_type &integralGains) {
-  ki = integralGains;
+	ki = integralGains;
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::setKd(
     const unitless_type &derivitiveGains) {
-  kd = derivitiveGains;
+	kd = derivitiveGains;
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::setIntegratorState(
     const unitless_type &integratorState) {
-  // intError is written and read in operate(), so it needs to be locked.
-  BARRETT_SCOPED_LOCK(this->getEmMutex());
-  intError = integratorState;
+	// intError is written and read in operate(), so it needs to be locked.
+	BARRETT_SCOPED_LOCK(this->getEmMutex());
+	intError = integratorState;
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::setIntegratorLimit(
     const unitless_type &intSaturations) {
-  intErrorLimit = intSaturations;
+	intErrorLimit = intSaturations;
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::setControlSignalLimit(
     const unitless_type &csSaturations) {
-  controlSignalLimit = csSaturations;
+	controlSignalLimit = csSaturations;
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 inline void
 PIDController<InputType, OutputType, MathTraits>::resetIntegrator() {
-  setIntegratorState(unitless_type(0.0));
+	setIntegratorState(unitless_type(0.0));
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::operate() {
-  typedef MathTraits MT;
+	typedef MathTraits MT;
 
-  error =
-      MT::sub(this->referenceInput.getValue(), this->feedbackInput.getValue());
+	error = MT::sub(this->referenceInput.getValue(),
+	                this->feedbackInput.getValue());
 
-  intError = MT::add(intError, MT::mult(ki, MT::mult(T_s, error_1)));
-  if (intErrorLimit != MT::zero()) {
-	intError = math::saturate(intError, intErrorLimit);
-  }
+	intError = MT::add(intError, MT::mult(ki, MT::mult(T_s, error_1)));
+	if (intErrorLimit != MT::zero()) {
+		intError = math::saturate(intError, intErrorLimit);
+	}
 
-  controlSignal = MT::add(
-      MT::mult(kp, error),
-      MT::add(intError, MT::mult(kd, MT::div(MT::sub(error, error_1), T_s))));
-  if (controlSignalLimit != MT::zero()) {
-	controlSignal = math::saturate(controlSignal, controlSignalLimit);
-  }
+	controlSignal = MT::add(
+	    MT::mult(kp, error),
+	    MT::add(intError, MT::mult(kd, MT::div(MT::sub(error, error_1), T_s))));
+	if (controlSignalLimit != MT::zero()) {
+		controlSignal = math::saturate(controlSignal, controlSignalLimit);
+	}
 
-  error_1 = error;
+	error_1 = error;
 
-  this->controlOutputValue->setData(&controlSignal);
+	this->controlOutputValue->setData(&controlSignal);
 }
 
 template <typename InputType, typename OutputType, typename MathTraits>
 void PIDController<InputType, OutputType, MathTraits>::getSamplePeriodFromEM() {
-  if (this->hasExecutionManager()) {
-	assert(this->getExecutionManager()->getPeriod() > 0.0);
-	setSamplePeriod(this->getExecutionManager()->getPeriod());
-  } else {
-	setSamplePeriod(0.0);
-  }
+	if (this->hasExecutionManager()) {
+		assert(this->getExecutionManager()->getPeriod() > 0.0);
+		setSamplePeriod(this->getExecutionManager()->getPeriod());
+	} else {
+		setSamplePeriod(0.0);
+	}
 }
 }
 }

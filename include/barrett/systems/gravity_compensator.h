@@ -51,40 +51,41 @@ class GravityCompensator
       public KinematicsInput<DOF>,
       public SingleOutput<typename units::JointTorques<DOF>::type> {
 
-  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-public:
-  explicit GravityCompensator(const libconfig::Setting &setting,
-                              const std::string &sysName = "GravityCompensator")
-      : System(sysName), KinematicsInput<DOF>(this),
-        SingleOutput<jt_type>(this), impl(NULL), data() {
-	bt_calgrav_create(&impl, setting.getCSetting(), DOF);
-  }
+  public:
+	explicit GravityCompensator(
+	    const libconfig::Setting &setting,
+	    const std::string &sysName = "GravityCompensator")
+	    : System(sysName), KinematicsInput<DOF>(this),
+	      SingleOutput<jt_type>(this), impl(NULL), data() {
+		bt_calgrav_create(&impl, setting.getCSetting(), DOF);
+	}
 
-  bool setGravity(double new_grav) {
-	return (!bt_calgrav_update(impl, new_grav));
-  }
-  virtual ~GravityCompensator() {
-	mandatoryCleanUp();
+	bool setGravity(double new_grav) {
+		return (!bt_calgrav_update(impl, new_grav));
+	}
+	virtual ~GravityCompensator() {
+		mandatoryCleanUp();
 
-	bt_calgrav_destroy(impl);
-	impl = NULL;
-  }
+		bt_calgrav_destroy(impl);
+		impl = NULL;
+	}
 
-protected:
-  virtual void operate() {
-	bt_calgrav_eval(impl, this->kinInput.getValue().impl, data.asGslType());
-	this->outputValue->setData(&data);
-  }
+  protected:
+	virtual void operate() {
+		bt_calgrav_eval(impl, this->kinInput.getValue().impl, data.asGslType());
+		this->outputValue->setData(&data);
+	}
 
-  struct bt_calgrav *impl;
-  jt_type data;
+	struct bt_calgrav *impl;
+	jt_type data;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(GravityCompensator);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(GravityCompensator);
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

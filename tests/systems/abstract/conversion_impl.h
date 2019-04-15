@@ -17,21 +17,21 @@
 template <typename InputType, typename OutputType>
 class ConversionImpl
     : public barrett::systems::SingleIO<InputType, OutputType> {
-public:
-  ConversionImpl(const std::string &sysName = "ConversionImpl")
-      : barrett::systems::SingleIO<InputType, OutputType>(sysName) {}
-  virtual ~ConversionImpl() { this->mandatoryCleanUp(); }
+  public:
+	ConversionImpl(const std::string &sysName = "ConversionImpl")
+	    : barrett::systems::SingleIO<InputType, OutputType>(sysName) {}
+	virtual ~ConversionImpl() { this->mandatoryCleanUp(); }
 
-protected:
-  virtual void operate() {
-	data = static_cast<typename OutputType::Base>(this->input.getValue());
-	this->outputValue->setData(&data);
-  }
+  protected:
+	virtual void operate() {
+		data = static_cast<typename OutputType::Base>(this->input.getValue());
+		this->outputValue->setData(&data);
+	}
 
-  OutputType data;
+	OutputType data;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ConversionImpl);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(ConversionImpl);
 };
 
 #endif /* CONVERSION_IMPL_H_ */

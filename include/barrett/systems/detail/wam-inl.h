@@ -87,221 +87,222 @@ Wam<DOF>::Wam(ExecutionManager *em, const std::vector<Puck *> &genericPucks,
       jvOutput(jvFilter.output),
 
       doneMoving(true), kin(setting["kinematics"]) {
-  connect(llww.jpOutput, kinematicsBase.jpInput);
-  connect(jvOutput, kinematicsBase.jvInput);
+	connect(llww.jpOutput, kinematicsBase.jpInput);
+	connect(jvOutput, kinematicsBase.jvInput);
 
-  connect(kinematicsBase.kinOutput, gravity.kinInput);
-  // Don't connect gravity.output here. Gravity compensation is off by default.
+	connect(kinematicsBase.kinOutput, gravity.kinInput);
+	// Don't connect gravity.output here. Gravity compensation is off by
+	// default.
 
-  connect(kinematicsBase.kinOutput, toolPosition.kinInput);
-  connect(kinematicsBase.kinOutput, toolVelocity.kinInput);
-  connect(kinematicsBase.kinOutput, toolOrientation.kinInput);
-  connect(kinematicsBase.kinOutput, tf2jt.kinInput);
-  connect(kinematicsBase.kinOutput, toController.kinInput);
-  connect(kinematicsBase.kinOutput, tt2jt.kinInput);
-  connect(kinematicsBase.kinOutput, tpoTf2jt.kinInput);
-  connect(kinematicsBase.kinOutput, tpoToController.kinInput);
-  connect(kinematicsBase.kinOutput, tpoTt2jt.kinInput);
+	connect(kinematicsBase.kinOutput, toolPosition.kinInput);
+	connect(kinematicsBase.kinOutput, toolVelocity.kinInput);
+	connect(kinematicsBase.kinOutput, toolOrientation.kinInput);
+	connect(kinematicsBase.kinOutput, tf2jt.kinInput);
+	connect(kinematicsBase.kinOutput, toController.kinInput);
+	connect(kinematicsBase.kinOutput, tt2jt.kinInput);
+	connect(kinematicsBase.kinOutput, tpoTf2jt.kinInput);
+	connect(kinematicsBase.kinOutput, tpoToController.kinInput);
+	connect(kinematicsBase.kinOutput, tpoTt2jt.kinInput);
 
-  connect(toolPosition.output, toolPose.getInput<0>());
-  connect(toolOrientation.output, toolPose.getInput<1>());
+	connect(toolPosition.output, toolPose.getInput<0>());
+	connect(toolOrientation.output, toolPose.getInput<1>());
 
-  connect(llww.jvOutput, jvFilter.input);
-  if (em != NULL) {
-	// Keep the jvFilter updated so it will provide accurate values for
-	// calls to Wam::getJointVelocities().
-	em->startManaging(jvFilter);
-  }
+	connect(llww.jvOutput, jvFilter.input);
+	if (em != NULL) {
+		// Keep the jvFilter updated so it will provide accurate values for
+		// calls to Wam::getJointVelocities().
+		em->startManaging(jvFilter);
+	}
 
-  supervisoryController.registerConversion(
-      makeIOConversion(jtPassthrough.input, jtPassthrough.output));
+	supervisoryController.registerConversion(
+	    makeIOConversion(jtPassthrough.input, jtPassthrough.output));
 
-  connect(llww.jpOutput, jpController.feedbackInput);
-  supervisoryController.registerConversion(makeIOConversion(
-      jpController.referenceInput, jpController.controlOutput));
+	connect(llww.jpOutput, jpController.feedbackInput);
+	supervisoryController.registerConversion(makeIOConversion(
+	    jpController.referenceInput, jpController.controlOutput));
 
-  // TODO(dc): combine into single controller
-  connect(jvOutput, jvController1.feedbackInput);
-  connect(jvController1.controlOutput, jvController2.input);
-  supervisoryController.registerConversion(
-      makeIOConversion(jvController1.referenceInput, jvController2.output));
+	// TODO(dc): combine into single controller
+	connect(jvOutput, jvController1.feedbackInput);
+	connect(jvController1.controlOutput, jvController2.input);
+	supervisoryController.registerConversion(
+	    makeIOConversion(jvController1.referenceInput, jvController2.output));
 
-  connect(toolPosition.output, tpController.feedbackInput);
-  connect(tpController.controlOutput, tf2jt.input);
-  supervisoryController.registerConversion(
-      makeIOConversion(tpController.referenceInput, tf2jt.output));
+	connect(toolPosition.output, tpController.feedbackInput);
+	connect(tpController.controlOutput, tf2jt.input);
+	supervisoryController.registerConversion(
+	    makeIOConversion(tpController.referenceInput, tf2jt.output));
 
-  connect(toolOrientation.output, toController.feedbackInput);
-  connect(toController.controlOutput, tt2jt.input);
-  supervisoryController.registerConversion(
-      makeIOConversion(toController.referenceInput, tt2jt.output));
+	connect(toolOrientation.output, toController.feedbackInput);
+	connect(toController.controlOutput, tt2jt.input);
+	supervisoryController.registerConversion(
+	    makeIOConversion(toController.referenceInput, tt2jt.output));
 
-  connect(tpoSplitter.getOutput<0>(), tpoTpController.referenceInput);
-  connect(toolPosition.output, tpoTpController.feedbackInput);
-  connect(tpoTpController.controlOutput, tpoTf2jt.input);
-  connect(tpoTf2jt.output, tpoSum.getInput(0));
+	connect(tpoSplitter.getOutput<0>(), tpoTpController.referenceInput);
+	connect(toolPosition.output, tpoTpController.feedbackInput);
+	connect(tpoTpController.controlOutput, tpoTf2jt.input);
+	connect(tpoTf2jt.output, tpoSum.getInput(0));
 
-  connect(tpoSplitter.getOutput<1>(), tpoToController.referenceInput);
-  connect(toolOrientation.output, tpoToController.feedbackInput);
-  connect(tpoToController.controlOutput, tpoTt2jt.input);
-  connect(tpoTt2jt.output, tpoSum.getInput(1));
-  supervisoryController.registerConversion(
-      makeIOConversion(tpoSplitter.input, tpoSum.output));
+	connect(tpoSplitter.getOutput<1>(), tpoToController.referenceInput);
+	connect(toolOrientation.output, tpoToController.feedbackInput);
+	connect(tpoToController.controlOutput, tpoTt2jt.input);
+	connect(tpoTt2jt.output, tpoSum.getInput(1));
+	supervisoryController.registerConversion(
+	    makeIOConversion(tpoSplitter.input, tpoSum.output));
 
-  connect(supervisoryController.output, jtSum.getInput(SC_INPUT));
-  connect(jtSum.output, llww.input);
+	connect(supervisoryController.output, jtSum.getInput(SC_INPUT));
+	connect(jtSum.output, llww.input);
 }
 
 template <size_t DOF> Wam<DOF>::~Wam() {
-  // Make sure any outstanding moveTo() threads are cleaned up
-  mtThreadGroup.interrupt_all();
-  mtThreadGroup.join_all();
+	// Make sure any outstanding moveTo() threads are cleaned up
+	mtThreadGroup.interrupt_all();
+	mtThreadGroup.join_all();
 }
 
 template <size_t DOF>
 template <typename T>
 void Wam<DOF>::trackReferenceSignal(System::Output<T> &referenceSignal) {
-  supervisoryController.connectInputTo(referenceSignal);
+	supervisoryController.connectInputTo(referenceSignal);
 }
 
 template <size_t DOF>
 inline const typename Wam<DOF>::jp_type &Wam<DOF>::getHomePosition() const {
-  return getLowLevelWam().getHomePosition();
+	return getLowLevelWam().getHomePosition();
 }
 
 template <size_t DOF>
 typename Wam<DOF>::jt_type Wam<DOF>::getJointTorques() const {
-  {
-	BARRETT_SCOPED_LOCK(getEmMutex());
-	if (llww.input.valueDefined()) {
-	  return llww.input.getValue();
+	{
+		BARRETT_SCOPED_LOCK(getEmMutex());
+		if (llww.input.valueDefined()) {
+			return llww.input.getValue();
+		}
 	}
-  }
 
-  return jt_type();
+	return jt_type();
 }
 
 template <size_t DOF>
 inline typename Wam<DOF>::jp_type Wam<DOF>::getJointPositions() const {
-  return getLowLevelWam().getJointPositions();
+	return getLowLevelWam().getJointPositions();
 }
 
 template <size_t DOF>
 inline typename Wam<DOF>::jv_type Wam<DOF>::getJointVelocities() const {
-  {
-	BARRETT_SCOPED_LOCK(getEmMutex());
+	{
+		BARRETT_SCOPED_LOCK(getEmMutex());
 
-	// Return the filtered velocity, if available.
-	if (jvController1.feedbackInput.valueDefined()) {
-	  return jvController1.feedbackInput.getValue();
+		// Return the filtered velocity, if available.
+		if (jvController1.feedbackInput.valueDefined()) {
+			return jvController1.feedbackInput.getValue();
+		}
 	}
-  }
 
-  // Otherwise just return differentiated positions.
-  return getLowLevelWam().getJointVelocities();
+	// Otherwise just return differentiated positions.
+	return getLowLevelWam().getJointVelocities();
 }
 
 template <size_t DOF>
 typename Wam<DOF>::cp_type Wam<DOF>::getToolPosition() const {
-  {
-	BARRETT_SCOPED_LOCK(getEmMutex());
-	if (tpController.feedbackInput.valueDefined()) {
-	  return tpController.feedbackInput.getValue();
+	{
+		BARRETT_SCOPED_LOCK(getEmMutex());
+		if (tpController.feedbackInput.valueDefined()) {
+			return tpController.feedbackInput.getValue();
+		}
 	}
-  }
 
-  kin.eval(getJointPositions(), getJointVelocities());
-  return cp_type(kin.impl->tool->origin_pos);
+	kin.eval(getJointPositions(), getJointVelocities());
+	return cp_type(kin.impl->tool->origin_pos);
 }
 
 template <size_t DOF>
 typename Wam<DOF>::cv_type Wam<DOF>::getToolVelocity() const {
-  kin.eval(getJointPositions(), getJointVelocities());
-  return cv_type(kin.impl->tool_velocity);
+	kin.eval(getJointPositions(), getJointVelocities());
+	return cv_type(kin.impl->tool_velocity);
 }
 
 template <size_t DOF> Eigen::Quaterniond Wam<DOF>::getToolOrientation() const {
-  {
-	BARRETT_SCOPED_LOCK(getEmMutex());
-	if (toController.feedbackInput.valueDefined()) {
-	  return toController.feedbackInput.getValue();
+	{
+		BARRETT_SCOPED_LOCK(getEmMutex());
+		if (toController.feedbackInput.valueDefined()) {
+			return toController.feedbackInput.getValue();
+		}
 	}
-  }
 
-  kin.eval(getJointPositions(), getJointVelocities());
-  math::Matrix<3, 3> rot(kin.impl->tool->rot_to_world);
-  return Eigen::Quaterniond(rot.transpose());
+	kin.eval(getJointPositions(), getJointVelocities());
+	math::Matrix<3, 3> rot(kin.impl->tool->rot_to_world);
+	return Eigen::Quaterniond(rot.transpose());
 }
 
 template <size_t DOF>
 inline typename Wam<DOF>::pose_type Wam<DOF>::getToolPose() const {
-  return boost::make_tuple(getToolPosition(), getToolOrientation());
+	return boost::make_tuple(getToolPosition(), getToolOrientation());
 }
 
 template <size_t DOF>
 inline math::Matrix<6, DOF> Wam<DOF>::getToolJacobian() const {
-  kin.eval(getJointPositions(), getJointVelocities());
-  return math::Matrix<6, DOF>(kin.impl->tool_jacobian);
+	kin.eval(getJointPositions(), getJointVelocities());
+	return math::Matrix<6, DOF>(kin.impl->tool_jacobian);
 }
 
 template <size_t DOF> void Wam<DOF>::gravityCompensate(bool compensate) {
-  if (compensate) {
-	forceConnect(gravity.output, jtSum.getInput(GRAVITY_INPUT));
-  } else {
-	disconnect(jtSum.getInput(GRAVITY_INPUT));
-  }
+	if (compensate) {
+		forceConnect(gravity.output, jtSum.getInput(GRAVITY_INPUT));
+	} else {
+		disconnect(jtSum.getInput(GRAVITY_INPUT));
+	}
 }
 
 template <size_t DOF> bool Wam<DOF>::updateGravity(double val) {
-  return (gravity.setGravity(val));
+	return (gravity.setGravity(val));
 }
 
 template <size_t DOF> inline bool Wam<DOF>::isGravityCompensated() {
-  return jtSum.getInput(GRAVITY_INPUT).isConnected();
+	return jtSum.getInput(GRAVITY_INPUT).isConnected();
 }
 
 template <size_t DOF> inline void Wam<DOF>::moveHome(bool blocking) {
-  moveTo(getHomePosition(), blocking);
+	moveTo(getHomePosition(), blocking);
 }
 template <size_t DOF>
 inline void Wam<DOF>::moveHome(bool blocking, double velocity) {
-  moveTo(getHomePosition(), blocking, velocity);
+	moveTo(getHomePosition(), blocking, velocity);
 }
 template <size_t DOF>
 inline void Wam<DOF>::moveHome(bool blocking, double velocity,
                                double acceleration) {
-  moveTo(getHomePosition(), blocking, velocity, acceleration);
+	moveTo(getHomePosition(), blocking, velocity, acceleration);
 }
 
 template <size_t DOF>
 inline void Wam<DOF>::moveTo(const jp_type &destination, bool blocking,
                              double velocity, double acceleration) {
-  //	moveTo(currentPosHelper(getJointPositions()), getJointVelocities(),
-  // destination, blocking, velocity, acceleration);
-  moveTo(currentPosHelper(getJointPositions()), /*jv_type(0.0),*/ destination,
-         blocking, velocity, acceleration);
+	//	moveTo(currentPosHelper(getJointPositions()), getJointVelocities(),
+	// destination, blocking, velocity, acceleration);
+	moveTo(currentPosHelper(getJointPositions()), /*jv_type(0.0),*/ destination,
+	       blocking, velocity, acceleration);
 }
 
 template <size_t DOF>
 inline void Wam<DOF>::moveTo(const cp_type &destination, bool blocking,
                              double velocity, double acceleration) {
-  moveTo(currentPosHelper(getToolPosition()), /*cv_type(0.0),*/ destination,
-         blocking, velocity, acceleration);
+	moveTo(currentPosHelper(getToolPosition()), /*cv_type(0.0),*/ destination,
+	       blocking, velocity, acceleration);
 }
 
 template <size_t DOF>
 inline void Wam<DOF>::moveTo(const Eigen::Quaterniond &destination,
                              bool blocking, double velocity,
                              double acceleration) {
-  moveTo(currentPosHelper(getToolOrientation()), destination, blocking,
-         velocity, acceleration);
+	moveTo(currentPosHelper(getToolOrientation()), destination, blocking,
+	       velocity, acceleration);
 }
 
 template <size_t DOF>
 inline void Wam<DOF>::moveTo(const pose_type &destination, bool blocking,
                              double velocity, double acceleration) {
-  moveTo(currentPosHelper(getToolPose()), destination, blocking, velocity,
-         acceleration);
+	moveTo(currentPosHelper(getToolPose()), destination, blocking, velocity,
+	       acceleration);
 }
 
 template <size_t DOF>
@@ -310,51 +311,51 @@ void Wam<DOF>::moveTo(
     const T &currentPos,
     /*const typename T::unitless_type& currentVel,*/ const T &destination,
     bool blocking, double velocity, double acceleration) {
-  bool started = false;
-  boost::promise<boost::thread *> threadPtrPromise;
-  boost::shared_future<boost::thread *> threadPtrFuture(
-      threadPtrPromise.get_future());
-  boost::thread *threadPtr = new boost::thread(
-      &Wam<DOF>::moveToThread<T>, this, boost::ref(currentPos),
-      /*currentVel,*/ boost::ref(destination), velocity, acceleration, &started,
-      threadPtrFuture);
-  mtThreadGroup.add_thread(threadPtr);
-  threadPtrPromise.set_value(threadPtr);
+	bool started = false;
+	boost::promise<boost::thread *> threadPtrPromise;
+	boost::shared_future<boost::thread *> threadPtrFuture(
+	    threadPtrPromise.get_future());
+	boost::thread *threadPtr = new boost::thread(
+	    &Wam<DOF>::moveToThread<T>, this, boost::ref(currentPos),
+	    /*currentVel,*/ boost::ref(destination), velocity, acceleration,
+	    &started, threadPtrFuture);
+	mtThreadGroup.add_thread(threadPtr);
+	threadPtrPromise.set_value(threadPtr);
 
-  // wait until move starts
-  while (!started) {
-	btsleep(0.001);
-  }
-
-  if (blocking) {
-	while (!moveIsDone()) {
-	  btsleep(0.01);
+	// wait until move starts
+	while (!started) {
+		btsleep(0.001);
 	}
-  }
+
+	if (blocking) {
+		while (!moveIsDone()) {
+			btsleep(0.01);
+		}
+	}
 }
 
 template <size_t DOF> bool Wam<DOF>::moveIsDone() const { return doneMoving; }
 
 template <size_t DOF> void Wam<DOF>::idle() {
-  supervisoryController.disconnectInput();
+	supervisoryController.disconnectInput();
 }
 
 template <size_t DOF>
 template <typename T>
 T Wam<DOF>::currentPosHelper(const T &currentPos) {
-  System::Input<T> *input = NULL;
-  supervisoryController.getInput(&input);
-  if (input != NULL && input->valueDefined()) {
-	// If we're already using the controller we're about to use in the
-	// moveTo() call, it's best to treat the current *set point* as the
-	// "current position". That way the reference signal is continuous as it
-	// transitions from whatever is happening now to the moveTo() Spline.
-	return input->getValue();
-  }
+	System::Input<T> *input = NULL;
+	supervisoryController.getInput(&input);
+	if (input != NULL && input->valueDefined()) {
+		// If we're already using the controller we're about to use in the
+		// moveTo() call, it's best to treat the current *set point* as the
+		// "current position". That way the reference signal is continuous as it
+		// transitions from whatever is happening now to the moveTo() Spline.
+		return input->getValue();
+	}
 
-  // If we're not using the appropriate controller already, then use our
-  // *actual* current position.
-  return currentPos;
+	// If we're not using the appropriate controller already, then use our
+	// *actual* current position.
+	return currentPos;
 }
 
 template <size_t DOF>
@@ -364,72 +365,76 @@ void Wam<DOF>::moveToThread(
     /*const typename T::unitless_type& currentVel,*/ const T &destination,
     double velocity, double acceleration, bool *started,
     boost::shared_future<boost::thread *> threadPtrFuture) {
-  // Only remove this thread from mtThreadGroup on orderly exit. (Don't remove
-  // on exception.)
-  bool removeThread = false;
+	// Only remove this thread from mtThreadGroup on orderly exit. (Don't remove
+	// on exception.)
+	bool removeThread = false;
 
-  try {
-	std::vector<T, Eigen::aligned_allocator<T>> vec;
-	vec.push_back(currentPos);
-	vec.push_back(destination);
+	try {
+		std::vector<T, Eigen::aligned_allocator<T>> vec;
+		vec.push_back(currentPos);
+		vec.push_back(destination);
 
-	// TODO(dc): Use currentVel. Requires changes to
-	// math::spline<Eigen::Quaternion<T> > specialization.
-	// math::Spline<T> spline(vec, currentVel);
-	// math::TrapezoidalVelocityProfile profile(velocity, acceleration,
-	// currentVel.norm(), spline.changeInS());
-	math::Spline<T> spline(vec);
-	math::TrapezoidalVelocityProfile profile(velocity, acceleration, 0.0,
-	                                         spline.changeInS());
+		// TODO(dc): Use currentVel. Requires changes to
+		// math::spline<Eigen::Quaternion<T> > specialization.
+		// math::Spline<T> spline(vec, currentVel);
+		// math::TrapezoidalVelocityProfile profile(velocity, acceleration,
+		// currentVel.norm(), spline.changeInS());
+		math::Spline<T> spline(vec);
+		math::TrapezoidalVelocityProfile profile(velocity, acceleration, 0.0,
+		                                         spline.changeInS());
 
-	Ramp time(NULL, 1.0);
-	Callback<double, T> trajectory(
-	    boost::bind(boost::ref(spline), boost::bind(boost::ref(profile), _1)));
+		Ramp time(NULL, 1.0);
+		Callback<double, T> trajectory(boost::bind(
+		    boost::ref(spline), boost::bind(boost::ref(profile), _1)));
 
-	connect(time.output, trajectory.input);
-	trackReferenceSignal(trajectory.output);
-	time.start();
+		connect(time.output, trajectory.input);
+		trackReferenceSignal(trajectory.output);
+		time.start();
 
-	doneMoving = false;
-	*started = true;
+		doneMoving = false;
+		*started = true;
 
-	// The value of trajectory.input will be undefined until the next execution
-	// cycle.
-	// It may become undefined again if trajectory.output is disconnected and
-	// this chain
-	// of Systems loses its ExecutionManager. We must check that the value is
-	// defined
-	// before calling getValue().
-	while (!trajectory.input.valueDefined() ||
-	       trajectory.input.getValue() < profile.finalT()) {
-	  // if the move is interrupted, clean up and end the thread
-	  if (!trajectory.output.isConnected() ||
-	      boost::this_thread::interruption_requested()) {
-		removeThread = true;
-		break;
-	  }
-	  btsleep(0.01); // Interruption point. May throw boost::thread_interrupted
+		// The value of trajectory.input will be undefined until the next
+		// execution
+		// cycle.
+		// It may become undefined again if trajectory.output is disconnected
+		// and
+		// this chain
+		// of Systems loses its ExecutionManager. We must check that the value
+		// is
+		// defined
+		// before calling getValue().
+		while (!trajectory.input.valueDefined() ||
+		       trajectory.input.getValue() < profile.finalT()) {
+			// if the move is interrupted, clean up and end the thread
+			if (!trajectory.output.isConnected() ||
+			    boost::this_thread::interruption_requested()) {
+				removeThread = true;
+				break;
+			}
+			btsleep(0.01); // Interruption point. May throw
+			               // boost::thread_interrupted
+		}
+
+		if (!removeThread) {
+			doneMoving = true;
+
+			// Wait until the trajectory is no longer referenced by
+			// supervisoryController
+			while (trajectory.hasExecutionManager() &&
+			       !boost::this_thread::interruption_requested()) {
+				btsleep(0.01); // Interruption point. May throw
+				               // boost::thread_interrupted
+			}
+			removeThread = true;
+		}
+	} catch (const boost::thread_interrupted &e) {
 	}
 
-	if (!removeThread) {
-	  doneMoving = true;
-
-	  // Wait until the trajectory is no longer referenced by
-	  // supervisoryController
-	  while (trajectory.hasExecutionManager() &&
-	         !boost::this_thread::interruption_requested()) {
-		btsleep(
-		    0.01); // Interruption point. May throw boost::thread_interrupted
-	  }
-	  removeThread = true;
+	if (removeThread) {
+		mtThreadGroup.remove_thread(threadPtrFuture.get());
+		delete threadPtrFuture.get();
 	}
-  } catch (const boost::thread_interrupted &e) {
-  }
-
-  if (removeThread) {
-	mtThreadGroup.remove_thread(threadPtrFuture.get());
-	delete threadPtrFuture.get();
-  }
 }
 }
 }

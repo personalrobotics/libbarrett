@@ -37,31 +37,31 @@ namespace systems {
 template <typename T, typename MathTraits>
 FirstOrderFilter<T, MathTraits>::FirstOrderFilter(const std::string &sysName)
     : SingleIO<T, T>(sysName) {
-  getSamplePeriodFromEM();
+	getSamplePeriodFromEM();
 }
 
 template <typename T, typename MathTraits>
 FirstOrderFilter<T, MathTraits>::FirstOrderFilter(
     const libconfig::Setting &setting, const std::string &sysName)
     : SingleIO<T, T>(sysName), math::FirstOrderFilter<T>(setting) {
-  getSamplePeriodFromEM();
+	getSamplePeriodFromEM();
 }
 
 template <typename T, typename MathTraits>
 void FirstOrderFilter<T, MathTraits>::operate() {
-  this->eval(this->input.getValue());
-  this->outputValue->setData(&this->y_0);
+	this->eval(this->input.getValue());
+	this->outputValue->setData(&this->y_0);
 }
 
 // TODO(dc): anyway to remove the code duplication with PIDController?
 template <typename T, typename MathTraits>
 void FirstOrderFilter<T, MathTraits>::getSamplePeriodFromEM() {
-  if (this->hasExecutionManager()) {
-	assert(this->getExecutionManager()->getPeriod() > 0.0);
-	this->setSamplePeriod(this->getExecutionManager()->getPeriod());
-  } else {
-	this->setSamplePeriod(0.0);
-  }
+	if (this->hasExecutionManager()) {
+		assert(this->getExecutionManager()->getPeriod() > 0.0);
+		this->setSamplePeriod(this->getExecutionManager()->getPeriod());
+	} else {
+		this->setSamplePeriod(0.0);
+	}
 }
 }
 }

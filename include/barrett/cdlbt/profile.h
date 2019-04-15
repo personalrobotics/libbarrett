@@ -55,16 +55,16 @@ extern "C" {
  * as well as the initial velocity and arc length.
  */
 struct bt_profile {
-  double vel; /* Note - we may want this to be different for different
-                 dimensions */
-  double acc;
-  double v_init;
-  double time_endup;
-  double time_startdown;
-  double time_end;
-  double s_endup;
-  double s_startdown;
-  double s_end;
+	double vel; /* Note - we may want this to be different for different
+	               dimensions */
+	double acc;
+	double v_init;
+	double time_endup;
+	double time_startdown;
+	double time_end;
+	double s_endup;
+	double s_startdown;
+	double s_end;
 };
 
 /** bt_profile create function */

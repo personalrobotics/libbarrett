@@ -41,42 +41,42 @@ namespace systems {
 
 template <typename T>
 class ExposedOutput : public System, public SingleOutput<T> {
-public:
-  explicit ExposedOutput(const std::string &sysName = "ExposedOutput")
-      : System(sysName), SingleOutput<T>(this), data() {}
-  explicit ExposedOutput(const T &initialValue,
-                         const std::string &sysName = "ExposedOutput")
-      : System(sysName), SingleOutput<T>(this), data(initialValue) {
-	this->outputValue->setData(&data);
-  }
-  virtual ~ExposedOutput() { mandatoryCleanUp(); }
+  public:
+	explicit ExposedOutput(const std::string &sysName = "ExposedOutput")
+	    : System(sysName), SingleOutput<T>(this), data() {}
+	explicit ExposedOutput(const T &initialValue,
+	                       const std::string &sysName = "ExposedOutput")
+	    : System(sysName), SingleOutput<T>(this), data(initialValue) {
+		this->outputValue->setData(&data);
+	}
+	virtual ~ExposedOutput() { mandatoryCleanUp(); }
 
-  void setValue(const T &value) {
-	BARRETT_SCOPED_LOCK(getEmMutex());
+	void setValue(const T &value) {
+		BARRETT_SCOPED_LOCK(getEmMutex());
 
-	data = value;
-	this->outputValue->setData(&data);
-  }
-  void setValueUndefined() {
-	BARRETT_SCOPED_LOCK(getEmMutex());
-	this->outputValue->setUndefined();
-  }
-  void delegateTo(const System::Output<T> &delegate) {
-	BARRETT_SCOPED_LOCK(getEmMutex());
-	this->outputValue->delegateTo(delegate);
-  }
+		data = value;
+		this->outputValue->setData(&data);
+	}
+	void setValueUndefined() {
+		BARRETT_SCOPED_LOCK(getEmMutex());
+		this->outputValue->setUndefined();
+	}
+	void delegateTo(const System::Output<T> &delegate) {
+		BARRETT_SCOPED_LOCK(getEmMutex());
+		this->outputValue->delegateTo(delegate);
+	}
 
-protected:
-  virtual bool inputsValid() { return true; }
-  virtual void operate() { /* do nothing */
-  }
-  virtual void invalidateOutputs() { /* do nothing */
-  }
+  protected:
+	virtual bool inputsValid() { return true; }
+	virtual void operate() { /* do nothing */
+	}
+	virtual void invalidateOutputs() { /* do nothing */
+	}
 
-  T data;
+	T data;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ExposedOutput);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(ExposedOutput);
 };
 }
 }

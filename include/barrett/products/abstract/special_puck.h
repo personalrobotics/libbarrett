@@ -41,28 +41,29 @@
 namespace barrett {
 
 class SpecialPuck {
-public:
-  /** SpecialPuck Constructor */
-  SpecialPuck(enum Puck::PuckType _type = Puck::PT_Unknown)
-      : type(_type), p(NULL) {}
-  ~SpecialPuck() {}
-  /** getPuck Method*/
-  Puck *getPuck() const { return p; }
-  /** setPuck Method used to define what type of puck is being used */
-  void setPuck(Puck *puck) {
-	if (puck != NULL && type != Puck::PT_Unknown && puck->getType() != type) {
-	  (logMessage("SpecialPuck::%s(): Bad PuckType. "
-	              "Expected Puck with type %s, got Puck with type %s.") %
-	   __func__ % Puck::getPuckTypeStr(type) %
-	   Puck::getPuckTypeStr(puck->getType()))
-	      .raise<std::logic_error>();
+  public:
+	/** SpecialPuck Constructor */
+	SpecialPuck(enum Puck::PuckType _type = Puck::PT_Unknown)
+	    : type(_type), p(NULL) {}
+	~SpecialPuck() {}
+	/** getPuck Method*/
+	Puck *getPuck() const { return p; }
+	/** setPuck Method used to define what type of puck is being used */
+	void setPuck(Puck *puck) {
+		if (puck != NULL && type != Puck::PT_Unknown &&
+		    puck->getType() != type) {
+			(logMessage("SpecialPuck::%s(): Bad PuckType. "
+			            "Expected Puck with type %s, got Puck with type %s.") %
+			 __func__ % Puck::getPuckTypeStr(type) %
+			 Puck::getPuckTypeStr(puck->getType()))
+			    .raise<std::logic_error>();
+		}
+		p = puck;
 	}
-	p = puck;
-  }
 
-protected:
-  enum Puck::PuckType type;
-  Puck *p;
+  protected:
+	enum Puck::PuckType type;
+	Puck *p;
 };
 }
 

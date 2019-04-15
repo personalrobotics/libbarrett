@@ -51,25 +51,27 @@ LowLevelWamWrapper<DOF>::LowLevelWamWrapper(
       source(this, em, sysName + "::Source") {}
 
 template <size_t DOF> void LowLevelWamWrapper<DOF>::Sink::operate() {
-  parent->llw.setTorques(this->input.getValue());
+	parent->llw.setTorques(this->input.getValue());
 }
 
 template <size_t DOF> void LowLevelWamWrapper<DOF>::Source::operate() {
-  try {
-	parent->llw.update();
-  } catch (const std::runtime_error &e) {
-	if (parent->llw.getSafetyModule() != NULL &&
-	    parent->llw.getSafetyModule()->getMode(true) == SafetyModule::ESTOP) {
-	  throw ExecutionManagerException("systems::LowLevelWamWrapper::Source::"
-	                                  "operate(): E-stop! Cannot communicate "
-	                                  "with Pucks.");
-	} else {
-	  throw;
+	try {
+		parent->llw.update();
+	} catch (const std::runtime_error &e) {
+		if (parent->llw.getSafetyModule() != NULL &&
+		    parent->llw.getSafetyModule()->getMode(true) ==
+		        SafetyModule::ESTOP) {
+			throw ExecutionManagerException(
+			    "systems::LowLevelWamWrapper::Source::"
+			    "operate(): E-stop! Cannot communicate "
+			    "with Pucks.");
+		} else {
+			throw;
+		}
 	}
-  }
 
-  this->jpOutputValue->setData(&(parent->llw.getJointPositions()));
-  this->jvOutputValue->setData(&(parent->llw.getJointVelocities()));
+	this->jpOutputValue->setData(&(parent->llw.getJointPositions()));
+	this->jvOutputValue->setData(&(parent->llw.getJointVelocities()));
 }
 }
 }

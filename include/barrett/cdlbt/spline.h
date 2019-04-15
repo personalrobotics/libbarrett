@@ -66,22 +66,22 @@ extern "C" {
  * external parameter.
  */
 enum bt_spline_mode {
-  BT_SPLINE_MODE_ARCLEN,  /* The spline uses computed arc-length */
-  BT_SPLINE_MODE_EXTERNAL /* The spline uses an external parameter */
+	BT_SPLINE_MODE_ARCLEN,  /* The spline uses computed arc-length */
+	BT_SPLINE_MODE_EXTERNAL /* The spline uses an external parameter */
 };
 
 /** Spline data, including the dimensionality, array of saved points and
  *  parameters, and GSL interpolators / accelerators used when retrieving
  *  points.*/
 struct bt_spline {
-  enum bt_spline_mode mode;
-  int dimension;
-  int npoints;
-  double *ss;
-  double length;
-  double **points;
-  gsl_interp_accel *acc;
-  gsl_interp **interps;
+	enum bt_spline_mode mode;
+	int dimension;
+	int npoints;
+	double *ss;
+	double length;
+	double **points;
+	gsl_interp_accel *acc;
+	gsl_interp **interps;
 };
 
 /** Create a bt_spline object from a given start location.

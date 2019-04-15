@@ -50,25 +50,26 @@ RealTimeWriter<T, Traits>::RealTimeWriter(const char *fileName,
     : Writer<T, Traits>(fileName), period(0.0), singleBufferSize(0),
       inBuff(NULL), outBuff(NULL), endInBuff(NULL), endOutBuff(NULL),
       currentPos(NULL), writeToDisk(false), thread(), priority(priority_) {
-  if (this->recordLength > 1024) {
-	throw(
-	    std::logic_error("(log::RealTimeWriter::RealTimeWriter()): This "
-	                     "constructor was not designed for records this big."));
-  }
+	if (this->recordLength > 1024) {
+		throw(std::logic_error(
+		    "(log::RealTimeWriter::RealTimeWriter()): This "
+		    "constructor was not designed for records this big."));
+	}
 
-  // keep the single buffer size below 16KB
-  size_t recordsInSingleBuffer = 16384 / this->recordLength;
+	// keep the single buffer size below 16KB
+	size_t recordsInSingleBuffer = 16384 / this->recordLength;
 
-  // with a factor of safety of 5, how many seconds to fill a single buffer?
-  period = (recordsInSingleBuffer * recordPeriod_s) / 5.0;
-  if (period < 0.003) {
-	throw(std::logic_error("(log::RealTimeWriter::RealTimeWriter()): This "
-	                       "constructor was not designed for data rates this "
-	                       "high."));
-  }
-  period = std::min(period, 1.0); // limit period to a maximum of 1 second
+	// with a factor of safety of 5, how many seconds to fill a single buffer?
+	period = (recordsInSingleBuffer * recordPeriod_s) / 5.0;
+	if (period < 0.003) {
+		throw(
+		    std::logic_error("(log::RealTimeWriter::RealTimeWriter()): This "
+		                     "constructor was not designed for data rates this "
+		                     "high."));
+	}
+	period = std::min(period, 1.0); // limit period to a maximum of 1 second
 
-  init(recordsInSingleBuffer);
+	init(recordsInSingleBuffer);
 }
 
 template <typename T, typename Traits>
@@ -79,81 +80,82 @@ RealTimeWriter<T, Traits>::RealTimeWriter(const char *fileName,
     : Writer<T, Traits>(fileName), period(approxPeriod_s), inBuff(NULL),
       outBuff(NULL), endInBuff(NULL), endOutBuff(NULL), currentPos(NULL),
       writeToDisk(false), thread(), priority(priority_) {
-  init(recordsInSingleBuffer);
+	init(recordsInSingleBuffer);
 }
 
 template <typename T, typename Traits>
 void RealTimeWriter<T, Traits>::init(size_t recordsInSingleBuffer) {
-  singleBufferSize = this->recordLength * recordsInSingleBuffer;
+	singleBufferSize = this->recordLength * recordsInSingleBuffer;
 
-  delete[] this->buffer;
-  this->buffer = new char[singleBufferSize *
-                          2]; // log::Writer's dtor will delete this for us.
+	delete[] this->buffer;
+	this->buffer = new char[singleBufferSize *
+	                        2]; // log::Writer's dtor will delete this for us.
 
-  inBuff = this->buffer;
-  outBuff = inBuff + singleBufferSize;
-  endInBuff = inBuff + singleBufferSize;
-  endOutBuff = outBuff + singleBufferSize;
-  currentPos = inBuff;
-  writeToDisk = false;
+	inBuff = this->buffer;
+	outBuff = inBuff + singleBufferSize;
+	endInBuff = inBuff + singleBufferSize;
+	endOutBuff = outBuff + singleBufferSize;
+	currentPos = inBuff;
+	writeToDisk = false;
 
-  // start writing thread
-  boost::thread tmpThread(
-      boost::bind(&RealTimeWriter<T, Traits>::writeToDiskEntryPoint, this));
-  thread.swap(tmpThread);
+	// start writing thread
+	boost::thread tmpThread(
+	    boost::bind(&RealTimeWriter<T, Traits>::writeToDiskEntryPoint, this));
+	thread.swap(tmpThread);
 }
 
 template <typename T, typename Traits>
 RealTimeWriter<T, Traits>::~RealTimeWriter() {
-  if (this->file.is_open()) {
-	close();
-  }
+	if (this->file.is_open()) {
+		close();
+	}
 }
 
 template <typename T, typename Traits>
 void RealTimeWriter<T, Traits>::putRecord(parameter_type data) {
-  Traits::serialize(data, currentPos);
-  currentPos += this->recordLength;
+	Traits::serialize(data, currentPos);
+	currentPos += this->recordLength;
 
-  if (currentPos >= endInBuff) {
-	if (writeToDisk) {
-	  throw(std::overflow_error("(log::RealTimeWriter::putRecord()): The input "
-	                            "buffer filled up before the output buffer was "
-	                            "written to disk."));
+	if (currentPos >= endInBuff) {
+		if (writeToDisk) {
+			throw(std::overflow_error(
+			    "(log::RealTimeWriter::putRecord()): The input "
+			    "buffer filled up before the output buffer was "
+			    "written to disk."));
+		}
+
+		std::swap(inBuff, outBuff);
+		std::swap(endInBuff, endOutBuff);
+		currentPos = inBuff;
+		writeToDisk = true;
 	}
-
-	std::swap(inBuff, outBuff);
-	std::swap(endInBuff, endOutBuff);
-	currentPos = inBuff;
-	writeToDisk = true;
-  }
 }
 
 template <typename T, typename Traits> void RealTimeWriter<T, Traits>::close() {
-  thread.interrupt();
-  thread.join();
+	thread.interrupt();
+	thread.join();
 
-  if (writeToDisk) {
-	this->file.write(outBuff, singleBufferSize);
-	writeToDisk = false;
-  }
-  if (currentPos != inBuff) {
-	this->file.write(inBuff, currentPos - inBuff);
-  }
+	if (writeToDisk) {
+		this->file.write(outBuff, singleBufferSize);
+		writeToDisk = false;
+	}
+	if (currentPos != inBuff) {
+		this->file.write(inBuff, currentPos - inBuff);
+	}
 
-  this->Writer<T, Traits>::close();
+	this->Writer<T, Traits>::close();
 }
 
 template <typename T, typename Traits>
 void RealTimeWriter<T, Traits>::writeToDiskEntryPoint() {
-  PeriodicLoopTimer loopTimer(period, priority);
-  while (!boost::this_thread::interruption_requested()) {
-	loopTimer.wait();
-	if (writeToDisk) {
-	  this->file.write(outBuff, singleBufferSize);
-	  writeToDisk = false;
+	PeriodicLoopTimer loopTimer(period, priority);
+	while (!boost::this_thread::interruption_requested()) {
+		loopTimer.wait();
+		if (writeToDisk) {
+			this->file.write(outBuff, singleBufferSize);
+			writeToDisk = false;
+		}
 	}
-  }
 }
 }
 }

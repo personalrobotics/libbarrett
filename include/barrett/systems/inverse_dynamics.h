@@ -49,28 +49,28 @@ class InverseDynamics
                       typename units::JointTorques<DOF>::type>,
       public KinematicsInput<DOF>,
       public math::Dynamics<DOF> {
-  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-  // IO
-public:
-  System::Input<jv_type> jvInput;
+	// IO
+  public:
+	System::Input<jv_type> jvInput;
 
-public:
-  explicit InverseDynamics(const libconfig::Setting &setting,
-                           const std::string &sysName = "InverseDynamics")
-      : SingleIO<ja_type, jt_type>(sysName), KinematicsInput<DOF>(this),
-        math::Dynamics<DOF>(setting), jvInput(this) {}
-  virtual ~InverseDynamics() { this->mandatoryCleanUp(); }
+  public:
+	explicit InverseDynamics(const libconfig::Setting &setting,
+	                         const std::string &sysName = "InverseDynamics")
+	    : SingleIO<ja_type, jt_type>(sysName), KinematicsInput<DOF>(this),
+	      math::Dynamics<DOF>(setting), jvInput(this) {}
+	virtual ~InverseDynamics() { this->mandatoryCleanUp(); }
 
-protected:
-  virtual void operate() {
-	this->evalInverse(this->kinInput.getValue(), jvInput.getValue(),
-	                  this->input.getValue());
-	this->outputValue->setData(&this->jt);
-  }
+  protected:
+	virtual void operate() {
+		this->evalInverse(this->kinInput.getValue(), jvInput.getValue(),
+		                  this->input.getValue());
+		this->outputValue->setData(&this->jt);
+	}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(InverseDynamics);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(InverseDynamics);
 };
 }
 }

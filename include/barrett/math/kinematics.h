@@ -21,23 +21,23 @@ namespace barrett {
 namespace math {
 
 template <size_t DOF> class Kinematics {
-  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-public:
-  explicit Kinematics(const libconfig::Setting &setting);
-  ~Kinematics();
+  public:
+	explicit Kinematics(const libconfig::Setting &setting);
+	~Kinematics();
 
-  void eval(const jp_type &jp, const jv_type &jv);
+	void eval(const jp_type &jp, const jv_type &jv);
 
-  typedef typename units::CartesianPosition::type
-      result_type; ///< For use with boost::bind().
-  result_type operator()(const boost::tuple<jp_type, jv_type> &jointState);
+	typedef typename units::CartesianPosition::type
+	    result_type; ///< For use with boost::bind().
+	result_type operator()(const boost::tuple<jp_type, jv_type> &jointState);
 
-  // protected:
-  struct bt_kinematics *impl;
+	// protected:
+	struct bt_kinematics *impl;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Kinematics);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Kinematics);
 };
 }
 }

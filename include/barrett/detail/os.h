@@ -41,34 +41,34 @@ namespace barrett {
 namespace detail {
 
 class LogFormatter : public boost::format {
-public:
-  LogFormatter(const std::string &fmt, bool outputToStderr)
-      : boost::format(fmt), ose(outputToStderr), printed(false) {}
-  ~LogFormatter() { print(); }
+  public:
+	LogFormatter(const std::string &fmt, bool outputToStderr)
+	    : boost::format(fmt), ose(outputToStderr), printed(false) {}
+	~LogFormatter() { print(); }
 
-  template <typename ExceptionType> void raise(bool alsoPrint = false) {
-	if (alsoPrint) {
-	  print();
-	} else {
-	  printed = true;
+	template <typename ExceptionType> void raise(bool alsoPrint = false) {
+		if (alsoPrint) {
+			print();
+		} else {
+			printed = true;
+		}
+
+		// It's necessary to do this in a member function because it's unsafe to
+		// throw exceptions from a dtor.
+		throw ExceptionType(str());
 	}
 
-	// It's necessary to do this in a member function because it's unsafe to
-	// throw exceptions from a dtor.
-	throw ExceptionType(str());
-  }
+	// Reimplemented in order to return LogFormatter instead of boost::format
+	template <class T> LogFormatter &operator%(const T &x) {
+		boost::format::operator%(x); // Call super
+		return *this;
+	}
 
-  // Reimplemented in order to return LogFormatter instead of boost::format
-  template <class T> LogFormatter &operator%(const T &x) {
-	boost::format::operator%(x); // Call super
-	return *this;
-  }
+  protected:
+	void print();
 
-protected:
-  void print();
-
-  bool ose;
-  bool printed;
+	bool ose;
+	bool printed;
 };
 }
 }

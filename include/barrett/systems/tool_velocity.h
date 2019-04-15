@@ -47,25 +47,25 @@ template <size_t DOF>
 class ToolVelocity : public System,
                      public KinematicsInput<DOF>,
                      public SingleOutput<units::CartesianVelocity::type> {
-public:
-  ToolVelocity(const std::string &sysName = "ToolVelocity")
-      : System(sysName), KinematicsInput<DOF>(this),
-        SingleOutput<units::CartesianVelocity::type>(this), data() {}
-  virtual ~ToolVelocity() { mandatoryCleanUp(); }
+  public:
+	ToolVelocity(const std::string &sysName = "ToolVelocity")
+	    : System(sysName), KinematicsInput<DOF>(this),
+	      SingleOutput<units::CartesianVelocity::type>(this), data() {}
+	virtual ~ToolVelocity() { mandatoryCleanUp(); }
 
-protected:
-  virtual void operate() {
-	data.copyFrom(this->kinInput.getValue().impl->tool_velocity);
-	this->outputValue->setData(&data);
-  }
+  protected:
+	virtual void operate() {
+		data.copyFrom(this->kinInput.getValue().impl->tool_velocity);
+		this->outputValue->setData(&data);
+	}
 
-  units::CartesianVelocity::type data;
+	units::CartesianVelocity::type data;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ToolVelocity);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(ToolVelocity);
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

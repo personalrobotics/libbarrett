@@ -16,23 +16,23 @@ namespace thread {
 
 // provides no synchronization or mutual exclusion
 class NullMutex : public Mutex {
-public:
-  // since all NullMutex's are the same, feel free to give out references to
-  // this object if you just need to return a NullMutex...
-  static NullMutex aNullMutex;
+  public:
+	// since all NullMutex's are the same, feel free to give out references to
+	// this object if you just need to return a NullMutex...
+	static NullMutex aNullMutex;
 
-  NullMutex() {}
-  virtual ~NullMutex() {}
+	NullMutex() {}
+	virtual ~NullMutex() {}
 
-  virtual void lock() {}
-  virtual bool try_lock() { return true; }
-  virtual void unlock() {}
+	virtual void lock() {}
+	virtual bool try_lock() { return true; }
+	virtual void unlock() {}
 
-  virtual int fullUnlock() { return 0; }
-  virtual void relock(int lc) {}
+	virtual int fullUnlock() { return 0; }
+	virtual void relock(int lc) {}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(NullMutex);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(NullMutex);
 };
 }
 }

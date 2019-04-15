@@ -10,20 +10,20 @@
 namespace barrett {
 static const std::string EtcPathRelative(const std::string &relpath) {
 
-  std::string path = "/.barrett/";
-  char *home;
-  struct stat statbuf;
+	std::string path = "/.barrett/";
+	char *home;
+	struct stat statbuf;
 
-  home = getenv("HOME");
-  if (home == NULL)
-	home = getpwuid(getuid())->pw_dir;
-  path = home + path;
-  if (stat(path.c_str(), &statbuf) != -1) {
-	if (S_ISDIR(statbuf.st_mode)) {
-	  return (path + relpath);
+	home = getenv("HOME");
+	if (home == NULL)
+		home = getpwuid(getuid())->pw_dir;
+	path = home + path;
+	if (stat(path.c_str(), &statbuf) != -1) {
+		if (S_ISDIR(statbuf.st_mode)) {
+			return (path + relpath);
+		}
 	}
-  }
-  return std::string("/etc/barrett/") + relpath;
+	return std::string("/etc/barrett/") + relpath;
 }
 }
 

@@ -48,15 +48,15 @@ void btsleep(double duration_s, bool realtime);
 double highResolutionSystemTime();
 
 class PeriodicLoopTimer {
-public:
-  explicit PeriodicLoopTimer(double period_, int threadPriority = 10);
+  public:
+	explicit PeriodicLoopTimer(double period_, int threadPriority = 10);
 
-  unsigned long wait();
+	unsigned long wait();
 
-protected:
-  bool firstRun;
-  double period;
-  double releasePoint;
+  protected:
+	bool firstRun;
+	double period;
+	double releasePoint;
 };
 
 /** logMessage function returns an object that can be used in the same way as a

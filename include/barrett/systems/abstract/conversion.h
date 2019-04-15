@@ -40,15 +40,15 @@ namespace systems {
 // objects implementing this interface can be manipulated by a
 // Converter
 template <typename OutputType> class Conversion {
-public:
-  Conversion() {}
-  virtual ~Conversion() {}
+  public:
+	Conversion() {}
+	virtual ~Conversion() {}
 
-  virtual System::AbstractInput *getConversionInput() = 0;
-  virtual System::Output<OutputType> &getConversionOutput() = 0;
+	virtual System::AbstractInput *getConversionInput() = 0;
+	virtual System::Output<OutputType> &getConversionOutput() = 0;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Conversion);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Conversion);
 };
 }
 }

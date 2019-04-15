@@ -50,74 +50,78 @@ class ToolOrientationController
     : public Controller<Eigen::Quaterniond, units::CartesianTorque::type>,
       public KinematicsInput<DOF> {
 
-  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-public:
-  explicit ToolOrientationController(
-      const std::string &sysName = "ToolOrientationController")
-      : Controller<Eigen::Quaterniond, ct_type>(sysName),
-        KinematicsInput<DOF>(this), kp(0.0), kd(0.0) {}
-  explicit ToolOrientationController(
-      const libconfig::Setting &setting,
-      const std::string &sysName = "ToolOrientationController")
-      : Controller<Eigen::Quaterniond, ct_type>(sysName),
-        KinematicsInput<DOF>(this), kp(0.0), kd(0.0) {
-	setFromConfig(setting);
-  }
-  virtual ~ToolOrientationController() { mandatoryCleanUp(); }
+  public:
+	explicit ToolOrientationController(
+	    const std::string &sysName = "ToolOrientationController")
+	    : Controller<Eigen::Quaterniond, ct_type>(sysName),
+	      KinematicsInput<DOF>(this), kp(0.0), kd(0.0) {}
+	explicit ToolOrientationController(
+	    const libconfig::Setting &setting,
+	    const std::string &sysName = "ToolOrientationController")
+	    : Controller<Eigen::Quaterniond, ct_type>(sysName),
+	      KinematicsInput<DOF>(this), kp(0.0), kd(0.0) {
+		setFromConfig(setting);
+	}
+	virtual ~ToolOrientationController() { mandatoryCleanUp(); }
 
-  void setFromConfig(const libconfig::Setting &setting) {
-	setKp(barrett::detail::numericToDouble(setting["kp"]));
-	setKd(barrett::detail::numericToDouble(setting["kd"]));
-  }
-  void setKp(double proportionalGain) { kp = proportionalGain; }
-  void setKd(double derivitiveGain) { kd = derivitiveGain; }
+	void setFromConfig(const libconfig::Setting &setting) {
+		setKp(barrett::detail::numericToDouble(setting["kp"]));
+		setKd(barrett::detail::numericToDouble(setting["kd"]));
+	}
+	void setKp(double proportionalGain) { kp = proportionalGain; }
+	void setKd(double derivitiveGain) { kd = derivitiveGain; }
 
-  double getKp() const { return kp; }
-  double getKd() const { return kd; }
+	double getKp() const { return kp; }
+	double getKd() const { return kd; }
 
-protected:
-  double kp;
-  double kd;
+  protected:
+	double kp;
+	double kd;
 
-  Eigen::AngleAxisd error;
-  ct_type ct;
+	Eigen::AngleAxisd error;
+	ct_type ct;
 
-  virtual void operate() {
-	//		error = this->referenceInput.getValue() *
-	// this->feedbackInput.getValue().inverse();  // I think it should be this
-	// way
-	error = this->feedbackInput.getValue() *
-	        this->referenceInput.getValue()
-	            .inverse(); // but CD's math (that works, BTW) does it this way
+	virtual void operate() {
+		//		error = this->referenceInput.getValue() *
+		// this->feedbackInput.getValue().inverse();  // I think it should be
+		// this
+		// way
+		error =
+		    this->feedbackInput.getValue() *
+		    this->referenceInput.getValue()
+		        .inverse(); // but CD's math (that works, BTW) does it this way
 
-	double angle = error.angle();
-	// TODO(dc): I looked into Eigen's implementation and noticed that angle
-	// will always be between 0 and 2*pi. We should test for this so if Eigen
-	// changes, we notice.
-	if (angle > M_PI) {
-	  angle -= 2.0 * M_PI;
+		double angle = error.angle();
+		// TODO(dc): I looked into Eigen's implementation and noticed that angle
+		// will always be between 0 and 2*pi. We should test for this so if
+		// Eigen
+		// changes, we notice.
+		if (angle > M_PI) {
+			angle -= 2.0 * M_PI;
+		}
+
+		if (math::abs(angle) > 3.13) { // a little dead-zone near the
+		                               // discontinuity at +/-180 degrees
+			ct.setZero();
+		} else {
+			ct = this->referenceInput.getValue().inverse() *
+			     (error.axis() * angle * kp);
+		}
+
+		gsl_blas_daxpy(-kd,
+		               this->kinInput.getValue().impl->tool_velocity_angular,
+		               ct.asGslType());
+
+		this->controlOutputValue->setData(&ct);
 	}
 
-	if (math::abs(angle) >
-	    3.13) { // a little dead-zone near the discontinuity at +/-180 degrees
-	  ct.setZero();
-	} else {
-	  ct = this->referenceInput.getValue().inverse() *
-	       (error.axis() * angle * kp);
-	}
+  private:
+	DISALLOW_COPY_AND_ASSIGN(ToolOrientationController);
 
-	gsl_blas_daxpy(-kd, this->kinInput.getValue().impl->tool_velocity_angular,
-	               ct.asGslType());
-
-	this->controlOutputValue->setData(&ct);
-  }
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(ToolOrientationController);
-
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

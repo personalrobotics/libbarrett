@@ -49,31 +49,32 @@ class ToolTorqueToJointTorques
                       typename units::JointTorques<DOF>::type>,
       public KinematicsInput<DOF> {
 
-  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-public:
-  ToolTorqueToJointTorques(
-      const std::string &sysName = "ToolTorqueToJointTorques")
-      : SingleIO<ct_type, jt_type>(sysName), KinematicsInput<DOF>(this) {}
-  virtual ~ToolTorqueToJointTorques() { this->mandatoryCleanUp(); }
+  public:
+	ToolTorqueToJointTorques(
+	    const std::string &sysName = "ToolTorqueToJointTorques")
+	    : SingleIO<ct_type, jt_type>(sysName), KinematicsInput<DOF>(this) {}
+	virtual ~ToolTorqueToJointTorques() { this->mandatoryCleanUp(); }
 
-protected:
-  jt_type data;
+  protected:
+	jt_type data;
 
-  virtual void operate() {
-	// Multiply by the Jacobian-transpose at the tool
-	gsl_blas_dgemv(CblasTrans, 1.0,
-	               this->kinInput.getValue().impl->tool_jacobian_angular,
-	               this->input.getValue().asGslType(), 0.0, data.asGslType());
+	virtual void operate() {
+		// Multiply by the Jacobian-transpose at the tool
+		gsl_blas_dgemv(CblasTrans, 1.0,
+		               this->kinInput.getValue().impl->tool_jacobian_angular,
+		               this->input.getValue().asGslType(), 0.0,
+		               data.asGslType());
 
-	this->outputValue->setData(&data);
-  }
+		this->outputValue->setData(&data);
+	}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ToolTorqueToJointTorques);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(ToolTorqueToJointTorques);
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

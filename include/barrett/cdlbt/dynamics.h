@@ -108,54 +108,54 @@ extern "C" {
  *  see dynamics.h.
  */
 struct bt_dynamics_link {
-  /** \name Doubly-linked for convenience
-   *  \{ */
-  struct bt_dynamics_link *next;
-  struct bt_dynamics_link *prev;
-  /** \} */
+	/** \name Doubly-linked for convenience
+	 *  \{ */
+	struct bt_dynamics_link *next;
+	struct bt_dynamics_link *prev;
+	/** \} */
 
-  /** \name Geometrical and inertial parameters
-   *  \{ */
-  double mass;     /**< Mass of link (kg) */
-  gsl_vector *com; /**< Center of mass of link (m), in DH link frame */
-  gsl_matrix *I;   /**< Inertia matrix of link,
-                    *   around link center-of-mass */
-  /** \} */
+	/** \name Geometrical and inertial parameters
+	 *  \{ */
+	double mass;     /**< Mass of link (kg) */
+	gsl_vector *com; /**< Center of mass of link (m), in DH link frame */
+	gsl_matrix *I;   /**< Inertia matrix of link,
+	                  *   around link center-of-mass */
+	/** \} */
 
-  /* NOTE:
-   * Do we need rotor inertia here?? */
+	/* NOTE:
+	 * Do we need rotor inertia here?? */
 
-  /* Next, a place to hold the results from calculations */
+	/* Next, a place to hold the results from calculations */
 
-  /** \name Forward-calculated vectors (in local link frame)
-   *  \{ */
-  gsl_vector *omega;      /**< angular velocity of local frame
-                           *   w.r.t. base frame */
-  gsl_vector *omega_prev; /**< Previous frame's ang vel in my frame */
-  gsl_vector *alpha;      /**< angular acceleration of local frame
-                           *   w.r.t. base frame */
-  gsl_vector *a;          /**< linear acceleration of frame origin */
-                          /** \} */
+	/** \name Forward-calculated vectors (in local link frame)
+	 *  \{ */
+	gsl_vector *omega;      /**< angular velocity of local frame
+	                         *   w.r.t. base frame */
+	gsl_vector *omega_prev; /**< Previous frame's ang vel in my frame */
+	gsl_vector *alpha;      /**< angular acceleration of local frame
+	                         *   w.r.t. base frame */
+	gsl_vector *a;          /**< linear acceleration of frame origin */
+	                        /** \} */
 
-  /* A couple of caches, also expressed in local link frame */
+	/* A couple of caches, also expressed in local link frame */
 
-  /** \name Backward-calculated vectors (in local link frame)
-   *  \{ */
-  gsl_vector *fnet;
-  gsl_vector *tnet;
-  gsl_vector *f;      /**< force exerted on this link by previous link */
-  gsl_vector *f_next; /**< Next frame's force in my frame */
-  gsl_vector *t;      /**< torque exerted on this link by previous link */
-                      /** \} */
+	/** \name Backward-calculated vectors (in local link frame)
+	 *  \{ */
+	gsl_vector *fnet;
+	gsl_vector *tnet;
+	gsl_vector *f;      /**< force exerted on this link by previous link */
+	gsl_vector *f_next; /**< Next frame's force in my frame */
+	gsl_vector *t;      /**< torque exerted on this link by previous link */
+	                    /** \} */
 
-  /** \name Jacobian computed at the center-of-mass (used for JSIM calc)
-   *  \{ */
-  gsl_matrix *com_jacobian;
-  gsl_matrix *com_jacobian_linear;  /**< Matrix view of linear jacobian
-                                     *   (upper half) */
-  gsl_matrix *com_jacobian_angular; /**< Matrix view of angular jacobian
-                                     *   (lower half) */
-  /** \} */
+	/** \name Jacobian computed at the center-of-mass (used for JSIM calc)
+	 *  \{ */
+	gsl_matrix *com_jacobian;
+	gsl_matrix *com_jacobian_linear;  /**< Matrix view of linear jacobian
+	                                   *   (upper half) */
+	gsl_matrix *com_jacobian_angular; /**< Matrix view of angular jacobian
+	                                   *   (lower half) */
+	/** \} */
 };
 
 /** Robot dynamics data, holding an array of links (mirroring the structure
@@ -163,25 +163,25 @@ struct bt_dynamics_link {
  *  a place to calculate the JSIM and some temporary vectors and matrices.
  */
 struct bt_dynamics {
-  int dof;
-  int nlinks;
-  struct bt_dynamics_link **link_array;
+	int dof;
+	int nlinks;
+	struct bt_dynamics_link **link_array;
 
-  struct bt_dynamics_link *base;
-  struct bt_dynamics_link **link; /* Moving links array */
-  struct bt_dynamics_link *toolplate;
+	struct bt_dynamics_link *base;
+	struct bt_dynamics_link **link; /* Moving links array */
+	struct bt_dynamics_link *toolplate;
 
-  /* Yay JSIM! */
-  gsl_matrix *jsim;
+	/* Yay JSIM! */
+	gsl_matrix *jsim;
 
-  /* Temporary Vectors */
-  gsl_vector *temp1_v3;
-  gsl_vector *temp2_v3;
+	/* Temporary Vectors */
+	gsl_vector *temp1_v3;
+	gsl_vector *temp2_v3;
 
-  /* Temporary Matrices */
-  gsl_matrix *temp3x3_1;
-  gsl_matrix *temp3x3_2;
-  gsl_matrix *temp3xn_1;
+	/* Temporary Matrices */
+	gsl_matrix *temp3x3_1;
+	gsl_matrix *temp3x3_2;
+	gsl_matrix *temp3xn_1;
 };
 
 /** Create a bt_dynamics object from a given configuration.

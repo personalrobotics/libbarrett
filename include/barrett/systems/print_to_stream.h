@@ -43,27 +43,29 @@ namespace systems {
 
 template <typename T>
 class PrintToStream : public System, public SingleInput<T> {
-public:
-  explicit PrintToStream(ExecutionManager *em,
-                         const std::string &prependedLabel = "",
-                         std::ostream &ostream = std::cout,
-                         const std::string &sysName = "PrintToStream")
-      : System(sysName), SingleInput<T>(this), label(prependedLabel),
-        os(ostream) {
-	if (em != NULL) {
-	  em->startManaging(*this);
+  public:
+	explicit PrintToStream(ExecutionManager *em,
+	                       const std::string &prependedLabel = "",
+	                       std::ostream &ostream = std::cout,
+	                       const std::string &sysName = "PrintToStream")
+	    : System(sysName), SingleInput<T>(this), label(prependedLabel),
+	      os(ostream) {
+		if (em != NULL) {
+			em->startManaging(*this);
+		}
 	}
-  }
-  virtual ~PrintToStream() { mandatoryCleanUp(); }
+	virtual ~PrintToStream() { mandatoryCleanUp(); }
 
-protected:
-  std::string label;
-  std::ostream &os;
+  protected:
+	std::string label;
+	std::ostream &os;
 
-  virtual void operate() { os << label << this->input.getValue() << std::endl; }
+	virtual void operate() {
+		os << label << this->input.getValue() << std::endl;
+	}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(PrintToStream);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(PrintToStream);
 };
 }
 }

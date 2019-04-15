@@ -44,42 +44,42 @@ namespace systems {
 
 template <typename T, typename MathTraits = math::Traits<T>>
 class RateLimiter : public SingleIO<T, T> {
-protected:
-  typedef MathTraits MT;
+  protected:
+	typedef MathTraits MT;
 
-public:
-  RateLimiter(const T &limit = T(0.0),
-              const std::string &sysName = "RateLimiter")
-      : SingleIO<T, T>(sysName), T_s(0.0), limit(), maxDelta(), data(),
-        delta() {
-	setLimit(limit);
-	getSamplePeriodFromEM();
-  }
-  ~RateLimiter() { this->mandatoryCleanUp(); }
+  public:
+	RateLimiter(const T &limit = T(0.0),
+	            const std::string &sysName = "RateLimiter")
+	    : SingleIO<T, T>(sysName), T_s(0.0), limit(), maxDelta(), data(),
+	      delta() {
+		setLimit(limit);
+		getSamplePeriodFromEM();
+	}
+	~RateLimiter() { this->mandatoryCleanUp(); }
 
-  void setLimit(const T &newLimit);
+	void setLimit(const T &newLimit);
 
-  void setCurVal(const T &newPos);
+	void setCurVal(const T &newPos);
 
-protected:
-  double T_s;
-  T limit, maxDelta;
-  T data;
+  protected:
+	double T_s;
+	T limit, maxDelta;
+	T data;
 
-  T delta;
-  virtual void operate();
+	T delta;
+	virtual void operate();
 
-  virtual void onExecutionManagerChanged() {
-	SingleIO<T, T>::onExecutionManagerChanged(); // First, call super
-	getSamplePeriodFromEM();
-  }
-  void getSamplePeriodFromEM();
+	virtual void onExecutionManagerChanged() {
+		SingleIO<T, T>::onExecutionManagerChanged(); // First, call super
+		getSamplePeriodFromEM();
+	}
+	void getSamplePeriodFromEM();
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(RateLimiter);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(RateLimiter);
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(MT::RequiresAlignment)
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(MT::RequiresAlignment)
 };
 }
 }

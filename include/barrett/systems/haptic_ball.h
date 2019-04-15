@@ -45,70 +45,71 @@ namespace barrett {
 namespace systems {
 
 class HapticBall : public HapticObject {
-  BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
+	BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
 
-public:
-  HapticBall(const cp_type &center, double radius,
-             const std::string &sysName = "HapticBall")
-      : HapticObject(sysName), c(center), r(radius),
-        keepOutside(
-            true) /* doesn't matter how this is initialized, it'll fix itself */,
-        depth(0.0), error(0.0) {}
-  virtual ~HapticBall() { mandatoryCleanUp(); }
+  public:
+	HapticBall(const cp_type &center, double radius,
+	           const std::string &sysName = "HapticBall")
+	    : HapticObject(sysName), c(center), r(radius),
+	      keepOutside(
+	          true) /* doesn't matter how this is initialized, it'll fix itself */,
+	      depth(0.0), error(0.0) {}
+	virtual ~HapticBall() { mandatoryCleanUp(); }
 
-  void setCenter(const cp_type &newCenter) {
-	BARRETT_SCOPED_LOCK(getEmMutex());
-	c = newCenter;
-  }
-  void setRadius(double newRadius) {
-	BARRETT_SCOPED_LOCK(getEmMutex());
-	r = newRadius;
-  }
-
-  const cp_type &getCenter() const { return c; }
-  double getRadius() const { return r; }
-
-protected:
-  virtual void operate() {
-	error = input.getValue() - c;
-	double mag = error.norm();
-
-	bool outside = mag > r;
-
-	// if we are inside the ball and we shouldn't be, or we are outside the ball
-	// and we shouldn't be
-	if ((keepOutside && !outside) || (!keepOutside && outside)) {
-	  depth = r - mag;
-	  if (math::abs(depth) > 0.02) {
-		keepOutside = !keepOutside;
-
-		depth = 0.0;
-		error.setZero();
-	  } else {
-		// unit vector pointing towards the surface of the ball
-		error /= mag;
-	  }
-	} else {
-	  depth = 0.0;
-	  error.setZero();
+	void setCenter(const cp_type &newCenter) {
+		BARRETT_SCOPED_LOCK(getEmMutex());
+		c = newCenter;
+	}
+	void setRadius(double newRadius) {
+		BARRETT_SCOPED_LOCK(getEmMutex());
+		r = newRadius;
 	}
 
-	depthOutputValue->setData(&depth);
-	directionOutputValue->setData(&error);
-  }
+	const cp_type &getCenter() const { return c; }
+	double getRadius() const { return r; }
 
-  cp_type c;
-  double r;
-  bool keepOutside;
+  protected:
+	virtual void operate() {
+		error = input.getValue() - c;
+		double mag = error.norm();
 
-  double depth;
-  cf_type error;
+		bool outside = mag > r;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(HapticBall);
+		// if we are inside the ball and we shouldn't be, or we are outside the
+		// ball
+		// and we shouldn't be
+		if ((keepOutside && !outside) || (!keepOutside && outside)) {
+			depth = r - mag;
+			if (math::abs(depth) > 0.02) {
+				keepOutside = !keepOutside;
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+				depth = 0.0;
+				error.setZero();
+			} else {
+				// unit vector pointing towards the surface of the ball
+				error /= mag;
+			}
+		} else {
+			depth = 0.0;
+			error.setZero();
+		}
+
+		depthOutputValue->setData(&depth);
+		directionOutputValue->setData(&error);
+	}
+
+	cp_type c;
+	double r;
+	bool keepOutside;
+
+	double depth;
+	cf_type error;
+
+  private:
+	DISALLOW_COPY_AND_ASSIGN(HapticBall);
+
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

@@ -46,40 +46,40 @@ template <size_t DOF>
 class FrictionCompensator
     : public SingleIO<typename units::JointVelocities<DOF>::type,
                       typename units::JointTorques<DOF>::type> {
-  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-public:
-  FrictionCompensator(const libconfig::Setting &setting,
-                      const std::string &sysName = "FrictionCompensator")
-      : SingleIO<jv_type, jt_type>(sysName), coulomb(setting["coulomb"]),
-        viscous(setting["viscous"]) {}
-  virtual ~FrictionCompensator() { this->mandatoryCleanUp(); }
+  public:
+	FrictionCompensator(const libconfig::Setting &setting,
+	                    const std::string &sysName = "FrictionCompensator")
+	    : SingleIO<jv_type, jt_type>(sysName), coulomb(setting["coulomb"]),
+	      viscous(setting["viscous"]) {}
+	virtual ~FrictionCompensator() { this->mandatoryCleanUp(); }
 
-protected:
-  v_type coulomb;
-  v_type viscous;
-  jt_type jt;
+  protected:
+	v_type coulomb;
+	v_type viscous;
+	jt_type jt;
 
-  virtual void operate() {
-	const jv_type &jv = this->input.getValue();
-	for (size_t i = 0; i < DOF; ++i) {
-	  if (jv[i] > 0.0) {
-		jt[i] = jv[i] * viscous[i] + coulomb[i];
-	  } else if (jv[i] < 0.0) {
-		jt[i] = jv[i] * viscous[i] - coulomb[i];
-	  } else {
-		jt[i] = 0.0;
-	  }
+	virtual void operate() {
+		const jv_type &jv = this->input.getValue();
+		for (size_t i = 0; i < DOF; ++i) {
+			if (jv[i] > 0.0) {
+				jt[i] = jv[i] * viscous[i] + coulomb[i];
+			} else if (jv[i] < 0.0) {
+				jt[i] = jv[i] * viscous[i] - coulomb[i];
+			} else {
+				jt[i] = 0.0;
+			}
+		}
+
+		this->outputValue->setData(&jt);
 	}
 
-	this->outputValue->setData(&jt);
-  }
+  private:
+	DISALLOW_COPY_AND_ASSIGN(FrictionCompensator);
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(FrictionCompensator);
-
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

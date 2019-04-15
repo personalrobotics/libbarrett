@@ -14,15 +14,15 @@ namespace barrett {
 namespace thread {
 
 class DisableSecondaryModeWarning {
-public:
-  DisableSecondaryModeWarning();
-  ~DisableSecondaryModeWarning();
+  public:
+	DisableSecondaryModeWarning();
+	~DisableSecondaryModeWarning();
 
-protected:
-  bool leaveWarnSwitchOn;
+  protected:
+	bool leaveWarnSwitchOn;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(DisableSecondaryModeWarning);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(DisableSecondaryModeWarning);
 };
 }
 }

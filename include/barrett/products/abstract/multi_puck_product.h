@@ -43,27 +43,27 @@
 namespace barrett {
 
 class MultiPuckProduct {
-public:
-  /** MultiPuckProduct Constructor */
-  MultiPuckProduct(size_t DOF, const std::vector<Puck *> &pucks, int groupId,
-                   const enum Puck::Property props[], const size_t numProps,
-                   const char *syslogStr = NULL);
-  ~MultiPuckProduct();
-  /** getPucks Method generates a vector of Points to each puck */
-  const std::vector<Puck *> &getPucks() const { return pucks; }
-  /** getMotorPucks Method generates a vector */
-  const std::vector<MotorPuck> &getMotorPucks() const { return motorPucks; }
-  /** getPuckGroup Method gets point to pucks with appropriate role */
-  const PuckGroup &getPuckGroup() const { return group; }
+  public:
+	/** MultiPuckProduct Constructor */
+	MultiPuckProduct(size_t DOF, const std::vector<Puck *> &pucks, int groupId,
+	                 const enum Puck::Property props[], const size_t numProps,
+	                 const char *syslogStr = NULL);
+	~MultiPuckProduct();
+	/** getPucks Method generates a vector of Points to each puck */
+	const std::vector<Puck *> &getPucks() const { return pucks; }
+	/** getMotorPucks Method generates a vector */
+	const std::vector<MotorPuck> &getMotorPucks() const { return motorPucks; }
+	/** getPuckGroup Method gets point to pucks with appropriate role */
+	const PuckGroup &getPuckGroup() const { return group; }
 
-protected:
-  const bus::CommunicationsBus &bus;
-  std::vector<Puck *> pucks;
-  std::vector<MotorPuck> motorPucks;
-  PuckGroup group;
+  protected:
+	const bus::CommunicationsBus &bus;
+	std::vector<Puck *> pucks;
+	std::vector<MotorPuck> motorPucks;
+	PuckGroup group;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(MultiPuckProduct);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(MultiPuckProduct);
 };
 }
 

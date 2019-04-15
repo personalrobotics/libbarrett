@@ -50,105 +50,106 @@ namespace barrett {
 namespace systems {
 
 template <size_t DOF> class LowLevelWamWrapper {
-  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-public:
-  System::Input<jt_type> &input;
-
-public:
-  System::Output<jp_type> &jpOutput;
-
-public:
-  System::Output<jv_type> &jvOutput;
-
-public:
-  // genericPucks must be ordered by joint and must break into torque groups as
-  // arranged
-  LowLevelWamWrapper(ExecutionManager *em,
-                     const std::vector<Puck *> &genericPucks,
-                     SafetyModule *safetyModule,
-                     const libconfig::Setting &setting,
-                     std::vector<int> torqueGroupIds = std::vector<int>(),
-                     const std::string &sysName = "LowLevelWamWrapper");
-  ~LowLevelWamWrapper() {}
-
-  LowLevelWam<DOF> &getLowLevelWam() { return llw; }
-  const LowLevelWam<DOF> &getLowLevelWam() const { return llw; }
-
-  thread::Mutex &getEmMutex() const { return sink.getEmMutex(); }
-
-protected:
-  class Sink : public System, public SingleInput<jt_type> {
   public:
-	Sink(LowLevelWamWrapper *parent, ExecutionManager *em,
-	     const std::string &sysName = "LowLevelWamWrapper::Sink")
-	    : System(sysName), SingleInput<jt_type>(this), parent(parent) {
-	  // Update every execution cycle because this is a sink.
-	  if (em != NULL) {
-		em->startManaging(*this);
-	  }
-	}
-	virtual ~Sink() { mandatoryCleanUp(); }
+	System::Input<jt_type> &input;
+
+  public:
+	System::Output<jp_type> &jpOutput;
+
+  public:
+	System::Output<jv_type> &jvOutput;
+
+  public:
+	// genericPucks must be ordered by joint and must break into torque groups
+	// as
+	// arranged
+	LowLevelWamWrapper(ExecutionManager *em,
+	                   const std::vector<Puck *> &genericPucks,
+	                   SafetyModule *safetyModule,
+	                   const libconfig::Setting &setting,
+	                   std::vector<int> torqueGroupIds = std::vector<int>(),
+	                   const std::string &sysName = "LowLevelWamWrapper");
+	~LowLevelWamWrapper() {}
+
+	LowLevelWam<DOF> &getLowLevelWam() { return llw; }
+	const LowLevelWam<DOF> &getLowLevelWam() const { return llw; }
+
+	thread::Mutex &getEmMutex() const { return sink.getEmMutex(); }
 
   protected:
-	virtual void operate();
+	class Sink : public System, public SingleInput<jt_type> {
+	  public:
+		Sink(LowLevelWamWrapper *parent, ExecutionManager *em,
+		     const std::string &sysName = "LowLevelWamWrapper::Sink")
+		    : System(sysName), SingleInput<jt_type>(this), parent(parent) {
+			// Update every execution cycle because this is a sink.
+			if (em != NULL) {
+				em->startManaging(*this);
+			}
+		}
+		virtual ~Sink() { mandatoryCleanUp(); }
 
-	LowLevelWamWrapper *parent;
+	  protected:
+		virtual void operate();
+
+		LowLevelWamWrapper *parent;
+
+	  private:
+		DISALLOW_COPY_AND_ASSIGN(Sink);
+	};
+
+	class Source : public System {
+		// IO
+	  public:
+		Output<jp_type> jpOutput;
+
+	  protected:
+		typename Output<jp_type>::Value *jpOutputValue;
+
+	  public:
+		Output<jv_type> jvOutput;
+
+	  protected:
+		typename Output<jv_type>::Value *jvOutputValue;
+
+	  public:
+		Source(LowLevelWamWrapper *parent, ExecutionManager *em,
+		       const std::string &sysName = "LowLevelWamWrapper::Sink")
+		    : System(sysName), jpOutput(this, &jpOutputValue),
+		      jvOutput(this, &jvOutputValue), parent(parent) {
+			// Update every execution cycle to prevent heartbeat
+			// faults. Depending on connections, this System
+			// might not be called for a period of time. In this
+			// situation, the pucks would stop reporting
+			// positions and the safety system would assume they
+			// had died.
+			if (em != NULL) {
+				em->startManaging(*this);
+			}
+		}
+		virtual ~Source() { mandatoryCleanUp(); }
+
+	  protected:
+		virtual void operate();
+
+		LowLevelWamWrapper *parent;
+
+	  private:
+		DISALLOW_COPY_AND_ASSIGN(Source);
+	};
+
+	LowLevelWam<DOF> llw;
+
+	Sink sink;
+	Source source;
 
   private:
-	DISALLOW_COPY_AND_ASSIGN(Sink);
-  };
-
-  class Source : public System {
-	// IO
-  public:
-	Output<jp_type> jpOutput;
-
-  protected:
-	typename Output<jp_type>::Value *jpOutputValue;
+	DISALLOW_COPY_AND_ASSIGN(LowLevelWamWrapper);
 
   public:
-	Output<jv_type> jvOutput;
-
-  protected:
-	typename Output<jv_type>::Value *jvOutputValue;
-
-  public:
-	Source(LowLevelWamWrapper *parent, ExecutionManager *em,
-	       const std::string &sysName = "LowLevelWamWrapper::Sink")
-	    : System(sysName), jpOutput(this, &jpOutputValue),
-	      jvOutput(this, &jvOutputValue), parent(parent) {
-	  // Update every execution cycle to prevent heartbeat
-	  // faults. Depending on connections, this System
-	  // might not be called for a period of time. In this
-	  // situation, the pucks would stop reporting
-	  // positions and the safety system would assume they
-	  // had died.
-	  if (em != NULL) {
-		em->startManaging(*this);
-	  }
-	}
-	virtual ~Source() { mandatoryCleanUp(); }
-
-  protected:
-	virtual void operate();
-
-	LowLevelWamWrapper *parent;
-
-  private:
-	DISALLOW_COPY_AND_ASSIGN(Source);
-  };
-
-  LowLevelWam<DOF> llw;
-
-  Sink sink;
-  Source source;
-
-private:
-  DISALLOW_COPY_AND_ASSIGN(LowLevelWamWrapper);
-
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

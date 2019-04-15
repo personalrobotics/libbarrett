@@ -22,25 +22,25 @@ namespace barrett {
 namespace math {
 
 template <size_t DOF> class Dynamics {
-  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-public:
-  Dynamics(const libconfig::Setting &setting);
-  ~Dynamics();
+  public:
+	Dynamics(const libconfig::Setting &setting);
+	~Dynamics();
 
-  const jt_type &evalInverse(const Kinematics<DOF> &kin, const jv_type &jv,
-                             const ja_type &ja);
+	const jt_type &evalInverse(const Kinematics<DOF> &kin, const jv_type &jv,
+	                           const ja_type &ja);
 
-  //	typedef const jt_type& result_type;  ///< For use with boost::bind().
-  //	result_type operator() (const boost::tuple<jv_type, ja_type>&
-  // jointState);
+	//	typedef const jt_type& result_type;  ///< For use with boost::bind().
+	//	result_type operator() (const boost::tuple<jv_type, ja_type>&
+	// jointState);
 
-protected:
-  struct bt_dynamics *impl;
-  jt_type jt;
+  protected:
+	struct bt_dynamics *impl;
+	jt_type jt;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Dynamics);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Dynamics);
 };
 }
 }

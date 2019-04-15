@@ -37,25 +37,25 @@ namespace systems {
 template <typename T>
 ArraySplitter<T>::ArraySplitter(const std::string &sysName)
     : System(sysName), SingleInput<T>(this) {
-  for (size_t i = 0; i < T::SIZE; ++i) {
-	outputs[i] = new System::Output<double>(this, &outputValues[i]);
-  }
+	for (size_t i = 0; i < T::SIZE; ++i) {
+		outputs[i] = new System::Output<double>(this, &outputValues[i]);
+	}
 }
 
 template <typename T> ArraySplitter<T>::~ArraySplitter() {
-  mandatoryCleanUp();
-  barrett::detail::purge(outputs);
+	mandatoryCleanUp();
+	barrett::detail::purge(outputs);
 }
 
 template <typename T>
 inline System::Output<double> &ArraySplitter<T>::getOutput(const size_t i) {
-  return *(outputs.at(i));
+	return *(outputs.at(i));
 }
 
 template <typename T> void ArraySplitter<T>::operate() {
-  for (size_t i = 0; i < T::SIZE; ++i) {
-	outputValues[i]->setData(this->input.getValue().data() + i);
-  }
+	for (size_t i = 0; i < T::SIZE; ++i) {
+		outputValues[i]->setData(this->input.getValue().data() + i);
+	}
 }
 }
 }

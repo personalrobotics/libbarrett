@@ -52,28 +52,28 @@ template <size_t DOF>
 class ToolOrientation : public System,
                         public KinematicsInput<DOF>,
                         public SingleOutput<Eigen::Quaterniond> {
-public:
-  ToolOrientation(const std::string &sysName = "ToolOrientation")
-      : System(sysName), KinematicsInput<DOF>(this),
-        SingleOutput<Eigen::Quaterniond>(this), rot(), data() {}
-  virtual ~ToolOrientation() { mandatoryCleanUp(); }
+  public:
+	ToolOrientation(const std::string &sysName = "ToolOrientation")
+	    : System(sysName), KinematicsInput<DOF>(this),
+	      SingleOutput<Eigen::Quaterniond>(this), rot(), data() {}
+	virtual ~ToolOrientation() { mandatoryCleanUp(); }
 
-protected:
-  virtual void operate() {
-	rot.copyFrom(this->kinInput.getValue().impl->tool->rot_to_world);
-	data = rot.transpose(); // Transpose to get world-to-tool rotation
+  protected:
+	virtual void operate() {
+		rot.copyFrom(this->kinInput.getValue().impl->tool->rot_to_world);
+		data = rot.transpose(); // Transpose to get world-to-tool rotation
 
-	this->outputValue->setData(&data);
-  }
+		this->outputValue->setData(&data);
+	}
 
-  math::Matrix<3, 3> rot;
-  Eigen::Quaterniond data;
+	math::Matrix<3, 3> rot;
+	Eigen::Quaterniond data;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ToolOrientation);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(ToolOrientation);
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

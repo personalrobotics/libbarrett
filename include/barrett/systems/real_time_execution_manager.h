@@ -45,42 +45,42 @@ namespace barrett {
 namespace systems {
 
 class RealTimeExecutionManager : public ExecutionManager {
-public:
-  typedef boost::function<void(RealTimeExecutionManager *,
-                               const ExecutionManagerException &)>
-      callback_type;
+  public:
+	typedef boost::function<void(RealTimeExecutionManager *,
+	                             const ExecutionManagerException &)>
+	    callback_type;
 
-  explicit RealTimeExecutionManager(double period_s, int rt_priority = 50);
-  explicit RealTimeExecutionManager(
-      const libconfig::Setting &setting); // TODO(dc): test!
-  virtual ~RealTimeExecutionManager();
+	explicit RealTimeExecutionManager(double period_s, int rt_priority = 50);
+	explicit RealTimeExecutionManager(
+	    const libconfig::Setting &setting); // TODO(dc): test!
+	virtual ~RealTimeExecutionManager();
 
-  void start();
-  bool isRunning() const { return running; }
-  void stop();
+	void start();
+	bool isRunning() const { return running; }
+	void stop();
 
-  bool getError() const { return error; }
-  const std::string &getErrorStr() const { return errorStr; }
-  void clearError();
+	bool getError() const { return error; }
+	const std::string &getErrorStr() const { return errorStr; }
+	void clearError();
 
-  void setErrorCallback(callback_type callback);
-  void clearErrorCallback();
+	void setErrorCallback(callback_type callback);
+	void clearErrorCallback();
 
-protected:
-  boost::thread thread;
-  int priority;
-  bool running;
+  protected:
+	boost::thread thread;
+	int priority;
+	bool running;
 
-  bool error;
-  std::string errorStr;
-  callback_type errorCallback;
+	bool error;
+	std::string errorStr;
+	callback_type errorCallback;
 
-  void executionLoopEntryPoint();
+	void executionLoopEntryPoint();
 
-private:
-  void init();
+  private:
+	void init();
 
-  DISALLOW_COPY_AND_ASSIGN(RealTimeExecutionManager);
+	DISALLOW_COPY_AND_ASSIGN(RealTimeExecutionManager);
 };
 }
 }

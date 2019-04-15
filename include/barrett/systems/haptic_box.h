@@ -44,98 +44,99 @@ namespace barrett {
 namespace systems {
 
 class HapticBox : public HapticObject {
-  BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
+	BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
 
-public:
-  HapticBox(const cp_type &center, const math::Vector<3>::type &size,
-            const std::string &sysName = "HapticBox")
-      : HapticObject(sysName), c(center), halfSize(0.0), inBox(false),
-        index(-1), keepOutside(true), depth(0.0), dir(0.0) {
-	setSize(size);
-  }
-  virtual ~HapticBox() { mandatoryCleanUp(); }
+  public:
+	HapticBox(const cp_type &center, const math::Vector<3>::type &size,
+	          const std::string &sysName = "HapticBox")
+	    : HapticObject(sysName), c(center), halfSize(0.0), inBox(false),
+	      index(-1), keepOutside(true), depth(0.0), dir(0.0) {
+		setSize(size);
+	}
+	virtual ~HapticBox() { mandatoryCleanUp(); }
 
-  void setCenter(const cp_type &newCenter) {
-	BARRETT_SCOPED_LOCK(getEmMutex());
-	c = newCenter;
-  }
-  void setSize(const math::Vector<3>::type &newSize) {
-	BARRETT_SCOPED_LOCK(getEmMutex());
-	halfSize = newSize / 2.0;
-  }
-
-  const cp_type &getCenter() const { return c; }
-  math::Vector<3>::type getSize() const { return halfSize * 2.0; }
-
-protected:
-  virtual void operate() {
-	pos = input.getValue() - c;
-
-	bool outside = (pos.array().abs() > halfSize.array()).any();
-
-	// if we are inside the box and we shouldn't be
-	if (keepOutside && !outside) {
-	  if (!inBox) { // if we weren't in the box last time
-		// find out what side we entered on
-		(halfSize - pos.cwiseAbs()).minCoeff(&index);
-	  }
-
-	  depth = halfSize[index] - math::abs(pos[index]);
-	  if (depth > 0.02) {
-		keepOutside = !keepOutside;
-
-		depth = 0.0;
-		dir.setZero();
-	  } else {
-		dir = math::sign(pos[index]) * cf_type::Unit(index);
-
-		inBox = true;
-	  }
-	} else {
-	  inBox = false;
-
-	  // if we are outside the box and we shouldn't be
-	  if (!keepOutside && outside) {
-		dir = halfSize - pos.cwiseAbs();
-		dir = (dir.array() * (dir.array() < 0.0).cast<double>()).matrix();
-		dir = (dir.array() * math::sign(pos).array()).matrix();
-
-		depth = dir.norm();
-		if (depth > 0.02) {
-		  keepOutside = !keepOutside;
-
-		  depth = 0.0;
-		  dir.setZero();
-		} else {
-		  dir /= depth;
-		}
-	  } else {
-		depth = 0.0;
-		dir.setZero();
-	  }
+	void setCenter(const cp_type &newCenter) {
+		BARRETT_SCOPED_LOCK(getEmMutex());
+		c = newCenter;
+	}
+	void setSize(const math::Vector<3>::type &newSize) {
+		BARRETT_SCOPED_LOCK(getEmMutex());
+		halfSize = newSize / 2.0;
 	}
 
-	depthOutputValue->setData(&depth);
-	directionOutputValue->setData(&dir);
-  }
+	const cp_type &getCenter() const { return c; }
+	math::Vector<3>::type getSize() const { return halfSize * 2.0; }
 
-  cp_type c;
-  math::Vector<3>::type halfSize;
+  protected:
+	virtual void operate() {
+		pos = input.getValue() - c;
 
-  // state & temporaries
-  cf_type pos;
-  bool inBox;
-  int index;
-  bool keepOutside;
+		bool outside = (pos.array().abs() > halfSize.array()).any();
 
-  double depth;
-  cf_type dir;
+		// if we are inside the box and we shouldn't be
+		if (keepOutside && !outside) {
+			if (!inBox) { // if we weren't in the box last time
+				// find out what side we entered on
+				(halfSize - pos.cwiseAbs()).minCoeff(&index);
+			}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(HapticBox);
+			depth = halfSize[index] - math::abs(pos[index]);
+			if (depth > 0.02) {
+				keepOutside = !keepOutside;
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+				depth = 0.0;
+				dir.setZero();
+			} else {
+				dir = math::sign(pos[index]) * cf_type::Unit(index);
+
+				inBox = true;
+			}
+		} else {
+			inBox = false;
+
+			// if we are outside the box and we shouldn't be
+			if (!keepOutside && outside) {
+				dir = halfSize - pos.cwiseAbs();
+				dir =
+				    (dir.array() * (dir.array() < 0.0).cast<double>()).matrix();
+				dir = (dir.array() * math::sign(pos).array()).matrix();
+
+				depth = dir.norm();
+				if (depth > 0.02) {
+					keepOutside = !keepOutside;
+
+					depth = 0.0;
+					dir.setZero();
+				} else {
+					dir /= depth;
+				}
+			} else {
+				depth = 0.0;
+				dir.setZero();
+			}
+		}
+
+		depthOutputValue->setData(&depth);
+		directionOutputValue->setData(&dir);
+	}
+
+	cp_type c;
+	math::Vector<3>::type halfSize;
+
+	// state & temporaries
+	cf_type pos;
+	bool inBox;
+	int index;
+	bool keepOutside;
+
+	double depth;
+	cf_type dir;
+
+  private:
+	DISALLOW_COPY_AND_ASSIGN(HapticBox);
+
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

@@ -44,32 +44,32 @@ namespace systems {
 
 template <typename OutputType>
 class Converter : public System, public SingleOutput<OutputType> {
-public:
-  Converter(const std::string &sysName = "Converter")
-      : System(sysName), SingleOutput<OutputType>(this), conversions() {}
-  virtual ~Converter();
+  public:
+	Converter(const std::string &sysName = "Converter")
+	    : System(sysName), SingleOutput<OutputType>(this), conversions() {}
+	virtual ~Converter();
 
-  void registerConversion(Conversion<OutputType> *conversion);
+	void registerConversion(Conversion<OutputType> *conversion);
 
-  template <typename T>
-  void connectInputTo(
-      System::Output<T> &output); // NOLINT: non-const reference for syntax
+	template <typename T>
+	void connectInputTo(
+	    System::Output<T> &output); // NOLINT: non-const reference for syntax
 
-  template <typename T>
-  bool connectInputToNoThrow(
-      System::Output<T> &output); // NOLINT: non-const reference for syntax
+	template <typename T>
+	bool connectInputToNoThrow(
+	    System::Output<T> &output); // NOLINT: non-const reference for syntax
 
-  template <typename T>
-  Conversion<OutputType> *getInput(System::Input<T> **input);
-  void disconnectInput();
+	template <typename T>
+	Conversion<OutputType> *getInput(System::Input<T> **input);
+	void disconnectInput();
 
-protected:
-  virtual void operate() { invalidateOutputs(); }
+  protected:
+	virtual void operate() { invalidateOutputs(); }
 
-  std::list<Conversion<OutputType> *> conversions;
+	std::list<Conversion<OutputType> *> conversions;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Converter);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Converter);
 };
 }
 }

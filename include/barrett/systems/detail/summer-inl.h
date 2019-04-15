@@ -45,7 +45,7 @@ Summer<T, numInputs, RequiresAlignment>::Summer(const Polarity &inputPolarity,
                                                 const std::string &sysName)
     : System(sysName), SingleOutput<T>(this), polarity(inputPolarity),
       strict(!undefinedIsZero), sum() {
-  initInputs();
+	initInputs();
 }
 
 template <typename T, size_t numInputs, bool RequiresAlignment>
@@ -54,7 +54,7 @@ Summer<T, numInputs, RequiresAlignment>::Summer(
     const std::string &sysName)
     : System(sysName), SingleOutput<T>(this), polarity(inputPolarity),
       strict(!undefinedIsZero), sum() {
-  initInputs();
+	initInputs();
 }
 
 template <typename T, size_t numInputs, bool RequiresAlignment>
@@ -63,7 +63,7 @@ Summer<T, numInputs, RequiresAlignment>::Summer(const char *inputPolarity,
                                                 const std::string &sysName)
     : System(sysName), SingleOutput<T>(this), polarity(inputPolarity),
       strict(!undefinedIsZero), sum() {
-  initInputs();
+	initInputs();
 }
 
 template <typename T, size_t numInputs, bool RequiresAlignment>
@@ -72,7 +72,7 @@ Summer<T, numInputs, RequiresAlignment>::Summer(
     const std::string &sysName)
     : System(sysName), SingleOutput<T>(this), polarity(inputPolarity),
       strict(!undefinedIsZero), sum() {
-  initInputs();
+	initInputs();
 }
 
 template <typename T, size_t numInputs, bool RequiresAlignment>
@@ -80,43 +80,44 @@ Summer<T, numInputs, RequiresAlignment>::Summer(bool undefinedIsZero,
                                                 const std::string &sysName)
     : System(sysName), SingleOutput<T>(this), polarity(),
       strict(!undefinedIsZero), sum() {
-  initInputs();
+	initInputs();
 }
 
 template <typename T, size_t numInputs, bool RequiresAlignment>
 Summer<T, numInputs, RequiresAlignment>::~Summer() {
-  mandatoryCleanUp();
-  barrett::detail::purge(inputs);
+	mandatoryCleanUp();
+	barrett::detail::purge(inputs);
 }
 
 template <typename T, size_t numInputs, bool RequiresAlignment>
 inline System::Input<T> &
 Summer<T, numInputs, RequiresAlignment>::getInput(const size_t i) {
-  return *(inputs.at(i));
+	return *(inputs.at(i));
 }
 
 template <typename T, size_t numInputs, bool RequiresAlignment>
 void Summer<T, numInputs, RequiresAlignment>::operate() {
-  typedef math::Traits<T> Traits;
+	typedef math::Traits<T> Traits;
 
-  sum = Traits::zero();
-  for (size_t i = 0; i < numInputs; ++i) {
-	if (inputs[i]->valueDefined()) {
-	  sum = Traits::add(sum, Traits::mult(polarity[i], inputs[i]->getValue()));
-	} else if (strict) {
-	  this->outputValue->setUndefined();
-	  return;
+	sum = Traits::zero();
+	for (size_t i = 0; i < numInputs; ++i) {
+		if (inputs[i]->valueDefined()) {
+			sum = Traits::add(sum,
+			                  Traits::mult(polarity[i], inputs[i]->getValue()));
+		} else if (strict) {
+			this->outputValue->setUndefined();
+			return;
+		}
 	}
-  }
 
-  this->outputValue->setData(&sum);
+	this->outputValue->setData(&sum);
 }
 
 template <typename T, size_t numInputs, bool RequiresAlignment>
 void Summer<T, numInputs, RequiresAlignment>::initInputs() {
-  for (size_t i = 0; i < numInputs; ++i) {
-	inputs[i] = new Input<T>(this);
-  }
+	for (size_t i = 0; i < numInputs; ++i) {
+		inputs[i] = new Input<T>(this);
+	}
 }
 }
 }

@@ -47,68 +47,69 @@ namespace barrett {
 namespace systems {
 
 template <typename OutputType> inline Converter<OutputType>::~Converter() {
-  mandatoryCleanUp();
-  barrett::detail::purge(conversions);
+	mandatoryCleanUp();
+	barrett::detail::purge(conversions);
 }
 
 template <typename OutputType>
 inline void
 Converter<OutputType>::registerConversion(Conversion<OutputType> *conversion) {
-  conversions.push_front(conversion);
+	conversions.push_front(conversion);
 }
 
 template <typename OutputType>
 template <typename T>
 void Converter<OutputType>::connectInputTo(System::Output<T> &output) {
-  if (!connectInputToNoThrow(output)) {
-	throw std::invalid_argument(
-	    "(systems::Converter::connectInputTo): No systems::Conversion "
-	    "is registered that matches the output's type.");
-  }
+	if (!connectInputToNoThrow(output)) {
+		throw std::invalid_argument(
+		    "(systems::Converter::connectInputTo): No systems::Conversion "
+		    "is registered that matches the output's type.");
+	}
 }
 
 template <typename OutputType>
 template <typename T>
 bool Converter<OutputType>::connectInputToNoThrow(System::Output<T> &output) {
-  System::Input<T> *input = NULL;
-  Conversion<OutputType> *conversion = getInput(&input);
-  if (input == NULL) {
-	return false;
-  }
+	System::Input<T> *input = NULL;
+	Conversion<OutputType> *conversion = getInput(&input);
+	if (input == NULL) {
+		return false;
+	}
 
-  {
-	// Make sure these two steps happen at the same time in case input is
-	// already connected to something else.
-	BARRETT_SCOPED_LOCK(input->getEmMutex());
+	{
+		// Make sure these two steps happen at the same time in case input is
+		// already connected to something else.
+		BARRETT_SCOPED_LOCK(input->getEmMutex());
 
-	this->outputValue->delegateTo(conversion->getConversionOutput());
-	forceConnect(output, *input);
-  }
+		this->outputValue->delegateTo(conversion->getConversionOutput());
+		forceConnect(output, *input);
+	}
 
-  return true;
+	return true;
 }
 
 template <typename OutputType>
 template <typename T>
 Conversion<OutputType> *
 Converter<OutputType>::getInput(System::Input<T> **input) {
-  typename std::list<Conversion<OutputType> *>::iterator i;
-  for (i = conversions.begin(); i != conversions.end(); ++i) {
-	Conversion<OutputType> *conversion = *i;
-	*input = dynamic_cast<System::Input<T> *>( // NOLINT: see RTTI note above
-	    conversion->getConversionInput());
+	typename std::list<Conversion<OutputType> *>::iterator i;
+	for (i = conversions.begin(); i != conversions.end(); ++i) {
+		Conversion<OutputType> *conversion = *i;
+		*input =
+		    dynamic_cast<System::Input<T> *>( // NOLINT: see RTTI note above
+		        conversion->getConversionInput());
 
-	if (*input != NULL) {
-	  return conversion;
+		if (*input != NULL) {
+			return conversion;
+		}
 	}
-  }
 
-  assert(*input == NULL);
-  return NULL;
+	assert(*input == NULL);
+	return NULL;
 }
 
 template <typename OutputType> void Converter<OutputType>::disconnectInput() {
-  this->outputValue->undelegate();
+	this->outputValue->undelegate();
 }
 }
 }

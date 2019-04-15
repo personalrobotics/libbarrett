@@ -41,115 +41,115 @@
 namespace barrett {
 
 class SafetyModule : public SpecialPuck {
-public:
-  /** SafetyMode States
-   *
-   */
-  enum SafetyMode { ESTOP, IDLE, ACTIVE };
+  public:
+	/** SafetyMode States
+	 *
+	 */
+	enum SafetyMode { ESTOP, IDLE, ACTIVE };
 
-  /** SafetyModule Constructor and Destructors
-   *
-   */
-  SafetyModule(Puck *puck = NULL);
-  ~SafetyModule() {}
-  /** getMode Method returns current state of Safety Pendant
-   * (E-Stopped/Idle/Active)
-   *
-   */
-  enum SafetyMode getMode(bool realtime = false) const;
-  /** waitForMode Method
-   *
-   */
-  void waitForMode(enum SafetyMode mode, bool printMessage = true,
-                   double pollingPeriod_s = 0.25);
-  /**
-   *
-   */
-  enum SafetyMode waitForModeChange(double pollingPeriod_s = 0.25);
-  /** getSafetyModeStr Method
-   *
-   */
-  static const char *getSafetyModeStr(enum SafetyMode mode) {
-	return safetyModeStrs[mode];
-  }
-  /** setMode Method
-   *
-   *	For safety reasons, the SafetyModule will ignore requests to move from
-   *	ESTOP to IDLE, or from IDLE to ACTIVE.
-   */
-  void setMode(enum SafetyMode mode) { p->setProperty(Puck::MODE, mode); }
-  /** wamIsZeroed Method returns true/false flag that wam has been zeroed by
-   * user.
-   *
-   */
-  bool wamIsZeroed() const { return p->getProperty(Puck::ZERO) == 1; }
-  /** setWamZeroed Method
-   *
-   */
-  void setWamZeroed(bool zeroed = true) const {
-	p->setProperty(Puck::ZERO, zeroed);
-  }
-  /**	ignoreNextVelocityFault Method overrides next velocity fault.
-   *
-   */
-  void ignoreNextVelocityFault();
-  /**	setDefaultSeafetyLimits Method resets all current safetly limits to
-   * default values.
-   *
-   */
-  void setDefaultSafetyLimits();
-  /** setTorqueLimit Method changes the absolute limit of the Torque Fault in
-   *Nm.
-   *
-   *	Measured in Newton*meters at each motor, assuming equal IPNM.
-   */
-  void setTorqueLimit(double fault, double warning = -1.0,
-                      int ipnm = Puck::DEFAULT_IPNM);
-  /** setVelocityLimit Method changes the absolute limit of the velocity fault
-   *in m/s.
-   *
-   *	Measured in meters/second at the elbow and 4-DOF end-point.
-   */
-  void setVelocityLimit(double fault, double warning = -1.0);
+	/** SafetyModule Constructor and Destructors
+	 *
+	 */
+	SafetyModule(Puck *puck = NULL);
+	~SafetyModule() {}
+	/** getMode Method returns current state of Safety Pendant
+	 * (E-Stopped/Idle/Active)
+	 *
+	 */
+	enum SafetyMode getMode(bool realtime = false) const;
+	/** waitForMode Method
+	 *
+	 */
+	void waitForMode(enum SafetyMode mode, bool printMessage = true,
+	                 double pollingPeriod_s = 0.25);
+	/**
+	 *
+	 */
+	enum SafetyMode waitForModeChange(double pollingPeriod_s = 0.25);
+	/** getSafetyModeStr Method
+	 *
+	 */
+	static const char *getSafetyModeStr(enum SafetyMode mode) {
+		return safetyModeStrs[mode];
+	}
+	/** setMode Method
+	 *
+	 *	For safety reasons, the SafetyModule will ignore requests to move from
+	 *	ESTOP to IDLE, or from IDLE to ACTIVE.
+	 */
+	void setMode(enum SafetyMode mode) { p->setProperty(Puck::MODE, mode); }
+	/** wamIsZeroed Method returns true/false flag that wam has been zeroed by
+	 * user.
+	 *
+	 */
+	bool wamIsZeroed() const { return p->getProperty(Puck::ZERO) == 1; }
+	/** setWamZeroed Method
+	 *
+	 */
+	void setWamZeroed(bool zeroed = true) const {
+		p->setProperty(Puck::ZERO, zeroed);
+	}
+	/**	ignoreNextVelocityFault Method overrides next velocity fault.
+	 *
+	 */
+	void ignoreNextVelocityFault();
+	/**	setDefaultSeafetyLimits Method resets all current safetly limits to
+	 * default values.
+	 *
+	 */
+	void setDefaultSafetyLimits();
+	/** setTorqueLimit Method changes the absolute limit of the Torque Fault in
+	 *Nm.
+	 *
+	 *	Measured in Newton*meters at each motor, assuming equal IPNM.
+	 */
+	void setTorqueLimit(double fault, double warning = -1.0,
+	                    int ipnm = Puck::DEFAULT_IPNM);
+	/** setVelocityLimit Method changes the absolute limit of the velocity fault
+	 *in m/s.
+	 *
+	 *	Measured in meters/second at the elbow and 4-DOF end-point.
+	 */
+	void setVelocityLimit(double fault, double warning = -1.0);
 
-  /**
-   *
-   */
-  struct PendantState {
-	enum Button { ESTOP, ACTIVATE, IDLE, NONE };
-	enum Parameter { SAFE, WARNING, FAULT };
-	enum ParameterNames {
-	  VELOCITY,
-	  TORQUE,
-	  VOLTAGE,
-	  HEARTBEAT,
-	  OTHER,
-	  NUM_PARAMS
+	/**
+	 *
+	 */
+	struct PendantState {
+		enum Button { ESTOP, ACTIVATE, IDLE, NONE };
+		enum Parameter { SAFE, WARNING, FAULT };
+		enum ParameterNames {
+			VELOCITY,
+			TORQUE,
+			VOLTAGE,
+			HEARTBEAT,
+			OTHER,
+			NUM_PARAMS
+		};
+
+		enum Button pressedButton;
+		bool activateLight;
+		bool idleLight;
+		char displayedCharacter;
+		enum Parameter safetyParameters[NUM_PARAMS];
+
+		bool allSafe() const;
+		bool hasFaults() const;
+
+		std::string toString() const;
+		char decodeDisplayedCharacter() const;
 	};
+	/** getPendantState Method updates PendantState Structure values
+	 *
+	 *	Method will update the current button, mode and parameter status values.
+	 */
+	void getPendantState(PendantState *ps, bool realtime = false) const;
 
-	enum Button pressedButton;
-	bool activateLight;
-	bool idleLight;
-	char displayedCharacter;
-	enum Parameter safetyParameters[NUM_PARAMS];
+  protected:
+	static const int VELOCITY_FAULT_HISTORY_BUFFER_SIZE = 5;
 
-	bool allSafe() const;
-	bool hasFaults() const;
-
-	std::string toString() const;
-	char decodeDisplayedCharacter() const;
-  };
-  /** getPendantState Method updates PendantState Structure values
-   *
-   *	Method will update the current button, mode and parameter status values.
-   */
-  void getPendantState(PendantState *ps, bool realtime = false) const;
-
-protected:
-  static const int VELOCITY_FAULT_HISTORY_BUFFER_SIZE = 5;
-
-private:
-  static const char safetyModeStrs[][15];
+  private:
+	static const char safetyModeStrs[][15];
 };
 }
 

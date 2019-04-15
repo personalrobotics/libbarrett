@@ -19,23 +19,23 @@ class mutex_impl; // OS-dependent implementation
 }
 
 class RealTimeMutex : public Mutex {
-public:
-  RealTimeMutex();
-  virtual ~RealTimeMutex();
+  public:
+	RealTimeMutex();
+	virtual ~RealTimeMutex();
 
-  virtual void lock();
-  virtual bool try_lock();
-  virtual void unlock();
+	virtual void lock();
+	virtual bool try_lock();
+	virtual void unlock();
 
-  virtual int fullUnlock();
-  virtual void relock(int lc);
+	virtual int fullUnlock();
+	virtual void relock(int lc);
 
-protected:
-  detail::mutex_impl *mutex;
-  int lockCount;
+  protected:
+	detail::mutex_impl *mutex;
+	int lockCount;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(RealTimeMutex);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(RealTimeMutex);
 };
 }
 }

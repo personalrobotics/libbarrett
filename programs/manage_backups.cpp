@@ -36,41 +36,41 @@
 #include "utils.h"
 
 bool fileExists(const char *file) {
-  std::ifstream fs(file);
-  return fs.good();
+	std::ifstream fs(file);
+	return fs.good();
 }
 
 void backupFileName(char *str, const char *baseFileName, int backupNumer) {
-  sprintf(str, "%s.%d", baseFileName, backupNumer);
+	sprintf(str, "%s.%d", baseFileName, backupNumer);
 }
 
 void manageBackups(const char *file, int numBackups) {
-  assert(numBackups <= 9); // Otherwise our strings won't be long enough
-  char *backupFile1 = new char[strlen(file) + 2 + 1];
-  char *backupFile2 = new char[strlen(file) + 2 + 1];
+	assert(numBackups <= 9); // Otherwise our strings won't be long enough
+	char *backupFile1 = new char[strlen(file) + 2 + 1];
+	char *backupFile2 = new char[strlen(file) + 2 + 1];
 
-  backupFileName(backupFile2, file, numBackups);
-  for (int i = numBackups - 1; i >= 0; --i) {
-	if (i == 0) {
-	  strcpy(backupFile1, file);
-	} else {
-	  backupFileName(backupFile1, file, i);
+	backupFileName(backupFile2, file, numBackups);
+	for (int i = numBackups - 1; i >= 0; --i) {
+		if (i == 0) {
+			strcpy(backupFile1, file);
+		} else {
+			backupFileName(backupFile1, file, i);
+		}
+
+		if (fileExists(backupFile1)) {
+			if (fileExists(backupFile2)) {
+				remove(backupFile2);
+			}
+			rename(backupFile1, backupFile2);
+		}
+		strcpy(backupFile2, backupFile1);
 	}
 
+	backupFileName(backupFile1, file, 1);
 	if (fileExists(backupFile1)) {
-	  if (fileExists(backupFile2)) {
-		remove(backupFile2);
-	  }
-	  rename(backupFile1, backupFile2);
+		printf(">>> Old data saved: %s\n", backupFile1);
 	}
-	strcpy(backupFile2, backupFile1);
-  }
 
-  backupFileName(backupFile1, file, 1);
-  if (fileExists(backupFile1)) {
-	printf(">>> Old data saved: %s\n", backupFile1);
-  }
-
-  delete[] backupFile1;
-  delete[] backupFile2;
+	delete[] backupFile1;
+	delete[] backupFile2;
 }

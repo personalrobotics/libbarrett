@@ -42,25 +42,25 @@ namespace systems {
 
 template <typename T, typename LogWriterType = log::RealTimeWriter<T>>
 class TriggeredDataLogger : public PeriodicDataLogger<T, LogWriterType> {
-  // IO
-public:
-  System::Input<bool> triggerInput;
+	// IO
+  public:
+	System::Input<bool> triggerInput;
 
-public:
-  TriggeredDataLogger(ExecutionManager *em, LogWriterType *logWriter,
-                      const std::string &sysName = "TriggeredDataLogger")
-      : PeriodicDataLogger<T, LogWriterType>(em, logWriter, 1, sysName),
-        triggerInput(this) {}
-  virtual ~TriggeredDataLogger() { this->mandatoryCleanUp(); }
+  public:
+	TriggeredDataLogger(ExecutionManager *em, LogWriterType *logWriter,
+	                    const std::string &sysName = "TriggeredDataLogger")
+	    : PeriodicDataLogger<T, LogWriterType>(em, logWriter, 1, sysName),
+	      triggerInput(this) {}
+	virtual ~TriggeredDataLogger() { this->mandatoryCleanUp(); }
 
-protected:
-  virtual bool inputsValid() {
-	return this->logging && triggerInput.valueDefined() &&
-	       triggerInput.getValue() == true && this->input.valueDefined();
-  }
+  protected:
+	virtual bool inputsValid() {
+		return this->logging && triggerInput.valueDefined() &&
+		       triggerInput.getValue() == true && this->input.valueDefined();
+	}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(TriggeredDataLogger);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(TriggeredDataLogger);
 };
 }
 }

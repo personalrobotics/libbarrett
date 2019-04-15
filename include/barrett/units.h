@@ -90,12 +90,12 @@
  * @see BARRETT_UNITS_TYPEDEFS
  */
 #define BARRETT_UNITS_FIXED_SIZE_TYPEDEFS                                      \
-  typedef ::barrett::units::CartesianForce::type cf_type;                      \
-  typedef ::barrett::units::CartesianTorque::type ct_type;                     \
-  typedef ::barrett::units::CartesianPosition::type cp_type;                   \
-  typedef ::barrett::units::CartesianVelocity::type cv_type;                   \
-  typedef ::barrett::units::CartesianAcceleration::type ca_type;               \
-  typedef ::boost::tuple<cp_type, ::Eigen::Quaterniond> pose_type
+	typedef ::barrett::units::CartesianForce::type cf_type;                    \
+	typedef ::barrett::units::CartesianTorque::type ct_type;                   \
+	typedef ::barrett::units::CartesianPosition::type cp_type;                 \
+	typedef ::barrett::units::CartesianVelocity::type cv_type;                 \
+	typedef ::barrett::units::CartesianAcceleration::type ca_type;             \
+	typedef ::boost::tuple<cp_type, ::Eigen::Quaterniond> pose_type
 
 /** Creates a standard set of \c typedefs in the local scope for all built-in
  * barrett::units.
@@ -124,13 +124,13 @@
  * @see BARRETT_UNITS_FIXED_SIZE_TYPEDEFS
  */
 #define BARRETT_UNITS_TYPEDEFS(dimension)                                      \
-  typedef ::barrett::math::Matrix<dimension, dimension> sqm_type;              \
-  typedef ::barrett::math::Vector<dimension>::type v_type;                     \
-  typedef ::barrett::units::JointTorques<dimension>::type jt_type;             \
-  typedef ::barrett::units::JointPositions<dimension>::type jp_type;           \
-  typedef ::barrett::units::JointVelocities<dimension>::type jv_type;          \
-  typedef ::barrett::units::JointAccelerations<dimension>::type ja_type;       \
-  BARRETT_UNITS_FIXED_SIZE_TYPEDEFS
+	typedef ::barrett::math::Matrix<dimension, dimension> sqm_type;            \
+	typedef ::barrett::math::Vector<dimension>::type v_type;                   \
+	typedef ::barrett::units::JointTorques<dimension>::type jt_type;           \
+	typedef ::barrett::units::JointPositions<dimension>::type jp_type;         \
+	typedef ::barrett::units::JointVelocities<dimension>::type jv_type;        \
+	typedef ::barrett::units::JointAccelerations<dimension>::type ja_type;     \
+	BARRETT_UNITS_FIXED_SIZE_TYPEDEFS
 
 /** Used in place of #BARRETT_UNITS_TYPEDEFS when \c dimension is dependent on a
  * template parameter of the containing class.
@@ -140,14 +140,16 @@
  * @see BARRETT_UNITS_TYPEDEFS
  */
 #define BARRETT_UNITS_TEMPLATE_TYPEDEFS(dimension)                             \
-  typedef typename ::barrett::math::Matrix<dimension, dimension> sqm_type;     \
-  typedef typename ::barrett::math::Vector<dimension>::type v_type;            \
-  typedef typename ::barrett::units::JointTorques<dimension>::type jt_type;    \
-  typedef typename ::barrett::units::JointPositions<dimension>::type jp_type;  \
-  typedef typename ::barrett::units::JointVelocities<dimension>::type jv_type; \
-  typedef                                                                      \
-      typename ::barrett::units::JointAccelerations<dimension>::type ja_type;  \
-  BARRETT_UNITS_FIXED_SIZE_TYPEDEFS
+	typedef typename ::barrett::math::Matrix<dimension, dimension> sqm_type;   \
+	typedef typename ::barrett::math::Vector<dimension>::type v_type;          \
+	typedef typename ::barrett::units::JointTorques<dimension>::type jt_type;  \
+	typedef                                                                    \
+	    typename ::barrett::units::JointPositions<dimension>::type jp_type;    \
+	typedef                                                                    \
+	    typename ::barrett::units::JointVelocities<dimension>::type jv_type;   \
+	typedef typename ::barrett::units::JointAccelerations<dimension>::type     \
+	    ja_type;                                                               \
+	BARRETT_UNITS_FIXED_SIZE_TYPEDEFS
 
 #include <Eigen/Geometry>
 #include <boost/tuple/tuple.hpp>
@@ -162,8 +164,8 @@ namespace units {
  * @tparam R The number of rows in the resulting math::Vector
  */
 template <int R> struct JointTorques {
-  /// Result of the metafunction
-  typedef typename math::Vector<R, JointTorques<R>>::type type;
+	/// Result of the metafunction
+	typedef typename math::Vector<R, JointTorques<R>>::type type;
 };
 
 /** Template metafunction yielding the R-element math::Vector used to represent
@@ -171,8 +173,8 @@ template <int R> struct JointTorques {
  * @tparam R The number of rows in the resulting math::Vector
  */
 template <int R> struct JointPositions {
-  /// Result of the metafunction
-  typedef typename math::Vector<R, JointPositions<R>>::type type;
+	/// Result of the metafunction
+	typedef typename math::Vector<R, JointPositions<R>>::type type;
 };
 
 /** Template metafunction yielding the R-element math::Vector used to represent
@@ -180,8 +182,8 @@ template <int R> struct JointPositions {
  * @tparam R The number of rows in the resulting math::Vector
  */
 template <int R> struct JointVelocities {
-  /// Result of the metafunction
-  typedef typename math::Vector<R, JointVelocities<R>>::type type;
+	/// Result of the metafunction
+	typedef typename math::Vector<R, JointVelocities<R>>::type type;
 };
 
 /** Template metafunction yielding the R-element math::Vector used to represent
@@ -189,43 +191,43 @@ template <int R> struct JointVelocities {
  * @tparam R The number of rows in the resulting math::Vector
  */
 template <int R> struct JointAccelerations {
-  /// Result of the metafunction
-  typedef typename math::Vector<R, JointAccelerations<R>>::type type;
+	/// Result of the metafunction
+	typedef typename math::Vector<R, JointAccelerations<R>>::type type;
 };
 
 /// Template metafunction yielding the 3-element math::Vector used to represent
 /// a Cartesian force.\ Result available in the nested #type \c typedef.
 struct CartesianForce {
-  /// Result of the metafunction
-  typedef math::Vector<3, CartesianForce>::type type;
+	/// Result of the metafunction
+	typedef math::Vector<3, CartesianForce>::type type;
 };
 
 /// Template metafunction yielding the 3-element math::Vector used to represent
 /// a Cartesian torque.\ Result available in the nested #type \c typedef.
 struct CartesianTorque {
-  /// Result of the metafunction
-  typedef math::Vector<3, CartesianTorque>::type type;
+	/// Result of the metafunction
+	typedef math::Vector<3, CartesianTorque>::type type;
 };
 
 /// Template metafunction yielding the 3-element math::Vector used to represent
 /// a Cartesian position.\ Result available in the nested #type \c typedef.
 struct CartesianPosition {
-  /// Result of the metafunction
-  typedef math::Vector<3, CartesianPosition>::type type;
+	/// Result of the metafunction
+	typedef math::Vector<3, CartesianPosition>::type type;
 };
 
 /// Template metafunction yielding the 3-element math::Vector used to represent
 /// a Cartesian velocity.\ Result available in the nested #type \c typedef.
 struct CartesianVelocity {
-  /// Result of the metafunction
-  typedef math::Vector<3, CartesianVelocity>::type type;
+	/// Result of the metafunction
+	typedef math::Vector<3, CartesianVelocity>::type type;
 };
 
 /// Template metafunction yielding the 3-element math::Vector used to represent
 /// a Cartesian acceleration.\ Result available in the nested #type \c typedef.
 struct CartesianAcceleration {
-  /// Result of the metafunction
-  typedef math::Vector<3, CartesianAcceleration>::type type;
+	/// Result of the metafunction
+	typedef math::Vector<3, CartesianAcceleration>::type type;
 };
 }
 }

@@ -40,19 +40,19 @@ namespace barrett {
 namespace systems {
 
 class ManualExecutionManager : public ExecutionManager {
-public:
-  ManualExecutionManager() {}
-  explicit ManualExecutionManager(double period_s)
-      : ExecutionManager(period_s) {}
-  explicit ManualExecutionManager(const libconfig::Setting &setting)
-      : ExecutionManager(setting) {}
+  public:
+	ManualExecutionManager() {}
+	explicit ManualExecutionManager(double period_s)
+	    : ExecutionManager(period_s) {}
+	explicit ManualExecutionManager(const libconfig::Setting &setting)
+	    : ExecutionManager(setting) {}
 
-  ~ManualExecutionManager() {}
+	~ManualExecutionManager() {}
 
-  using ExecutionManager::runExecutionCycle;
+	using ExecutionManager::runExecutionCycle;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ManualExecutionManager);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(ManualExecutionManager);
 };
 }
 }

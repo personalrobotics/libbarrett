@@ -115,69 +115,69 @@ extern "C" {
  *  see bt_kinematics.
  */
 struct bt_kinematics_link {
-  /** \name Doubly-linked for convenience
-   *  \{ */
-  struct bt_kinematics_link *next; /**< The next link in the chain */
-  struct bt_kinematics_link *prev; /**< The previous link in the chain */
-                                   /** \} */
+	/** \name Doubly-linked for convenience
+	 *  \{ */
+	struct bt_kinematics_link *next; /**< The next link in the chain */
+	struct bt_kinematics_link *prev; /**< The previous link in the chain */
+	                                 /** \} */
 
-  /** \name Denavit-Hartenberg Parameters
-   *  \{ */
-  double alpha;
-  double theta;
-  double a;
-  double d;
-  /** \} */
+	/** \name Denavit-Hartenberg Parameters
+	 *  \{ */
+	double alpha;
+	double theta;
+	double a;
+	double d;
+	/** \} */
 
-  /** \name Cached D-H values
-   *  \{ */
-  double cos_alpha;
-  double sin_alpha;
-  /** \} */
+	/** \name Cached D-H values
+	 *  \{ */
+	double cos_alpha;
+	double sin_alpha;
+	/** \} */
 
-  /** \name 4x4 Homogeneous Transform Matrices
-   *  \{ */
-  gsl_matrix *trans_to_prev;  /**< transform matrix to previous frame */
-  gsl_matrix *trans_to_world; /**< transform matrix to world frame */
-                              /** \} */
+	/** \name 4x4 Homogeneous Transform Matrices
+	 *  \{ */
+	gsl_matrix *trans_to_prev;  /**< transform matrix to previous frame */
+	gsl_matrix *trans_to_world; /**< transform matrix to world frame */
+	                            /** \} */
 
-  /** \name Vector views into the trans_to_prev matrix
-   *  \{ */
-  gsl_matrix *rot_to_prev;     /**< Rotation matrix to the previous frame */
-  gsl_vector *prev_axis_z;     /**< My joint's rotation axis, in my coords */
-  gsl_vector *prev_origin_pos; /**< My origin position, in prev coords */
-                               /** \} */
+	/** \name Vector views into the trans_to_prev matrix
+	 *  \{ */
+	gsl_matrix *rot_to_prev;     /**< Rotation matrix to the previous frame */
+	gsl_vector *prev_axis_z;     /**< My joint's rotation axis, in my coords */
+	gsl_vector *prev_origin_pos; /**< My origin position, in prev coords */
+	                             /** \} */
 
-  /** \name Vector views into the trans_to_world matrix
-   *  \{ */
-  gsl_matrix *rot_to_world; /**< Rotation matrix to the world frame */
-  gsl_vector *axis_z;       /**< z axis unit vector, in base coords */
-  gsl_vector *origin_pos;   /**< Origin Position, in base coords */
-                            /** \} */
+	/** \name Vector views into the trans_to_world matrix
+	 *  \{ */
+	gsl_matrix *rot_to_world; /**< Rotation matrix to the world frame */
+	gsl_vector *axis_z;       /**< z axis unit vector, in base coords */
+	gsl_vector *origin_pos;   /**< Origin Position, in base coords */
+	                          /** \} */
 };
 
 /** Robot kinematics data, holding an array of links, and a set of tool
  *  jacobians.
  */
 struct bt_kinematics {
-  int dof;
-  int nlinks;
-  struct bt_kinematics_link **link_array;
+	int dof;
+	int nlinks;
+	struct bt_kinematics_link **link_array;
 
-  struct bt_kinematics_link *base;
-  struct bt_kinematics_link **link; /* Moving links array */
-  struct bt_kinematics_link *toolplate;
-  struct bt_kinematics_link *tool;
+	struct bt_kinematics_link *base;
+	struct bt_kinematics_link **link; /* Moving links array */
+	struct bt_kinematics_link *toolplate;
+	struct bt_kinematics_link *tool;
 
-  /* Toolplate Jacobian */
-  gsl_matrix *tool_jacobian;
-  gsl_matrix *tool_jacobian_linear;  /* matrix view */
-  gsl_matrix *tool_jacobian_angular; /* matrix view */
-  gsl_vector *tool_velocity;
-  gsl_vector *tool_velocity_angular;
+	/* Toolplate Jacobian */
+	gsl_matrix *tool_jacobian;
+	gsl_matrix *tool_jacobian_linear;  /* matrix view */
+	gsl_matrix *tool_jacobian_angular; /* matrix view */
+	gsl_vector *tool_velocity;
+	gsl_vector *tool_velocity_angular;
 
-  /* Temp vector */
-  gsl_vector *temp_v3;
+	/* Temp vector */
+	gsl_vector *temp_v3;
 };
 
 /** Create a bt_kinematics object from a given configuration.

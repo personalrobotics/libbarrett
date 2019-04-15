@@ -49,44 +49,45 @@ namespace systems {
 
 // Thrown to indicate that the ExecutionManager should stop executing.
 class ExecutionManagerException : public std::runtime_error {
-public:
-  explicit ExecutionManagerException(const std::string &str)
-      : std::runtime_error(str) {}
+  public:
+	explicit ExecutionManagerException(const std::string &str)
+	    : std::runtime_error(str) {}
 };
 
 // this isn't technically abstract, but neither does it have all the elements of
 // a useful interface...
 class ExecutionManager {
-public:
-  explicit ExecutionManager(double period_s = -1.0)
-      : mutex(new thread::NullMutex), period(period_s), ut(System::UT_NULL) {}
-  explicit ExecutionManager(const libconfig::Setting &setting)
-      : mutex(new thread::NullMutex), period(), ut(System::UT_NULL) {
-	period = barrett::detail::numericToDouble(setting["control_loop_period"]);
-  }
-  ~ExecutionManager();
+  public:
+	explicit ExecutionManager(double period_s = -1.0)
+	    : mutex(new thread::NullMutex), period(period_s), ut(System::UT_NULL) {}
+	explicit ExecutionManager(const libconfig::Setting &setting)
+	    : mutex(new thread::NullMutex), period(), ut(System::UT_NULL) {
+		period =
+		    barrett::detail::numericToDouble(setting["control_loop_period"]);
+	}
+	~ExecutionManager();
 
-  void startManaging(System &sys);
-  void stopManaging(System &sys);
+	void startManaging(System &sys);
+	void stopManaging(System &sys);
 
-  thread::Mutex &getMutex() const { return *mutex; }
-  double getPeriod() const { return period; }
+	thread::Mutex &getMutex() const { return *mutex; }
+	double getPeriod() const { return period; }
 
-protected:
-  void runExecutionCycle();
+  protected:
+	void runExecutionCycle();
 
-  thread::Mutex *mutex;
-  double period;
-  System::update_token_type ut;
+	thread::Mutex *mutex;
+	double period;
+	System::update_token_type ut;
 
-private:
-  typedef boost::intrusive::list<
-      System, boost::intrusive::member_hook<System, System::managed_hook_type,
-                                            &System::managedHook>>
-      managed_system_list_type;
-  managed_system_list_type managedSystems;
+  private:
+	typedef boost::intrusive::list<
+	    System, boost::intrusive::member_hook<System, System::managed_hook_type,
+	                                          &System::managedHook>>
+	    managed_system_list_type;
+	managed_system_list_type managedSystems;
 
-  DISALLOW_COPY_AND_ASSIGN(ExecutionManager);
+	DISALLOW_COPY_AND_ASSIGN(ExecutionManager);
 };
 }
 }

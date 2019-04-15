@@ -42,30 +42,30 @@ namespace systems {
 
 class HapticObject : public System,
                      public SingleInput<units::CartesianPosition::type> {
-  BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
+	BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
 
-  // IO
-public:
-  Output<double> depthOutput;
+	// IO
+  public:
+	Output<double> depthOutput;
 
-protected:
-  Output<double>::Value *depthOutputValue;
+  protected:
+	Output<double>::Value *depthOutputValue;
 
-public:
-  Output<cf_type> directionOutput;
+  public:
+	Output<cf_type> directionOutput;
 
-protected:
-  Output<cf_type>::Value *directionOutputValue;
+  protected:
+	Output<cf_type>::Value *directionOutputValue;
 
-public:
-  HapticObject(const std::string &sysName = "HapticObject")
-      : System(sysName), SingleInput<cp_type>(this),
-        depthOutput(this, &depthOutputValue),
-        directionOutput(this, &directionOutputValue) {}
-  virtual ~HapticObject() { mandatoryCleanUp(); }
+  public:
+	HapticObject(const std::string &sysName = "HapticObject")
+	    : System(sysName), SingleInput<cp_type>(this),
+	      depthOutput(this, &depthOutputValue),
+	      directionOutput(this, &directionOutputValue) {}
+	virtual ~HapticObject() { mandatoryCleanUp(); }
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(HapticObject);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(HapticObject);
 };
 }
 }

@@ -34,50 +34,50 @@ namespace systems {
 inline bool Ramp::isRunning() { return curGain != 0.0 || finalGain != 0.0; }
 
 inline void Ramp::start() {
-  // curGain is written and read in operate(), so it needs to be locked.
-  BARRETT_SCOPED_LOCK(getEmMutex());
-  curGain = finalGain = gain;
+	// curGain is written and read in operate(), so it needs to be locked.
+	BARRETT_SCOPED_LOCK(getEmMutex());
+	curGain = finalGain = gain;
 }
 inline void Ramp::stop() {
-  // curGain is written and read in operate(), so it needs to be locked.
-  BARRETT_SCOPED_LOCK(getEmMutex());
-  curGain = finalGain = 0.0;
+	// curGain is written and read in operate(), so it needs to be locked.
+	BARRETT_SCOPED_LOCK(getEmMutex());
+	curGain = finalGain = 0.0;
 }
 inline void Ramp::setSlope(double slope) {
-  gain = slope;
-  if (isRunning()) {
-	start();
-  }
+	gain = slope;
+	if (isRunning()) {
+		start();
+	}
 }
 
 inline void Ramp::reset() { setOutput(0.0); }
 inline void Ramp::setOutput(double newOutput) {
-  // y is written and read in operate(), so it needs to be locked.
-  BARRETT_SCOPED_LOCK(getEmMutex());
-  y = newOutput;
+	// y is written and read in operate(), so it needs to be locked.
+	BARRETT_SCOPED_LOCK(getEmMutex());
+	y = newOutput;
 }
 
 inline void Ramp::smoothStart(double transitionDuration) {
-  finalGain = gain;
-  setCurvature(transitionDuration);
+	finalGain = gain;
+	setCurvature(transitionDuration);
 }
 inline void Ramp::smoothStop(double transitionDuration) {
-  finalGain = 0.0;
-  setCurvature(transitionDuration);
+	finalGain = 0.0;
+	setCurvature(transitionDuration);
 }
 inline void Ramp::smoothSetSlope(double slope, double transitionDuration) {
-  gain = slope;
-  if (isRunning()) {
-	smoothStart(transitionDuration);
-  }
+	gain = slope;
+	if (isRunning()) {
+		smoothStart(transitionDuration);
+	}
 }
 
 inline void Ramp::setCurvature(double transitionDuration) {
-  assert(transitionDuration > 0.0);
+	assert(transitionDuration > 0.0);
 
-  // curvature is written and read in operate(), so it needs to be locked.
-  BARRETT_SCOPED_LOCK(getEmMutex());
-  curvature = (finalGain - curGain) / transitionDuration;
+	// curvature is written and read in operate(), so it needs to be locked.
+	BARRETT_SCOPED_LOCK(getEmMutex());
+	curvature = (finalGain - curGain) / transitionDuration;
 }
 }
 }

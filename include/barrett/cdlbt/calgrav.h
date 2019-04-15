@@ -76,18 +76,18 @@ extern "C" {
  *  along with arrays of vectors for each moving link.
  */
 struct bt_calgrav {
-  /** We need to know about each link's kinematics */
-  /*struct bt_kinematics * kin;*/
-  size_t dof;
+	/** We need to know about each link's kinematics */
+	/*struct bt_kinematics * kin;*/
+	size_t dof;
 
-  /** Gravity vector in the world frame. This is initialized to
-   *  < 0, 0, -9.805 > in bt_calgrav_create(). */
-  gsl_vector *world_g;
+	/** Gravity vector in the world frame. This is initialized to
+	 *  < 0, 0, -9.805 > in bt_calgrav_create(). */
+	gsl_vector *world_g;
 
-  gsl_vector **g;  /**< Gravity vector in each frame */
-  gsl_vector **mu; /**< First-moment vector in each frame */
-  gsl_vector **t;  /**< My torque vector in my frame */
-  gsl_vector **pt; /**< My torque vector in previous frame */
+	gsl_vector **g;  /**< Gravity vector in each frame */
+	gsl_vector **mu; /**< First-moment vector in each frame */
+	gsl_vector **t;  /**< My torque vector in my frame */
+	gsl_vector **pt; /**< My torque vector in previous frame */
 };
 
 /** Create a bt_calgrav object from a given configuration.

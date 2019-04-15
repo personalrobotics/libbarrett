@@ -54,35 +54,35 @@ template <typename T0 = boost::tuples::null_type,
 class TupleSplitter
     : public System,
       public SingleInput<boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>> {
-public:
-  typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> tuple_type;
-  static const size_t NUM_OUTPUTS = boost::tuples::length<tuple_type>::value;
+  public:
+	typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> tuple_type;
+	static const size_t NUM_OUTPUTS = boost::tuples::length<tuple_type>::value;
 
-  // IO
-private:
-  detail::OutputHolder<NUM_OUTPUTS, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
-      outputs;
+	// IO
+  private:
+	detail::OutputHolder<NUM_OUTPUTS, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+	    outputs;
 
-public:
-  TupleSplitter(const std::string &sysName = "TupleSplitter")
-      : System(sysName), SingleInput<tuple_type>(this), outputs(this) {}
-  virtual ~TupleSplitter() { mandatoryCleanUp(); }
+  public:
+	TupleSplitter(const std::string &sysName = "TupleSplitter")
+	    : System(sysName), SingleInput<tuple_type>(this), outputs(this) {}
+	virtual ~TupleSplitter() { mandatoryCleanUp(); }
 
-  template <size_t N>
-  Output<typename boost::tuples::element<N, tuple_type>::type> &getOutput() {
-	return outputs.template getOutput<N>();
-  }
+	template <size_t N>
+	Output<typename boost::tuples::element<N, tuple_type>::type> &getOutput() {
+		return outputs.template getOutput<N>();
+	}
 
-protected:
-  virtual void operate() { outputs.setData(&(this->input.getValue())); }
+  protected:
+	virtual void operate() { outputs.setData(&(this->input.getValue())); }
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(TupleSplitter);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(TupleSplitter);
 
-public:
-  // To be safe, assume that at least one of the input types needs to be
-  // aligned.
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  public:
+	// To be safe, assume that at least one of the input types needs to be
+	// aligned.
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 }
 }

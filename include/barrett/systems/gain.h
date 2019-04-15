@@ -49,30 +49,30 @@ template <typename InputType, typename GainType = InputType,
               (math::Traits<GainType>::RequiresAlignment ||
                math::Traits<OutputType>::RequiresAlignment)>
 class Gain : public SingleIO<InputType, OutputType> {
-public:
-  explicit Gain(GainType gain, const std::string &sysName = "Gain")
-      : SingleIO<InputType, OutputType>(sysName), gain(gain) {}
-  virtual ~Gain() { this->mandatoryCleanUp(); }
+  public:
+	explicit Gain(GainType gain, const std::string &sysName = "Gain")
+	    : SingleIO<InputType, OutputType>(sysName), gain(gain) {}
+	virtual ~Gain() { this->mandatoryCleanUp(); }
 
-  void setGain(const GainType &g) {
-	BARRETT_SCOPED_LOCK(this->getEmMutex());
-	gain = g;
-  }
+	void setGain(const GainType &g) {
+		BARRETT_SCOPED_LOCK(this->getEmMutex());
+		gain = g;
+	}
 
-protected:
-  GainType gain;
-  OutputType data;
+  protected:
+	GainType gain;
+	OutputType data;
 
-  virtual void operate() {
-	data = gain * this->input.getValue();
-	this->outputValue->setData(&data);
-  }
+	virtual void operate() {
+		data = gain * this->input.getValue();
+		this->outputValue->setData(&data);
+	}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Gain);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Gain);
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(RequiresAlignment)
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(RequiresAlignment)
 };
 }
 }

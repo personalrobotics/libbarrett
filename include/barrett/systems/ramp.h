@@ -42,38 +42,38 @@ namespace systems {
 // TODO(dc): add a configuration file interface
 
 class Ramp : public System, public SingleOutput<double> {
-public:
-  explicit Ramp(ExecutionManager *em, double slope = 1.0,
-                const std::string &sysName = "Ramp");
-  virtual ~Ramp();
+  public:
+	explicit Ramp(ExecutionManager *em, double slope = 1.0,
+	              const std::string &sysName = "Ramp");
+	virtual ~Ramp();
 
-  bool isRunning();
+	bool isRunning();
 
-  void start();
-  void stop();
-  void setSlope(double slope);
+	void start();
+	void stop();
+	void setSlope(double slope);
 
-  void reset();
-  void setOutput(double newOutput);
+	void reset();
+	void setOutput(double newOutput);
 
-  void smoothStart(double transitionDuration);
-  void smoothStop(double transitionDuration);
-  void smoothSetSlope(double slope, double transitionDuration);
+	void smoothStart(double transitionDuration);
+	void smoothStop(double transitionDuration);
+	void smoothSetSlope(double slope, double transitionDuration);
 
-protected:
-  virtual void onExecutionManagerChanged();
-  void getSamplePeriodFromEM();
+  protected:
+	virtual void onExecutionManagerChanged();
+	void getSamplePeriodFromEM();
 
-  virtual void operate();
+	virtual void operate();
 
-  void setCurvature(double transitionDuration);
+	void setCurvature(double transitionDuration);
 
-  double T_s;
-  double gain, finalGain, curGain, curvature;
-  double y;
+	double T_s;
+	double gain, finalGain, curGain, curvature;
+	double y;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Ramp);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Ramp);
 };
 }
 }

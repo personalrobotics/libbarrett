@@ -17,24 +17,24 @@ namespace barrett {
 namespace math {
 
 class TrapezoidalVelocityProfile {
-public:
-  TrapezoidalVelocityProfile(double velocity, double acceleration,
-                             double initialVelocity, double pathLength);
-  ~TrapezoidalVelocityProfile();
+  public:
+	TrapezoidalVelocityProfile(double velocity, double acceleration,
+	                           double initialVelocity, double pathLength);
+	~TrapezoidalVelocityProfile();
 
-  double finalT() const;
+	double finalT() const;
 
-  double eval(double t) const;
+	double eval(double t) const;
 
-  typedef double result_type; ///< For use with boost::bind().
-  result_type operator()(double t) const { return eval(t); }
+	typedef double result_type; ///< For use with boost::bind().
+	result_type operator()(double t) const { return eval(t); }
 
-protected:
-  double v, a, v_0, l;
-  struct bt_profile *impl;
+  protected:
+	double v, a, v_0, l;
+	struct bt_profile *impl;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(TrapezoidalVelocityProfile);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(TrapezoidalVelocityProfile);
 };
 }
 }

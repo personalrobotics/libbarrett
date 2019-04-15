@@ -43,48 +43,48 @@ namespace systems {
 
 template <size_t DOF>
 class KinematicsInput { // not a System in order to avoid diamond inheritance
-  // IO
-public:
-  System::Input<math::Kinematics<DOF>> kinInput;
+	                    // IO
+  public:
+	System::Input<math::Kinematics<DOF>> kinInput;
 
-public:
-  explicit KinematicsInput(System *parentSys) : kinInput(parentSys) {}
+  public:
+	explicit KinematicsInput(System *parentSys) : kinInput(parentSys) {}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(KinematicsInput);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(KinematicsInput);
 };
 
 template <size_t DOF> class KinematicsBase : public System {
-  // IO
-public:
-  Input<typename units::JointPositions<DOF>::type> jpInput;
+	// IO
+  public:
+	Input<typename units::JointPositions<DOF>::type> jpInput;
 
-public:
-  Input<typename units::JointVelocities<DOF>::type> jvInput;
+  public:
+	Input<typename units::JointVelocities<DOF>::type> jvInput;
 
-public:
-  Output<math::Kinematics<DOF>> kinOutput;
+  public:
+	Output<math::Kinematics<DOF>> kinOutput;
 
-protected:
-  typename Output<math::Kinematics<DOF>>::Value *kinOutputValue;
+  protected:
+	typename Output<math::Kinematics<DOF>>::Value *kinOutputValue;
 
-public:
-  explicit KinematicsBase(const libconfig::Setting &setting,
-                          const std::string &sysName = "KinematicsBase")
-      : System(sysName), jpInput(this), jvInput(this),
-        kinOutput(this, &kinOutputValue), kin(setting) {}
-  virtual ~KinematicsBase() { mandatoryCleanUp(); }
+  public:
+	explicit KinematicsBase(const libconfig::Setting &setting,
+	                        const std::string &sysName = "KinematicsBase")
+	    : System(sysName), jpInput(this), jvInput(this),
+	      kinOutput(this, &kinOutputValue), kin(setting) {}
+	virtual ~KinematicsBase() { mandatoryCleanUp(); }
 
-protected:
-  virtual void operate() {
-	kin.eval(jpInput.getValue(), jvInput.getValue());
-	kinOutputValue->setData(&kin);
-  }
+  protected:
+	virtual void operate() {
+		kin.eval(jpInput.getValue(), jvInput.getValue());
+		kinOutputValue->setData(&kin);
+	}
 
-  math::Kinematics<DOF> kin;
+	math::Kinematics<DOF> kin;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(KinematicsBase);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(KinematicsBase);
 };
 }
 }

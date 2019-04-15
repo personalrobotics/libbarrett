@@ -43,25 +43,25 @@ namespace systems {
 // TODO(dc): test!
 
 template <typename T> class ArrayEditor : public SingleIO<T, T> {
-  // IO
-  // protected because of variable number of inputs
-protected:
-  boost::array<System::Input<double> *, T::SIZE> elementInputs;
+	// IO
+	// protected because of variable number of inputs
+  protected:
+	boost::array<System::Input<double> *, T::SIZE> elementInputs;
 
-public:
-  explicit ArrayEditor(const std::string &sysName = "ArrayEditor");
-  virtual ~ArrayEditor();
+  public:
+	explicit ArrayEditor(const std::string &sysName = "ArrayEditor");
+	virtual ~ArrayEditor();
 
-  System::Input<double> &getElementInput(const size_t i);
+	System::Input<double> &getElementInput(const size_t i);
 
-protected:
-  virtual void operate();
-  virtual bool inputsValid();
+  protected:
+	virtual void operate();
+	virtual bool inputsValid();
 
-  T data;
+	T data;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ArrayEditor);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(ArrayEditor);
 };
 }
 }

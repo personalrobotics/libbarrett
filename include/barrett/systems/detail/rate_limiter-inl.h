@@ -38,41 +38,43 @@ namespace systems {
 
 template <typename T, typename MathTraits>
 void RateLimiter<T, MathTraits>::setLimit(const T &newLimit) {
-  // Limit must be non-negative. Zero is a special value meaning "don't limit".
-  assert(newLimit == math::abs(newLimit));
-  limit = newLimit;
-  maxDelta = T_s * limit;
+	// Limit must be non-negative. Zero is a special value meaning "don't
+	// limit".
+	assert(newLimit == math::abs(newLimit));
+	limit = newLimit;
+	maxDelta = T_s * limit;
 }
 
 template <typename T, typename MathTraits>
 void RateLimiter<T, MathTraits>::setCurVal(const T &newPos) {
-  data = newPos;
+	data = newPos;
 }
 
 template <typename T, typename MathTraits>
 void RateLimiter<T, MathTraits>::operate() {
-  const T &x = this->input.getValue();
+	const T &x = this->input.getValue();
 
-  if (limit == MT::zero()) {
-	data = x;
-  } else {
-	delta = MT::sub(x, data);
-	data += MT::mult(math::sign(delta), math::min(math::abs(delta), maxDelta));
-  }
+	if (limit == MT::zero()) {
+		data = x;
+	} else {
+		delta = MT::sub(x, data);
+		data +=
+		    MT::mult(math::sign(delta), math::min(math::abs(delta), maxDelta));
+	}
 
-  this->outputValue->setData(&data);
+	this->outputValue->setData(&data);
 }
 
 // TODO(dc): anyway to remove the code duplication with PIDController?
 template <typename T, typename MathTraits>
 void RateLimiter<T, MathTraits>::getSamplePeriodFromEM() {
-  if (this->hasExecutionManager()) {
-	assert(this->getExecutionManager()->getPeriod() > 0.0);
-	T_s = this->getExecutionManager()->getPeriod();
-  } else {
-	T_s = 0.0;
-  }
-  setLimit(limit); // Update maxDelta
+	if (this->hasExecutionManager()) {
+		assert(this->getExecutionManager()->getPeriod() > 0.0);
+		T_s = this->getExecutionManager()->getPeriod();
+	} else {
+		T_s = 0.0;
+	}
+	setLimit(limit); // Update maxDelta
 }
 }
 }

@@ -42,56 +42,56 @@ namespace systems {
 
 template <typename T>
 void connect(System::Output<T> &output, System::Input<T> &input) {
-  boost::lock_guard<thread::Mutex> inputLg(input.getEmMutex());
-  boost::lock_guard<thread::Mutex> outputLg(output.getEmMutex());
+	boost::lock_guard<thread::Mutex> inputLg(input.getEmMutex());
+	boost::lock_guard<thread::Mutex> outputLg(output.getEmMutex());
 
-  assert(!input.isConnected());
+	assert(!input.isConnected());
 
-  input.output = &output;
-  output.inputs.push_back(input);
+	input.output = &output;
+	output.inputs.push_back(input);
 
-  input.pushExecutionManager();
+	input.pushExecutionManager();
 }
 
 template <typename T>
 void reconnect(System::Output<T> &newOutput, System::Input<T> &input) {
-  BARRETT_SCOPED_LOCK(input.getEmMutex());
+	BARRETT_SCOPED_LOCK(input.getEmMutex());
 
-  assert(input.isConnected());
+	assert(input.isConnected());
 
-  disconnect(input);
-  connect(newOutput, input);
+	disconnect(input);
+	connect(newOutput, input);
 }
 
 template <typename T>
 void forceConnect(System::Output<T> &output, System::Input<T> &input) {
-  BARRETT_SCOPED_LOCK(input.getEmMutex());
+	BARRETT_SCOPED_LOCK(input.getEmMutex());
 
-  if (input.isConnected()) {
-	reconnect(output, input);
-  } else {
-	connect(output, input);
-  }
+	if (input.isConnected()) {
+		reconnect(output, input);
+	} else {
+		connect(output, input);
+	}
 }
 
 template <typename T> void disconnect(System::Input<T> &input) {
-  BARRETT_SCOPED_LOCK(input.getEmMutex());
+	BARRETT_SCOPED_LOCK(input.getEmMutex());
 
-  if (input.isConnected()) {
-	input.output->inputs.erase(
-	    System::Output<T>::connected_input_list_type::s_iterator_to(input));
-	input.unsetExecutionManager();
-	input.output = NULL;
-  }
+	if (input.isConnected()) {
+		input.output->inputs.erase(
+		    System::Output<T>::connected_input_list_type::s_iterator_to(input));
+		input.unsetExecutionManager();
+		input.output = NULL;
+	}
 }
 
 template <typename T> void disconnect(System::Output<T> &output) {
-  BARRETT_SCOPED_LOCK(output.getEmMutex());
-  assert(output.parentSys != NULL);
+	BARRETT_SCOPED_LOCK(output.getEmMutex());
+	assert(output.parentSys != NULL);
 
-  output.inputs.clear_and_dispose(
-      typename System::Input<T>::DisconnectDisposer());
-  output.parentSys->unsetExecutionManager();
+	output.inputs.clear_and_dispose(
+	    typename System::Input<T>::DisconnectDisposer());
+	output.parentSys->unsetExecutionManager();
 }
 }
 }

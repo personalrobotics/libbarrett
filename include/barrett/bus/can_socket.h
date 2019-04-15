@@ -48,45 +48,45 @@ struct can_handle; // OS-dependent implementation
 
 // TODO(dc): expose a receive timeout option?
 class CANSocket : public CommunicationsBus {
-public:
-  static const size_t MAX_MESSAGE_LEN =
-      8; /** The maximum length of a CANbus message. Make sure to update
-            CommunicationsBus::MAX_MESSAGE_LEN! */
+  public:
+	static const size_t MAX_MESSAGE_LEN =
+	    8; /** The maximum length of a CANbus message. Make sure to update
+	          CommunicationsBus::MAX_MESSAGE_LEN! */
 
-  /** CANSocket() Constructors
-   */
-  CANSocket();
-  CANSocket(int port);
-  ~CANSocket();
-  /** getMutex() method gets and locks interthread data exchange assuring
-   * nothing critical is happening in either thread.
-   */
-  virtual thread::RealTimeMutex &getMutex() const { return mutex; }
-  /** open() method creates socket communication on a specific port.
-   */
-  virtual void open(int port);
-  /** close() method destorys socket communication port.
-   */
-  virtual void close();
-  /** isOpen() method returns a flag signifying socket Communication is open.
-   */
-  virtual bool isOpen() const;
-  /** send() method pushes data onto socket.
-   */
-  virtual int send(int busId, const unsigned char *data, size_t len) const;
-  /** receiveRaw() method loads data from socket buffer in a realtime safe
-   * manner.
-   */
-  virtual int receiveRaw(int &busId, unsigned char *data, size_t &len,
-                         bool blocking = true) const;
+	/** CANSocket() Constructors
+	 */
+	CANSocket();
+	CANSocket(int port);
+	~CANSocket();
+	/** getMutex() method gets and locks interthread data exchange assuring
+	 * nothing critical is happening in either thread.
+	 */
+	virtual thread::RealTimeMutex &getMutex() const { return mutex; }
+	/** open() method creates socket communication on a specific port.
+	 */
+	virtual void open(int port);
+	/** close() method destorys socket communication port.
+	 */
+	virtual void close();
+	/** isOpen() method returns a flag signifying socket Communication is open.
+	 */
+	virtual bool isOpen() const;
+	/** send() method pushes data onto socket.
+	 */
+	virtual int send(int busId, const unsigned char *data, size_t len) const;
+	/** receiveRaw() method loads data from socket buffer in a realtime safe
+	 * manner.
+	 */
+	virtual int receiveRaw(int &busId, unsigned char *data, size_t &len,
+	                       bool blocking = true) const;
 
-protected:
-  mutable thread::RealTimeMutex mutex;
-  detail::can_handle *handle;
-  mutable barrett::Logger logger;
+  protected:
+	mutable thread::RealTimeMutex mutex;
+	detail::can_handle *handle;
+	mutable barrett::Logger logger;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(CANSocket);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(CANSocket);
 };
 }
 }

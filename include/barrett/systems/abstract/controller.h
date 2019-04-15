@@ -42,34 +42,34 @@ namespace systems {
 
 template <typename InputType, typename OutputType = InputType>
 class Controller : public System, public Conversion<OutputType> {
-  // IO
-public:
-  Input<InputType> referenceInput;
+	// IO
+  public:
+	Input<InputType> referenceInput;
 
-public:
-  Input<InputType> feedbackInput;
+  public:
+	Input<InputType> feedbackInput;
 
-public:
-  Output<OutputType> controlOutput;
+  public:
+	Output<OutputType> controlOutput;
 
-protected:
-  typename Output<OutputType>::Value *controlOutputValue;
+  protected:
+	typename Output<OutputType>::Value *controlOutputValue;
 
-public:
-  explicit Controller(const std::string &sysName = "Controller")
-      : System(sysName), referenceInput(this), feedbackInput(this),
-        controlOutput(this, &controlOutputValue) {}
-  virtual ~Controller() { mandatoryCleanUp(); }
+  public:
+	explicit Controller(const std::string &sysName = "Controller")
+	    : System(sysName), referenceInput(this), feedbackInput(this),
+	      controlOutput(this, &controlOutputValue) {}
+	virtual ~Controller() { mandatoryCleanUp(); }
 
-  virtual System::Input<InputType> *getConversionInput() {
-	return &referenceInput;
-  }
-  virtual System::Output<OutputType> &getConversionOutput() {
-	return controlOutput;
-  }
+	virtual System::Input<InputType> *getConversionInput() {
+		return &referenceInput;
+	}
+	virtual System::Output<OutputType> &getConversionOutput() {
+		return controlOutput;
+	}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Controller);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Controller);
 };
 }
 }

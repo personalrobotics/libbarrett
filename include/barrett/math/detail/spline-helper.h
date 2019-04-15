@@ -50,77 +50,79 @@ template <size_t N, typename T0, typename T1, typename T2, typename T3,
 struct TupleSplineHolder
     : public TupleSplineHolder<N - 1, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
 
-  typedef TupleSplineHolder<N - 1, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
-      inherited_type;
-  typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> tuple_type;
-  typedef Spline<tuple_type> parent_spline_type;
-  typedef typename boost::tuples::element<N - 1, tuple_type>::type
-      current_data_type;
-  typedef Spline<current_data_type> current_spline_type;
+	typedef TupleSplineHolder<N - 1, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9>
+	    inherited_type;
+	typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> tuple_type;
+	typedef Spline<tuple_type> parent_spline_type;
+	typedef typename boost::tuples::element<N - 1, tuple_type>::type
+	    current_data_type;
+	typedef Spline<current_data_type> current_spline_type;
 
-  template <template <typename, typename> class Container, typename Allocator>
-  TupleSplineHolder(const Container<typename parent_spline_type::tuple_type,
-                                    Allocator> &samples,
-                    bool saturateS)
-      : inherited_type(samples, saturateS), spline(NULL), rateAdjustment(1.0) {
-	std::vector<typename current_spline_type::tuple_type> currentSamples;
-	currentSamples.reserve(samples.size());
+	template <template <typename, typename> class Container, typename Allocator>
+	TupleSplineHolder(const Container<typename parent_spline_type::tuple_type,
+	                                  Allocator> &samples,
+	                  bool saturateS)
+	    : inherited_type(samples, saturateS), spline(NULL),
+	      rateAdjustment(1.0) {
+		std::vector<typename current_spline_type::tuple_type> currentSamples;
+		currentSamples.reserve(samples.size());
 
-	typename Container<typename parent_spline_type::tuple_type,
-	                   Allocator>::const_iterator i;
-	for (i = samples.begin(); i != samples.end(); ++i) {
-	  currentSamples.push_back(boost::make_tuple(
-	      boost::get<0>(*i), boost::get<N - 1>(boost::get<1>(*i))));
+		typename Container<typename parent_spline_type::tuple_type,
+		                   Allocator>::const_iterator i;
+		for (i = samples.begin(); i != samples.end(); ++i) {
+			currentSamples.push_back(boost::make_tuple(
+			    boost::get<0>(*i), boost::get<N - 1>(boost::get<1>(*i))));
+		}
+
+		spline = new current_spline_type(currentSamples, saturateS);
+		this->initialS = spline->initialS();
+		this->maxChangeInS = spline->changeInS();
 	}
 
-	spline = new current_spline_type(currentSamples, saturateS);
-	this->initialS = spline->initialS();
-	this->maxChangeInS = spline->changeInS();
-  }
+	template <template <typename, typename> class Container, typename Allocator>
+	TupleSplineHolder(const Container<typename parent_spline_type::data_type,
+	                                  Allocator> &points,
+	                  bool saturateS)
+	    : inherited_type(points, saturateS), spline(NULL), rateAdjustment(0.0) {
+		std::vector<current_data_type> currentPoints;
+		currentPoints.reserve(points.size());
 
-  template <template <typename, typename> class Container, typename Allocator>
-  TupleSplineHolder(const Container<typename parent_spline_type::data_type,
-                                    Allocator> &points,
-                    bool saturateS)
-      : inherited_type(points, saturateS), spline(NULL), rateAdjustment(0.0) {
-	std::vector<current_data_type> currentPoints;
-	currentPoints.reserve(points.size());
+		typename Container<typename parent_spline_type::data_type,
+		                   Allocator>::const_iterator i;
+		for (i = points.begin(); i != points.end(); ++i) {
+			currentPoints.push_back(boost::get<N - 1>(*i));
+		}
 
-	typename Container<typename parent_spline_type::data_type,
-	                   Allocator>::const_iterator i;
-	for (i = points.begin(); i != points.end(); ++i) {
-	  currentPoints.push_back(boost::get<N - 1>(*i));
+		spline = new current_spline_type(currentPoints, saturateS);
+		this->initialS = spline->initialS();
+		updateRateAdjustments();
 	}
 
-	spline = new current_spline_type(currentPoints, saturateS);
-	this->initialS = spline->initialS();
-	updateRateAdjustments();
-  }
+	~TupleSplineHolder() {
+		delete spline;
+		spline = NULL;
+	}
 
-  ~TupleSplineHolder() {
-	delete spline;
-	spline = NULL;
-  }
+	void updateRateAdjustments() {
+		double changeInS = spline->changeInS();
+		this->maxChangeInS = math::max(changeInS, this->maxChangeInS);
 
-  void updateRateAdjustments() {
-	double changeInS = spline->changeInS();
-	this->maxChangeInS = math::max(changeInS, this->maxChangeInS);
+		inherited_type::updateRateAdjustments();
 
-	inherited_type::updateRateAdjustments();
+		rateAdjustment = changeInS / this->maxChangeInS;
+		assert(rateAdjustment <= 1.0);
+	}
 
-	rateAdjustment = changeInS / this->maxChangeInS;
-	assert(rateAdjustment <= 1.0);
-  }
+	void collectValues(double s) const {
+		inherited_type::collectValues(s);
 
-  void collectValues(double s) const {
-	inherited_type::collectValues(s);
+		// Scale s so that all of the component Splines have the same final
+		// value.
+		boost::get<N - 1>(this->data) = spline->eval(s * rateAdjustment);
+	}
 
-	// Scale s so that all of the component Splines have the same final value.
-	boost::get<N - 1>(this->data) = spline->eval(s * rateAdjustment);
-  }
-
-  current_spline_type *spline;
-  double rateAdjustment;
+	current_spline_type *spline;
+	double rateAdjustment;
 };
 
 // Specialization for the inheritance base case:
@@ -128,27 +130,27 @@ template <typename T0, typename T1, typename T2, typename T3, typename T4,
           typename T5, typename T6, typename T7, typename T8, typename T9>
 struct TupleSplineHolder<0, T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> {
 
-  typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> tuple_type;
-  typedef Spline<tuple_type> parent_spline_type;
+	typedef boost::tuple<T0, T1, T2, T3, T4, T5, T6, T7, T8, T9> tuple_type;
+	typedef Spline<tuple_type> parent_spline_type;
 
-  template <template <typename, typename> class Container, typename Allocator>
-  TupleSplineHolder(const Container<typename parent_spline_type::tuple_type,
-                                    Allocator> &samples,
-                    bool saturateS)
-      : initialS(0.0), maxChangeInS(0.0) {}
+	template <template <typename, typename> class Container, typename Allocator>
+	TupleSplineHolder(const Container<typename parent_spline_type::tuple_type,
+	                                  Allocator> &samples,
+	                  bool saturateS)
+	    : initialS(0.0), maxChangeInS(0.0) {}
 
-  template <template <typename, typename> class Container, typename Allocator>
-  TupleSplineHolder(const Container<typename parent_spline_type::data_type,
-                                    Allocator> &points,
-                    bool saturateS)
-      : initialS(0.0), maxChangeInS(0.0) {}
+	template <template <typename, typename> class Container, typename Allocator>
+	TupleSplineHolder(const Container<typename parent_spline_type::data_type,
+	                                  Allocator> &points,
+	                  bool saturateS)
+	    : initialS(0.0), maxChangeInS(0.0) {}
 
-  void updateRateAdjustments() {}
-  void collectValues(double s) const {}
+	void updateRateAdjustments() {}
+	void collectValues(double s) const {}
 
-  double initialS;
-  double maxChangeInS;
-  mutable tuple_type data;
+	double initialS;
+	double maxChangeInS;
+	mutable tuple_type data;
 };
 }
 #endif // BARRETT_PARSED_BY_DOXYGEN

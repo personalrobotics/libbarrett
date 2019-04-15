@@ -39,42 +39,42 @@ namespace barrett {
 namespace systems {
 
 template <typename T> class modXYZ : public systems::SingleIO<T, T> {
-  BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
+	BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
 
-public:
-  modXYZ(const std::string &sysName = "modXYZ")
-      : systems::SingleIO<T, T>(sysName), x(false), y(false), z(false),
-        off_x(0.0), off_y(0.0), off_z(0.0) {}
+  public:
+	modXYZ(const std::string &sysName = "modXYZ")
+	    : systems::SingleIO<T, T>(sysName), x(false), y(false), z(false),
+	      off_x(0.0), off_y(0.0), off_z(0.0) {}
 
-  void negX() { x = true; }
-  void negY() { y = true; }
-  void negZ() { z = true; }
-  void xOffset(double val) { off_x = val; }
-  void yOffset(double val) { off_y = val; }
-  void zOffset(double val) { off_z = val; }
+	void negX() { x = true; }
+	void negY() { y = true; }
+	void negZ() { z = true; }
+	void xOffset(double val) { off_x = val; }
+	void yOffset(double val) { off_y = val; }
+	void zOffset(double val) { off_z = val; }
 
-protected:
-  bool x, y, z;
-  double off_x, off_y, off_z;
-  T xyz, mod_xyz;
+  protected:
+	bool x, y, z;
+	double off_x, off_y, off_z;
+	T xyz, mod_xyz;
 
-  virtual void operate() {
-	xyz = this->input.getValue();
-	mod_xyz = xyz;
-	if (x)
-	  mod_xyz[0] = -xyz[0];
-	if (y)
-	  mod_xyz[1] = -xyz[1];
-	if (z)
-	  mod_xyz[2] = -xyz[2];
-	mod_xyz[0] = mod_xyz[0] + off_x;
-	mod_xyz[1] = mod_xyz[1] + off_y;
-	mod_xyz[2] = mod_xyz[2] + off_z;
-	this->outputValue->setData(&mod_xyz);
-  }
+	virtual void operate() {
+		xyz = this->input.getValue();
+		mod_xyz = xyz;
+		if (x)
+			mod_xyz[0] = -xyz[0];
+		if (y)
+			mod_xyz[1] = -xyz[1];
+		if (z)
+			mod_xyz[2] = -xyz[2];
+		mod_xyz[0] = mod_xyz[0] + off_x;
+		mod_xyz[1] = mod_xyz[1] + off_y;
+		mod_xyz[2] = mod_xyz[2] + off_z;
+		this->outputValue->setData(&mod_xyz);
+	}
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(modXYZ);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(modXYZ);
 };
 }
 }

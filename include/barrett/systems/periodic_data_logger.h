@@ -44,30 +44,30 @@ namespace systems {
 
 template <typename T, typename LogWriterType = log::RealTimeWriter<T>>
 class PeriodicDataLogger : public System, public SingleInput<T> {
-public:
-  // The PeriodicDataLogger owns the logWriter pointer and will delete it when
-  // it is no longer needed.
-  PeriodicDataLogger(ExecutionManager *em, LogWriterType *logWriter,
-                     size_t periodMultiplier = 10,
-                     const std::string &sysName = "PeriodicDataLogger");
-  virtual ~PeriodicDataLogger();
+  public:
+	// The PeriodicDataLogger owns the logWriter pointer and will delete it when
+	// it is no longer needed.
+	PeriodicDataLogger(ExecutionManager *em, LogWriterType *logWriter,
+	                   size_t periodMultiplier = 10,
+	                   const std::string &sysName = "PeriodicDataLogger");
+	virtual ~PeriodicDataLogger();
 
-  bool isLogging();
-  void closeLog();
+	bool isLogging();
+	void closeLog();
 
-protected:
-  virtual bool inputsValid();
-  virtual void operate();
+  protected:
+	virtual bool inputsValid();
+	virtual void operate();
 
-  // Optimization: this System has no Outputs to invalidate.
-  virtual void invalidateOutputs() {}
+	// Optimization: this System has no Outputs to invalidate.
+	virtual void invalidateOutputs() {}
 
-  LogWriterType *lw;
-  bool logging;
-  size_t ecCount, ecCountRollover;
+	LogWriterType *lw;
+	bool logging;
+	size_t ecCount, ecCountRollover;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(PeriodicDataLogger);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(PeriodicDataLogger);
 };
 }
 }

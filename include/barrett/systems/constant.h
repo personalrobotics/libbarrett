@@ -46,26 +46,26 @@ namespace systems {
 template <typename T,
           bool RequiresAlignment = math::Traits<T>::RequiresAlignment>
 class Constant : public System, public SingleOutput<T> {
-public:
-  explicit Constant(const T &value, const std::string &sysName = "Constant")
-      : System(sysName), SingleOutput<T>(this), data(value) {
-	this->outputValue->setData(&data);
-  }
-  virtual ~Constant() { mandatoryCleanUp(); }
+  public:
+	explicit Constant(const T &value, const std::string &sysName = "Constant")
+	    : System(sysName), SingleOutput<T>(this), data(value) {
+		this->outputValue->setData(&data);
+	}
+	virtual ~Constant() { mandatoryCleanUp(); }
 
-protected:
-  virtual void operate() { /* do nothing */
-  }
-  virtual void invalidateOutputs() { /* do nothing */
-  }
+  protected:
+	virtual void operate() { /* do nothing */
+	}
+	virtual void invalidateOutputs() { /* do nothing */
+	}
 
-  T data;
+	T data;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Constant);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Constant);
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(RequiresAlignment)
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(RequiresAlignment)
 };
 }
 }

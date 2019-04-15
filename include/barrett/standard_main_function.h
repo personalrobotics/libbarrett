@@ -87,42 +87,42 @@ int wam_main(int argc, char **argv, ::barrett::ProductManager &pm,
 #endif
 
 int main(int argc, char **argv) {
-  // Give us pretty stack-traces when things die
-  ::barrett::installExceptionHandler();
+	// Give us pretty stack-traces when things die
+	::barrett::installExceptionHandler();
 
 #ifdef BARRETT_SMF_VALIDATE_ARGS
-  if (!validate_args(argc, argv)) {
-	return 1;
-  }
+	if (!validate_args(argc, argv)) {
+		return 1;
+	}
 #endif
 
-  ::barrett::ProductManager pm;
+	::barrett::ProductManager pm;
 #ifdef BARRETT_SMF_CONFIGURE_PM
-  if (!configure_pm(argc, argv, pm)) {
-	return 1;
-  }
+	if (!configure_pm(argc, argv, pm)) {
+		return 1;
+	}
 #endif
 
-  pm.waitForWam(BARRETT_SMF_PROMPT_ON_ZEROING);
-  pm.wakeAllPucks();
-  // TODO(JH): Rehab Update implement and test
-  if (pm.foundWam3()) {
-	return wam_main(argc, argv, pm,
-	                *pm.getWam3(BARRETT_SMF_WAIT_FOR_SHIFT_ACTIVATE,
-	                            BARRETT_SMF_WAM_CONFIG_PATH));
-  } else if (pm.foundWam4()) {
-	return wam_main(argc, argv, pm,
-	                *pm.getWam4(BARRETT_SMF_WAIT_FOR_SHIFT_ACTIVATE,
-	                            BARRETT_SMF_WAM_CONFIG_PATH));
-  } else if (pm.foundWam7()) {
-	return wam_main(argc, argv, pm,
-	                *pm.getWam7(BARRETT_SMF_WAIT_FOR_SHIFT_ACTIVATE,
-	                            BARRETT_SMF_WAM_CONFIG_PATH));
-  } else {
-	printf(">>> ERROR: No WAM was found. Perhaps you have found a bug in "
-	       "ProductManager::waitForWam().\n");
-	return 1;
-  }
+	pm.waitForWam(BARRETT_SMF_PROMPT_ON_ZEROING);
+	pm.wakeAllPucks();
+	// TODO(JH): Rehab Update implement and test
+	if (pm.foundWam3()) {
+		return wam_main(argc, argv, pm,
+		                *pm.getWam3(BARRETT_SMF_WAIT_FOR_SHIFT_ACTIVATE,
+		                            BARRETT_SMF_WAM_CONFIG_PATH));
+	} else if (pm.foundWam4()) {
+		return wam_main(argc, argv, pm,
+		                *pm.getWam4(BARRETT_SMF_WAIT_FOR_SHIFT_ACTIVATE,
+		                            BARRETT_SMF_WAM_CONFIG_PATH));
+	} else if (pm.foundWam7()) {
+		return wam_main(argc, argv, pm,
+		                *pm.getWam7(BARRETT_SMF_WAIT_FOR_SHIFT_ACTIVATE,
+		                            BARRETT_SMF_WAM_CONFIG_PATH));
+	} else {
+		printf(">>> ERROR: No WAM was found. Perhaps you have found a bug in "
+		       "ProductManager::waitForWam().\n");
+		return 1;
+	}
 }
 
 #endif /* BARRETT_STANDARD_MAIN_FUNCTION_H_ */

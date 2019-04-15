@@ -44,29 +44,29 @@ namespace systems {
 template <typename InputType, typename OutputType = InputType,
           bool RequiresAlignment = math::Traits<OutputType>::RequiresAlignment>
 class Callback : public SingleIO<InputType, OutputType> {
-public:
-  typedef boost::function<OutputType(const InputType &)> callback_type;
+  public:
+	typedef boost::function<OutputType(const InputType &)> callback_type;
 
-  explicit Callback(callback_type operateCallback,
-                    const std::string &sysName = "Callback")
-      : SingleIO<InputType, OutputType>(sysName), callback(operateCallback),
-        data() {}
-  virtual ~Callback() { this->mandatoryCleanUp(); }
+	explicit Callback(callback_type operateCallback,
+	                  const std::string &sysName = "Callback")
+	    : SingleIO<InputType, OutputType>(sysName), callback(operateCallback),
+	      data() {}
+	virtual ~Callback() { this->mandatoryCleanUp(); }
 
-protected:
-  virtual void operate() {
-	data = callback(this->input.getValue());
-	this->outputValue->setData(&data);
-  }
+  protected:
+	virtual void operate() {
+		data = callback(this->input.getValue());
+		this->outputValue->setData(&data);
+	}
 
-  callback_type callback;
-  OutputType data;
+	callback_type callback;
+	OutputType data;
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(Callback);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(Callback);
 
-public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(RequiresAlignment)
+  public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW_IF(RequiresAlignment)
 };
 }
 }

@@ -44,25 +44,25 @@ namespace systems {
 
 template <typename T>
 class ArraySplitter : public System, public SingleInput<T> {
-  // IO
-  // protected because of variable number of outputs
-protected:
-  boost::array<Output<double> *, T::SIZE> outputs;
+	// IO
+	// protected because of variable number of outputs
+  protected:
+	boost::array<Output<double> *, T::SIZE> outputs;
 
-protected:
-  boost::array<Output<double>::Value *, T::SIZE> outputValues;
+  protected:
+	boost::array<Output<double>::Value *, T::SIZE> outputValues;
 
-public:
-  ArraySplitter(const std::string &sysName = "ArraySplitter");
-  virtual ~ArraySplitter();
+  public:
+	ArraySplitter(const std::string &sysName = "ArraySplitter");
+	virtual ~ArraySplitter();
 
-  Output<double> &getOutput(const size_t i);
+	Output<double> &getOutput(const size_t i);
 
-protected:
-  virtual void operate();
+  protected:
+	virtual void operate();
 
-private:
-  DISALLOW_COPY_AND_ASSIGN(ArraySplitter);
+  private:
+	DISALLOW_COPY_AND_ASSIGN(ArraySplitter);
 };
 }
 }

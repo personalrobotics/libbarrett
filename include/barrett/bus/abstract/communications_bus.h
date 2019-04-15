@@ -40,25 +40,26 @@ namespace barrett {
 namespace bus {
 
 class CommunicationsBus {
-public:
-  static constexpr size_t MAX_MESSAGE_LEN =
-      8; /** The maximum of any of the available communications buses */
-  static constexpr double TIMEOUT =
-      1.0; /** Bus connection timeout limit in seconds */
+  public:
+	static constexpr size_t MAX_MESSAGE_LEN =
+	    8; /** The maximum of any of the available communications buses */
+	static constexpr double TIMEOUT =
+	    1.0; /** Bus connection timeout limit in seconds */
 
-  virtual ~CommunicationsBus() {} /** Destructor */
+	virtual ~CommunicationsBus() {} /** Destructor */
 
-  virtual thread::Mutex &getMutex() const = 0;
+	virtual thread::Mutex &getMutex() const = 0;
 
-  virtual void open(int port) = 0;
-  virtual void close() = 0;
-  virtual bool isOpen() const = 0;
+	virtual void open(int port) = 0;
+	virtual void close() = 0;
+	virtual bool isOpen() const = 0;
 
-  virtual int send(int busId, const unsigned char *data, size_t len) const = 0;
-  virtual int receive(int expectedBusId, unsigned char *data, size_t &len,
-                      bool blocking = true, bool realtime = false) const;
-  virtual int receiveRaw(int &busId, unsigned char *data, size_t &len,
-                         bool blocking = true) const = 0;
+	virtual int send(int busId, const unsigned char *data,
+	                 size_t len) const = 0;
+	virtual int receive(int expectedBusId, unsigned char *data, size_t &len,
+	                    bool blocking = true, bool realtime = false) const;
+	virtual int receiveRaw(int &busId, unsigned char *data, size_t &len,
+	                       bool blocking = true) const = 0;
 };
 }
 }
