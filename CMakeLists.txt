@@ -147,15 +147,14 @@ include_directories(${CURSES_INCLUDE_DIR})
 add_subdirectory(src)
 
 ### Auto Format
+# Only files that are substantially different from upstream libbarrett should
+# be formatted.
 include(ClangFormat)
 clang_format_setup(VERSION 3.8)
 
 if (CLANG_FORMAT_EXECUTABLE)
-  clang_format_add_sources(${barrett_SOURCES})
-
-  file(GLOB_RECURSE barrett_HEADERS *.h)
-  clang_format_add_sources(${barrett_HEADERS})
-
+  clang_format_add_sources(include/barrett/logger.h)
+  clang_format_add_sources(programs/autotension.cpp)
   clang_format_add_targets()
 endif()
 

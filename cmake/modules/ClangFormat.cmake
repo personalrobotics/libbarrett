@@ -1,10 +1,10 @@
 function(clang_format_setup)
   cmake_parse_arguments(
-        CF_ARG # prefix 
+        CF_ARG # prefix
         "" # no boolean args
         "VERSION" # clang-format version
         "" # no multi-value args
-        ${ARGN} 
+        ${ARGN}
     )
   if(NOT CF_ARG_VERSION)
     set(CF_NAME clang-format)
@@ -12,7 +12,7 @@ function(clang_format_setup)
     set(CF_NAME clang-format-${CF_ARG_VERSION})
   endif()
   find_program(CLANG_FORMAT_EXECUTABLE NAMES ${CF_NAME})
-  
+
   if(NOT CLANG_FORMAT_EXECUTABLE)
     message(STATUS "Looking for clang-format - NOT found, please install "
       "${CF_NAME} to enable automatic code formatting."
