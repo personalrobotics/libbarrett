@@ -1,24 +1,24 @@
 /*
-	Copyright 2011, 2012 Barrett Technology <support@barrett.com>
+    Copyright 2011, 2012 Barrett Technology <support@barrett.com>
 
-	This file is part of libbarrett.
+    This file is part of libbarrett.
 
-	This version of libbarrett is free software: you can redistribute it
-	and/or modify it under the terms of the GNU General Public License as
-	published by the Free Software Foundation, either version 3 of the
-	License, or (at your option) any later version.
+    This version of libbarrett is free software: you can redistribute it
+    and/or modify it under the terms of the GNU General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
 
-	This version of libbarrett is distributed in the hope that it will be
-	useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This version of libbarrett is distributed in the hope that it will be
+    useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License along
-	with this version of libbarrett.  If not, see
-	<http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License along
+    with this version of libbarrett.  If not, see
+    <http://www.gnu.org/licenses/>.
 
-	Further, non-binding information about licensing is available at:
-	<http://wiki.barrett.com/libbarrett/wiki/LicenseNotes>
+    Further, non-binding information about licensing is available at:
+    <http://wiki.barrett.com/libbarrett/wiki/LicenseNotes>
 */
 
 /*
@@ -28,53 +28,49 @@
  *      Author: dc
  */
 
-#include <fstream>
+#include <cassert>
 #include <cstdio>
 #include <cstring>
-#include <cassert>
+#include <fstream>
 
 #include "utils.h"
 
-
-bool fileExists(const char* file)
-{
-	std::ifstream fs(file);
-	return fs.good();
+bool fileExists(const char *file) {
+  std::ifstream fs(file);
+  return fs.good();
 }
 
-void backupFileName(char* str, const char* baseFileName, int backupNumer)
-{
-	sprintf(str, "%s.%d", baseFileName, backupNumer);
+void backupFileName(char *str, const char *baseFileName, int backupNumer) {
+  sprintf(str, "%s.%d", baseFileName, backupNumer);
 }
 
+void manageBackups(const char *file, int numBackups) {
+  assert(numBackups <= 9); // Otherwise our strings won't be long enough
+  char *backupFile1 = new char[strlen(file) + 2 + 1];
+  char *backupFile2 = new char[strlen(file) + 2 + 1];
 
-void manageBackups(const char* file, int numBackups) {
-	assert(numBackups <= 9);  // Otherwise our strings won't be long enough
-	char* backupFile1 = new char[strlen(file) + 2 + 1];
-	char* backupFile2 = new char[strlen(file) + 2 + 1];
-
-	backupFileName(backupFile2, file, numBackups);
-	for (int i = numBackups - 1; i >= 0; --i) {
-		if (i == 0) {
-			strcpy(backupFile1, file);
-		} else {
-			backupFileName(backupFile1, file, i);
-		}
-
-		if (fileExists(backupFile1)) {
-			if (fileExists(backupFile2)) {
-				remove(backupFile2);
-			}
-			rename(backupFile1, backupFile2);
-		}
-		strcpy(backupFile2, backupFile1);
+  backupFileName(backupFile2, file, numBackups);
+  for (int i = numBackups - 1; i >= 0; --i) {
+	if (i == 0) {
+	  strcpy(backupFile1, file);
+	} else {
+	  backupFileName(backupFile1, file, i);
 	}
 
-	backupFileName(backupFile1, file, 1);
 	if (fileExists(backupFile1)) {
-		printf(">>> Old data saved: %s\n", backupFile1);
+	  if (fileExists(backupFile2)) {
+		remove(backupFile2);
+	  }
+	  rename(backupFile1, backupFile2);
 	}
+	strcpy(backupFile2, backupFile1);
+  }
 
-	delete[] backupFile1;
-	delete[] backupFile2;
+  backupFileName(backupFile1, file, 1);
+  if (fileExists(backupFile1)) {
+	printf(">>> Old data saved: %s\n", backupFile1);
+  }
+
+  delete[] backupFile1;
+  delete[] backupFile2;
 }
