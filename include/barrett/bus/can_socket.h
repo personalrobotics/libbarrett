@@ -58,7 +58,7 @@ public:
 	/** CANSocket() Constructors
 	 */
 	CANSocket();
-	CANSocket(int port);
+	explicit CANSocket(int port);
 	~CANSocket();
 	/** getMutex() method gets and locks interthread data exchange assuring nothing critical is happening in either thread.
 	 */
