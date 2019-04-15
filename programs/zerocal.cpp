@@ -231,6 +231,7 @@ public:
 					LowLevelWam<DOF>& llw = wam.getLowLevelWam();
 
 					// Record actual joint position, not commanded joint position
+					// Note: Change added from zerocal branch upstream
 					zeroPos[j] = wam.getJointPositions()[j] - calPos[j];
 
 					// Record the motor angles that affect this joint
