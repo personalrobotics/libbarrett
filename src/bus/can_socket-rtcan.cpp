@@ -34,8 +34,6 @@
 #include <stdexcept>
 #include <cstdio>
 #include <cstring>
-#include <sstream>
-#include <iostream> 
 #include <boost/lexical_cast.hpp>
 
 #include <errno.h>
@@ -64,12 +62,6 @@ struct can_handle {
 	bool isValid() const { return h != NULL_HANDLE; }
 };
 }
-
-double printCycle = 0.1;
-double startTime = highResolutionSystemTime();
-// std::stringstream sstm;
-// sstm << "/home/robot/log_" << startTime << ".log";
-// std::string filename = "/home/robot/log_" + boost::lexical_cast<std::string>(startTime);;
 
 CANSocket::CANSocket() :
 	mutex(), handle(new detail::can_handle)
