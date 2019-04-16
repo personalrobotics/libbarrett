@@ -153,7 +153,6 @@ include(ClangFormat)
 clang_format_setup(VERSION 3.8)
 
 if (CLANG_FORMAT_EXECUTABLE)
-  clang_format_add_sources(include/barrett/logger.h)
   clang_format_add_sources(programs/autotension.cpp)
   clang_format_add_targets()
 endif()

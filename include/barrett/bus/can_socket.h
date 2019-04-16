@@ -38,7 +38,6 @@
 #include <barrett/detail/ca_macro.h>
 #include <barrett/thread/real_time_mutex.h>
 #include <barrett/bus/abstract/communications_bus.h>
-#include <barrett/logger.h>
 
 namespace barrett {
 namespace bus {
@@ -82,7 +81,6 @@ public:
 protected:
 	mutable thread::RealTimeMutex mutex;
 	detail::can_handle* handle;
-	mutable barrett::Logger logger;
 
 private:
 	DISALLOW_COPY_AND_ASSIGN(CANSocket);

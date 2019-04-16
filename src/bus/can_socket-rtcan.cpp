@@ -69,17 +69,17 @@ double printCycle = 0.1;
 double startTime = highResolutionSystemTime();
 // std::stringstream sstm;
 // sstm << "/home/robot/log_" << startTime << ".log";
-std::string filename = "/home/robot/log_" + boost::lexical_cast<std::string>(startTime);;
+// std::string filename = "/home/robot/log_" + boost::lexical_cast<std::string>(startTime);;
 
 CANSocket::CANSocket() :
-	mutex(), handle(new detail::can_handle), logger(printCycle,  filename)
+	mutex(), handle(new detail::can_handle)
 {
-	barrett::logMessage("Constructing a CAN SOCKET, logging to %s", true) % filename;
+	barrett::logMessage("Constructing a CAN SOCKET...", true);
 	barrett::detail::syslog_stacktrace();
 }
 
 CANSocket::CANSocket(int port) :
-	mutex(), handle(new detail::can_handle), logger(printCycle,  filename)
+	mutex(), handle(new detail::can_handle)
 {
 	open(port);
 }
@@ -235,18 +235,10 @@ int CANSocket::send(int busId, const unsigned char* data, size_t len) const
 	frame.can_dlc = len;
 	memcpy(frame.data, data, len);
 
-	LogData logData;
-	logData.type = LogData::TYPE_SENT;
-	logData.can_id = frame.can_id;
-	logData.can_dlc = frame.can_dlc;
-
 	if (len > 8) {
 		logMessage("CAN MESSAGE IS TOO BIG!");
 		return 2;
 	}
-
-	memcpy(logData.can_data, data, len);
-	logData.timestamp = rt_timer_read();
 
 	int ret = rt_dev_send(handle->h, (void *) &frame, sizeof(can_frame_t), 0);
 	if (ret < 0) {
@@ -278,8 +270,6 @@ int CANSocket::send(int busId, const unsigned char* data, size_t len) const
 		}
 	}
 
-	logger.log(logData);
-
 	return 0;
 }
 
@@ -287,12 +277,8 @@ int CANSocket::receiveRaw(int& busId, unsigned char* data, size_t& len, bool blo
 {
 	BARRETT_SCOPED_LOCK(mutex);
 
-	LogData logData;
-	logData.type = LogData::TYPE_RECEIVED;
-
 	struct can_frame frame;
 	int ret = rt_dev_recv(handle->h, (void *) &frame, sizeof(can_frame_t), blocking ? 0 : MSG_DONTWAIT);
-	logData.timestamp = rt_timer_read();
 
 	if (ret < 0) {
 		switch (ret) {
@@ -337,16 +323,10 @@ int CANSocket::receiveRaw(int& busId, unsigned char* data, size_t& len, bool blo
 		return 2;
 	}
 
-	logData.can_id = frame.can_id;
-	logData.can_dlc = frame.can_dlc;
-
 	if (frame.can_dlc > 8) {
 		logMessage("CAN MESSAGE IS TOO BIG!");
 		return 2;
 	}
-
-	memcpy(logData.can_data, frame.data, len);
-	logger.log(logData);
 
 	return 0;
 }
