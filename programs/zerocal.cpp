@@ -60,6 +60,17 @@ using detail::waitForEnter;
 const std::string CAL_CONFIG_FILE = barrett::EtcPathRelative("calibration.conf");
 const std::string DATA_CONFIG_FILE = barrett::EtcPathRelative("calibration_data/%s/zerocal.conf");
 
+void *
+__wrap_malloc (size_t c)
+{
+  return __real_malloc (c);
+}
+
+void __wrap_free(void *ptr)
+{
+  __real_free(ptr);
+}
+
 
 // Convenience class that wraps ncurses text attributes.
 class ScopedAttr {
@@ -220,7 +231,8 @@ public:
 					LowLevelWam<DOF>& llw = wam.getLowLevelWam();
 
 					// Record actual joint position, not commanded joint position
-					zeroPos[j] = wam.getJointPositions()[j];
+					// Note: Change added from zerocal branch upstream
+					zeroPos[j] = wam.getJointPositions()[j] - calPos[j];
 
 					// Record the motor angles that affect this joint
 					const sqm_type& m2jp = llw.getMotorToJointPositionTransform();

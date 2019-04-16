@@ -105,8 +105,8 @@ public:
 	}
 
 
-	static const double MAX_SCALE = 4.0;
-	static const double MIN_SCALE = 0.25;
+	static constexpr double MAX_SCALE = 4.0;
+	static constexpr double MIN_SCALE = 0.25;
 
 	void calculateTorqueGain() {
 		libconfig::Config config;

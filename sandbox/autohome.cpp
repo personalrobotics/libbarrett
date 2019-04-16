@@ -10,7 +10,7 @@
 #include <cmath>
 #include <cstdio>
 
-#include <native/timer.h>
+#include <alchemy/timer.h>
 #include <barrett/units.h>
 #include <barrett/systems.h>
 #include <barrett/products/product_manager.h>

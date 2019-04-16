@@ -36,10 +36,11 @@ if( UNIX )
     
 
     # find the xenomai pthread library
-    find_library( XENOMAI_LIBRARY_NATIVE  native  ${XENOMAI_DIR}/lib )
-    find_library( XENOMAI_LIBRARY_XENOMAI xenomai ${XENOMAI_DIR}/lib )
-    find_library( XENOMAI_LIBRARY_PTHREAD_RT pthread_rt rtdm ${XENOMAI_DIR}/lib )
-    find_library( XENOMAI_LIBRARY_RTDM    rtdm    ${XENOMAI_DIR}/lib )
+    find_library( XENOMAI_LIBRARY_ALCHEMY alchemy copperplate  ${XENOMAI_DIR}/lib )
+    find_library( XENOMAI_LIBRARY_XENOMAI cobalt copperplate ${XENOMAI_DIR}/lib )
+    find_library( XENOMAI_LIBRARY_COPPERPLATE copperplate ${XENOMAI_DIR}/lib )
+    find_library( XENOMAI_LIBRARY_PTHREAD_RT trank ${XENOMAI_DIR}/lib )
+    find_library( XENOMAI_LIBRARY_RTDM    trank    ${XENOMAI_DIR}/lib )
 
     # find the posix wrappers
     find_file(XENOMAI_POSIX_WRAPPERS lib/posix.wrappers ${XENOMAI_SEARCH_PATH} )

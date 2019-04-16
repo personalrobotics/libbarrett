@@ -23,10 +23,14 @@ option(BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON)
 option(NON_REALTIME "Set to ON to avoid building code that depends on a real-time operating system" OFF)
 option(OPTIMIZE_FOR_PROCESSOR "Set to ON to build binaries that are optimized for this specific computer and can't be copied to other machines" OFF)
 option(WITH_PYTHON "Set to ON to build Python bindings for libbarrett" ON)
-option(INSTALL_EXAMPLES "Set to ON to copy libbarrett example programs to the current user's home folder when the library is installed" ON)
+option(INSTALL_EXAMPLES "Set to ON to copy libbarrett example programs to the current user's home folder when the library is installed" OFF)
 option(INSTALL_SANDBOX "Set to ON to copy libbarrett sandbox programs to the current user's home folder when the library is installed" ON)
 option(CONFIG_PACKAGE "Set to ON to set up CPACK variables necessary for packaging" OFF)
 option(CONFIG_DEBIAN "Set to ON to copy standard barrett-config.cmake, required for Debian packaging" OFF)
+
+# Eigen 3.2 Warnings (TODO: Upgrade to 3.3)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-in-bool-context -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-misleading-indentation")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-in-bool-context -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-misleading-indentation")
 
 if (OPTIMIZE_FOR_PROCESSOR)
 	# TODO(dc): Does this turn on sse2 if supported by processor? What about -mfpmath=sse?
@@ -82,10 +86,12 @@ if (NON_REALTIME)
 	message(STATUS "NON_REALTIME: Not using Xeonmai")
 else()
 	find_package(Xenomai REQUIRED)
-	include_directories(${XENOMAI_INCLUDE_DIR})
+	include_directories(${XENOMAI_INCLUDE_DIR}/trank)
+	include_directories(${XENOMAI_INCLUDE_DIR}) # Needed twice for include_next
+	include_directories(${XENOMAI_INCLUDE_DIR}/cobalt)
 	add_definitions(${XENOMAI_DEFINITIONS})
-	
-	set(exported_include_dirs ${exported_include_dirs} ${XENOMAI_INCLUDE_DIR})
+
+	set(exported_include_dirs ${exported_include_dirs} ${XENOMAI_INCLUDE_DIR} ${XENOMAI_INCLUDE_DIR}/cobalt)
 	set(exported_definitions ${exported_definitions} ${XENOMAI_DEFINITIONS})
 endif()
 
@@ -104,7 +110,7 @@ set(exported_link_dirs ${exported_link_dirs} ${GSL_LIBRARY_DIRS})
 #for minor in range(45, 60):
 #	print '"1.%d" "1.%d.0"' % (minor, minor),
 set(Boost_ADDITIONAL_VERSIONS "1.45" "1.45.0" "1.46" "1.46.0" "1.47" "1.47.0" "1.48" "1.48.0" "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0" "1.55" "1.55.0" "1.56" "1.56.0" "1.57" "1.57.0" "1.58" "1.58.0" "1.59" "1.59.0")
-set(boost_components system thread)
+set(boost_components system thread program_options)
 if (WITH_PYTHON)
 	set(boost_components ${boost_components} python)
 endif()
@@ -140,6 +146,16 @@ include_directories(${CURSES_INCLUDE_DIR})
 # barrett-config.cmake is generated.
 add_subdirectory(src)
 
+### Auto Format
+# Only files that are substantially different from upstream libbarrett should
+# be formatted.
+include(ClangFormat)
+clang_format_setup(VERSION 3.8)
+
+if (CLANG_FORMAT_EXECUTABLE)
+  clang_format_add_sources(programs/autotension.cpp)
+  clang_format_add_targets()
+endif()
 
 
 ### Installation

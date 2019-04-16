@@ -31,8 +31,8 @@
  * 
  */
 
-#include <native/task.h>
-#include <native/mutex.h>
+#include <alchemy/task.h>
+#include <alchemy/mutex.h>
 
 #include <barrett/detail/ca_macro.h>
 #include <barrett/os.h>

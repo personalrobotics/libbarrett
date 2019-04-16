@@ -34,9 +34,11 @@
 #include <stdexcept>
 #include <cstdio>
 #include <cstring>
+#include <boost/lexical_cast.hpp>
 
 #include <errno.h>
 
+#include <rtdm/rtdm.h>
 #include <rtdm/rtcan.h>
 
 #include <barrett/os.h>
@@ -44,6 +46,7 @@
 #include <barrett/products/puck.h>
 #include <barrett/bus/can_socket.h>
 
+#include <barrett/detail/stacktrace.h>
 
 namespace barrett {
 namespace bus {
@@ -60,13 +63,14 @@ struct can_handle {
 };
 }
 
-
 CANSocket::CANSocket() :
 	mutex(), handle(new detail::can_handle)
 {
+	barrett::logMessage("Constructing a CAN SOCKET...", true);
+	barrett::detail::syslog_stacktrace();
 }
 
-CANSocket::CANSocket(int port) throw(std::runtime_error) :
+CANSocket::CANSocket(int port) :
 	mutex(), handle(new detail::can_handle)
 {
 	open(port);
@@ -80,7 +84,7 @@ CANSocket::~CANSocket()
 }
 
 
-void CANSocket::open(int port) throw(std::logic_error, std::runtime_error)
+void CANSocket::open(int port)
 {
 	if (isOpen()) {
 		(logMessage("CANSocket::%s(): This object is already associated with a CAN port.")
@@ -223,6 +227,11 @@ int CANSocket::send(int busId, const unsigned char* data, size_t len) const
 	frame.can_dlc = len;
 	memcpy(frame.data, data, len);
 
+	if (len > 8) {
+		logMessage("CAN MESSAGE IS TOO BIG!");
+		return 2;
+	}
+
 	int ret = rt_dev_send(handle->h, (void *) &frame, sizeof(can_frame_t), 0);
 	if (ret < 0) {
 		ul.unlock();
@@ -303,6 +312,11 @@ int CANSocket::receiveRaw(int& busId, unsigned char* data, size_t& len, bool blo
 		if (frame.can_id & CAN_ERR_CRTL) {
 			logMessage("CANSocket::%s: controller problem") % __func__;
 		}
+		return 2;
+	}
+
+	if (frame.can_dlc > 8) {
+		logMessage("CAN MESSAGE IS TOO BIG!");
 		return 2;
 	}
 

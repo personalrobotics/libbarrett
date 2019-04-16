@@ -31,7 +31,7 @@
  */
 
 #ifdef BARRETT_XENOMAI
-#include <native/task.h>
+#include <alchemy/task.h>
 #endif
 
 #include <barrett/thread/disable_secondary_mode_warning.h>
