@@ -53,8 +53,8 @@ namespace systems {
 class HapticPath : public HapticObject {
 	BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
 
-	static const double COARSE_STEP = 0.01;
-	static const double FINE_STEP = 0.0001;
+	static constexpr double COARSE_STEP = 0.01;
+	static constexpr double FINE_STEP = 0.0001;
 
 public:		System::Output<cp_type> tangentDirectionOutput;
 protected:	System::Output<cp_type>::Value* tangentDirectionOutputValue;

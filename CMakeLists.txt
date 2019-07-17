@@ -79,7 +79,7 @@ set(exported_link_dirs ${exported_link_dirs} ${CMAKE_INSTALL_PREFIX}/lib)
 
 ## Xenomai
 if (NON_REALTIME)
-	message(STATUS "NON_REALTIME: Not using Xeonmai")
+	message(STATUS "NON_REALTIME: Not using Xenomai")
 else()
 	find_package(Xenomai REQUIRED)
 	include_directories(${XENOMAI_INCLUDE_DIR})

@@ -52,7 +52,7 @@ public:
 	}
 
 protected:
-	static const double T_s = 0.1;
+	static constexpr double T_s = 0.1;
 	systems::ManualExecutionManager mem;
 	ExposedIOSystem<T> eios;
 };

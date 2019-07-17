@@ -76,7 +76,7 @@ public:
 protected:
 	static const int NUM_MISSED_LIMIT = 50;
 	static const cp_type CP_RATE_LIMIT;
-	static const double ANGLE_RATE_LIMIT = 0.001;
+	static constexpr double ANGLE_RATE_LIMIT = 0.001;
 
 	int numMissed;
 	cp_type basePos, comPos, inputPos, inputPos_1;
