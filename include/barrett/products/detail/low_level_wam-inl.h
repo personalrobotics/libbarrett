@@ -69,7 +69,7 @@ LowLevelWam<DOF>::LowLevelWam(const std::vector<Puck*>& _pucks, SafetyModule* _s
 	noJointEncoders(true), positionSensor(PS_MOTOR_ENCODER),
 	lastUpdate(0.0), torquePropId(group.getPropertyId(Puck::T))
 {
-	logMessage("  Config setting: %s => \"%s\"") % setting.getSourceFile() % setting.getPath();
+	logMessage("  Config setting: %s => \"\"") % setting.getSourceFile();
 
 
 	group.setProperty(Puck::MODE, MotorPuck::MODE_IDLE);  // Make sure the Pucks are IDLE

@@ -200,7 +200,7 @@ inline void Matrix<R,C, Units>::copyFrom(const libconfig::Setting& setting)
 			ss << "(math::Matrix<>::copyFrom(libconfig::Setting)): The size of "
 					"the configuration list must match the size of the Matrix. "
 					"Expected size " << this->size() << ", got size " << setting.getLength() <<
-					". Path: \"" << setting.getPath() << "\", Line: " <<
+					"\", Line: " <<
 					setting.getSourceLine();
 			throw std::runtime_error(ss.str());
 		}
@@ -220,7 +220,7 @@ inline void Matrix<R,C, Units>::copyFrom(const libconfig::Setting& setting)
 		ss << "(math::Matrix<>::copyFrom(libconfig::Setting)): Wrong number of "
 				"rows. Expected " << this->rows() << ", got " <<
 				setting.getLength() << ". Path: \"" <<
-				setting.getPath() << "\", Line: " << setting.getSourceLine();
+				"\", Line: " << setting.getSourceLine();
 		throw std::runtime_error(ss.str());
 	}
 	for (int i = 0; i < this->rows(); ++i) {
@@ -229,7 +229,7 @@ inline void Matrix<R,C, Units>::copyFrom(const libconfig::Setting& setting)
 			ss << "(math::Matrix<>::copyFrom(libconfig::Setting)): Wrong number of "
 					"columns. Expected " << this->cols() << ", got " <<
 					setting[i].getLength() << ". Path: \"" <<
-					setting[i].getPath() << "\", Line: " << setting[i].getSourceLine();
+					"\", Line: " << setting[i].getSourceLine();
 			throw std::runtime_error(ss.str());
 		}
 		for (int j = 0; j < this->cols(); ++j) {

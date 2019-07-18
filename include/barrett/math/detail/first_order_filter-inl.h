@@ -63,7 +63,7 @@ void FirstOrderFilter<T, MathTraits>::setFromConfig(const libconfig::Setting& se
 	}
 
 	if (setting.exists("type")) {
-		std::string type = setting["type"];
+		const char* type = setting["type"];
 		switch (type[0]) {
 		case 'l':  // low_pass
 			if (setting.exists("dc_gain")) {
