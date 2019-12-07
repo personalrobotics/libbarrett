@@ -277,7 +277,7 @@ int CANSocket::send(int busId, const unsigned char* data, size_t len) const
 		}
 	}
 
-	logger.log(logData);
+	// logger.log(logData);
 
 	return 0;
 }
@@ -345,7 +345,7 @@ int CANSocket::receiveRaw(int& busId, unsigned char* data, size_t& len, bool blo
 	}
 
 	memcpy(logData.can_data, frame.data, len);
-	logger.log(logData);
+	// logger.log(logData);
 
 	return 0;
 }
