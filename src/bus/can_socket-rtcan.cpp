@@ -277,6 +277,7 @@ int CANSocket::send(int busId, const unsigned char* data, size_t len) const
 		}
 	}
 
+	// TODO: Maybe use boost::lockfree::queue in the logger
 	// logger.log(logData);
 
 	return 0;
