@@ -47,7 +47,6 @@
 #include <barrett/products/puck.h>
 #include <barrett/bus/can_socket.h>
 
-#include <barrett/detail/stacktrace.h>
 
 namespace barrett {
 namespace bus {
@@ -64,16 +63,9 @@ struct can_handle {
 };
 }
 
-double startTime = highResolutionSystemTime();
-// std::stringstream sstm;
-// sstm << "/home/robot/log_" << startTime << ".log";
-std::string filename = "/home/robot/log_" + boost::lexical_cast<std::string>(startTime);;
-
 CANSocket::CANSocket() :
 	mutex(), handle(new detail::can_handle)
 {
-	barrett::logMessage("Constructing a CAN SOCKET, logging to %s", true) % filename;
-	barrett::detail::syslog_stacktrace();
 }
 
 CANSocket::CANSocket(int port) throw(std::runtime_error) :
