@@ -153,6 +153,10 @@ void moveToStr(systems::Wam<DOF>& wam, math::Matrix<R,C, Units>* dest,
   }
 }
 
+// A system class that outputs the joint position as calculated from the joint
+// encoders, even if the robot is using it's motor encoders for position.
+// This shouldn't really inherit from SingleIO because it doesn't use its
+// input, but I couldn't figure out how to get this to work as a pure output.
 template <size_t DOF>
 class JeReader : public systems::SingleIO<double, typename units::JointPositions<DOF>::type> {
   BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
@@ -204,6 +208,9 @@ void je_checkout(systems::Wam<DOF>& wam, ProductManager* pm, math::Matrix<R,C, U
   systems::Ramp time(pm->getExecutionManager(), 1.0);
 
   JeReader<DOF> jer(&wam);
+  // The JeReader doesn't use the timer input for anything, however JeReader
+  // inherets from SingleIO and SingleIO objects don't run unless they
+  // are regularly seeing inputs.
   connect(time.output, jer.input);
 
   systems::TupleGrouper<double, jp_type, jp_type> tg;
