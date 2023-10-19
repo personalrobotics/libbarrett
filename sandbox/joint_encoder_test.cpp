@@ -154,7 +154,7 @@ void moveToStr(systems::Wam<DOF>& wam, math::Matrix<R,C, Units>* dest,
 }
 
 // A system class that outputs the joint position as calculated from the joint
-// encoders, even if the robot is using it's motor encoders for position.
+// encoders, even if the robot is using its motor encoders for position.
 // This shouldn't really inherit from SingleIO because it doesn't use its
 // input, but I couldn't figure out how to get this to work as a pure output.
 template <size_t DOF>
