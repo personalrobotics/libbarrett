@@ -1,1 +1,1 @@
-RUN+="/bin/reset_can.sh"
+ACTION=="add", ATTR{idVendor}=="0c72", RUN+="/bin/reset_can.sh"
