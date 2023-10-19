@@ -446,7 +446,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
         break;
 
       case 'c':
-        je_checkout(wam, &pm, &farSideOfIndexes, line.substr(1));
+        je_checkout(wam, &pm, &farSideOfIndexes, line.substr(2));
         break;
 
       default:
