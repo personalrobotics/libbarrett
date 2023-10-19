@@ -254,9 +254,8 @@ void je_checkout(systems::Wam<DOF>& wam, ProductManager* pm, math::Matrix<R,C, U
 
   // accumulate error
   for (size_t i = 0; i < LOOPS; ++i) {
-    std::cout << "Cycle " << i << " of " << LOOPS << std::endl;
-    //  wam.moveTo(reach);
-    wam.moveHome();
+    std::cout << "Cycle " << i+1 << " of " << LOOPS << std::endl;
+    wam.moveTo(reach);
     wam.moveTo(*farSideOfIndexes);
   }
   std::cout << "Done accumulating..." << std::endl;
