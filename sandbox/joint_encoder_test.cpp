@@ -155,28 +155,28 @@ void moveToStr(systems::Wam<DOF>& wam, math::Matrix<R,C, Units>* dest,
 
 template <size_t DOF>
 class JeReader : public systems::SingleIO<double, typename units::JointPositions<DOF>::type> {
-	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-public:
-	JeReader(systems::Wam<DOF>* wam_, const std::string& sysName = "JeReader") :
-		systems::SingleIO<double, jp_type>(sysName), wam(wam_), jp_from_jenc(0.0) {
-      
+  public:
+  JeReader(systems::Wam<DOF>* wam_, const std::string& sysName = "JeReader") :
+    systems::SingleIO<double, jp_type>(sysName), wam(wam_), jp_from_jenc(0.0) {
+
     }
 
-	virtual ~JeReader() { this->mandatoryCleanUp(); }
+  virtual ~JeReader() { this->mandatoryCleanUp(); }
 
-protected:
+  protected:
 
   systems::Wam<DOF>* wam;
   jp_type jp_from_jenc;
-    
-	virtual void operate() {
-    jp_from_jenc = wam->getLowLevelWam().getJointPositions(LowLevelWam<DOF>::PS_JOINT_ENCODER);
-		this->outputValue->setData(&jp_from_jenc);
-	}
 
-private:
-	DISALLOW_COPY_AND_ASSIGN(JeReader);
+  virtual void operate() {
+    jp_from_jenc = wam->getLowLevelWam().getJointPositions(LowLevelWam<DOF>::PS_JOINT_ENCODER);
+    this->outputValue->setData(&jp_from_jenc);
+  }
+
+  private:
+  DISALLOW_COPY_AND_ASSIGN(JeReader);
 };
 
 template<size_t DOF, int R, int C, typename Units>
@@ -203,7 +203,7 @@ void je_checkout(systems::Wam<DOF>& wam, ProductManager* pm, math::Matrix<R,C, U
 
   systems::Ramp time(pm->getExecutionManager(), 1.0);
 
-	JeReader<DOF> jer(&wam);
+  JeReader<DOF> jer(&wam);
   connect(time.output, jer.input);
 
   systems::TupleGrouper<double, jp_type, jp_type> tg;
@@ -248,7 +248,7 @@ void je_checkout(systems::Wam<DOF>& wam, ProductManager* pm, math::Matrix<R,C, U
   // accumulate error
   for (size_t i = 0; i < LOOPS; ++i) {
     std::cout << "Cycle " << i << " of " << LOOPS << std::endl;
-  //  wam.moveTo(reach);
+    //  wam.moveTo(reach);
     wam.moveHome();
     wam.moveTo(*farSideOfIndexes);
   }
