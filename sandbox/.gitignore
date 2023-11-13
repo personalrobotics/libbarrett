@@ -14,6 +14,7 @@ inverse_dynamics_test_teach_and_play_accel
 joint_encoder_index_adjustments
 joint_encoder_init
 joint_encoder_set_offsets
+joint_encoder_test
 load_ft_cal
 log_temp_data
 low_level_wam

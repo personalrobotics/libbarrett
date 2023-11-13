@@ -45,6 +45,7 @@ add_programs(
 	joint_encoder_index_adjustments
 	joint_encoder_init
 	joint_encoder_set_offsets
+  joint_encoder_test
 	load_ft_cal
 #	log_ft_data
 #	log_hand_jp
