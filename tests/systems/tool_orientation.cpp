@@ -19,6 +19,7 @@
 #include <barrett/systems/tool_orientation_controller.h>
 #include <barrett/cdlbt/dynamics.h>
 #include <barrett/cdlbt/control_cartesian_xyz_q.h>
+#include <barrett/detail/libconfig_utils.h>
 #include "exposed_io_system.h"
 
 
@@ -74,7 +75,7 @@ TEST(ToolOrientationTest, Blah2) {
 
 	struct bt_control_cartesian_xyz_q * con = NULL;
 	bt_control_cartesian_xyz_q_create(&con,
-			config.lookup("wam.control_cartesian_xyz_q").getCSetting(),
+			barrett::detail::getCSetting(config.lookup("wam.control_cartesian_xyz_q")),
 			kin.impl, NULL);
 	ASSERT_TRUE(con != NULL);
 
