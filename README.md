@@ -52,7 +52,7 @@ echo 'pcan' |sudo tee -a /etc/modules-load.d/modules.conf
 sudo reboot
 ```
 
-### Build libbarrett (using clang)
+### Build libbarrett
 ```
 cd ~/libbarrett && cmake .
 make -j$(nproc)
