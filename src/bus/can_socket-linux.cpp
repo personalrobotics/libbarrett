@@ -147,15 +147,15 @@ void CANSocket::open(int port) {
   // RTCAN_RTIOC_RCV_TIMEOUT, &timeout); 	if (ret != 0) {
   // close();
   //		(logMessage("CANSocket::%s(): Could not open CAN port.
-  // ioctl(RCV_TIMEOUT): (%d) %s") 				% __func__ % -ret
-  // % strerror(-ret)).raise<std::runtime_error>();
+  // ioctl(RCV_TIMEOUT): (%d) %s") 				% __func__ %
+  // -ret % strerror(-ret)).raise<std::runtime_error>();
   //	}
   //	ret = ioctl(handle->h, RTCAN_RTIOC_SND_TIMEOUT, &timeout);
   //	if (ret != 0) {
   //		close();
   //		(logMessage("CANSocket::%s(): Could not open CAN port.
-  // ioctl(SND_TIMEOUT): (%d) %s") 				% __func__ % -ret
-  // % strerror(-ret)).raise<std::runtime_error>();
+  // ioctl(SND_TIMEOUT): (%d) %s") 				% __func__ %
+  // -ret % strerror(-ret)).raise<std::runtime_error>();
   //	}
 }
 

@@ -280,7 +280,7 @@ int CANSocket::receiveRaw(int &busId, unsigned char *data, size_t &len,
     case -EAGAIN: // -EWOULDBLOCK
       // logMessage("CANSocket::%s: "
       //		"rt_dev_recv(): no data available during non-blocking
-      //read") 		% __func__;
+      // read") 		% __func__;
       return 1;
       break;
     case -ETIMEDOUT:

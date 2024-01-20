@@ -78,7 +78,7 @@ void pythonProductsProductManagerInterface() {
            return_internal_reference<>())
 
       //		.def("getWamPucks", &ProductManager::getWamPucks)  //
-      //TODO(dc):
+      // TODO(dc):
       // Need return_internal_reference<>()?
       .def("foundWam", &ProductManager::foundWam)
       .def("foundWam4", &ProductManager::foundWam4)
