@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 
 project(libbarrett)
 set(libbarrett_VERSION_MAJOR 3)
@@ -144,10 +144,22 @@ add_subdirectory(src)
 # Only files that are substantially different from upstream libbarrett should
 # be formatted.
 include(ClangFormat)
-clang_format_setup(VERSION 3.8)
+clang_format_setup(VERSION 14)
 
 if (CLANG_FORMAT_EXECUTABLE)
-  clang_format_add_sources(programs/autotension.cpp)
+	file(GLOB_RECURSE ALL_SOURCE_FILES
+	    LIST_DIRECTORIES false
+	    include/*.h
+	    include/*.hpp
+	    src/*.c
+	    src/*.cpp
+	    tests/*.cpp
+	    tests/*.hpp
+	    tests/*.h
+	    programs/*.cpp
+	    examples/*.h
+	    examples/*.cpp)
+  clang_format_add_sources(${ALL_SOURCE_FILES})
   clang_format_add_targets()
 endif()
 
