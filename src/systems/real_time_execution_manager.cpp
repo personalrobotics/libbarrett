@@ -204,7 +204,7 @@ void RealTimeExecutionManager::init()
 	delete mutex;
 	mutex = new thread::RealTimeMutex;  // ~ExecutionManager() will delete this
 
-	errorCallback = boost::bind(std::terminate);
+	//errorCallback = boost::bind(std::terminate);
 }
 
 

@@ -178,6 +178,9 @@ int CANSocket::send(int busId, const unsigned char* data, size_t len) const
 	frame.can_dlc = len;
 	memcpy(frame.data, data, len);
 
+	// (BZ) For C++ non-experts (like me), the '::' here says to look outside of
+	// the present namespace for a send() function. We are not calling ourselves
+	// recursively, we are forcing the linker to find & use socket.h's function.
 	int ret = ::send(handle->h, (void *) &frame, sizeof(struct can_frame), 0);
 	if (ret < 0) {
 		ret = -errno;  // Specific error info is in errno. Save a copy.

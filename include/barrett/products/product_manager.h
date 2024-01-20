@@ -124,6 +124,8 @@ protected:
 	bool verifyWamPucks(const size_t dof) const;
 
 	libconfig::Config config;
+	char* configDir;
+	char* configBase;
 	bus::CommunicationsBus* bus;
 	bool deleteBus;
 	std::vector<Puck*> pucks;

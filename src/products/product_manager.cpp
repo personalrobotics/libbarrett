@@ -102,9 +102,11 @@ ProductManager::ProductManager(const char* configFile, bus::CommunicationsBus* _
 		throw std::runtime_error("Out of memory.");
 	}
 
-	// these functions require copies of the string because they sometimes modify their argument
-	char* configDir = dirname(cf1);
-	char* configBase = basename(cf2);
+	// These functions require copies of the string because they sometimes modify their argument.
+	// Also, dirname() and basename() may EITHER perform a malloc() OR just return a pointer to a substring.
+	// Since we free() cf1 and cf2 later, we force a malloc() with strdup().
+	configDir = strdup(dirname(cf1));
+	configBase = strdup(basename(cf2));
 
 	// make @include paths in configFile relative to the containing directory
 	ret = chdir(configDir);
@@ -126,7 +128,10 @@ ProductManager::ProductManager(const char* configFile, bus::CommunicationsBus* _
 			bus->open(config.lookup("bus.port"));
 		}
 	} catch (libconfig::ParseException pe) {
-		printf("(%s:%d) %s\n", configFile, pe.getLine(), pe.getError());
+		printf("\n>>> CONFIG FILE ERROR on line %d of %s: \"%s\"\n\n", pe.getLine(), configFile, pe.getError());
+		printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+		printf("This error usually means that a configuration file is corrupted or missing.\n");
+		printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
 
 		ret = chdir(origWd);  // Ignore ret value
 		free(cf1);
@@ -357,7 +362,7 @@ const char* ProductManager::getWamDefaultConfigPath()
 {
 	// TODO(JH): Rehab Update implement and test
 	if (foundWam3()){
-	  return "wam3";
+		return "wam3";
 	} else if (foundWam4()) {
 		return "wam4";
 	} else if (foundWam7Wrist()) {
@@ -382,7 +387,27 @@ systems::Wam<3>* ProductManager::getWam3(bool waitForShiftActivate, const char* 
 		if (configPath == NULL) {
 			configPath = getWamDefaultConfigPath();
 		}
-		wam3 = new systems::Wam<3>(getExecutionManager(), wam3Pucks, getSafetyModule(), getConfig().lookup(configPath));
+		try {
+			wam3 = new systems::Wam<3>(getExecutionManager(), wam3Pucks, getSafetyModule(), getConfig().lookup(configPath));
+		} catch (libconfig::FileIOException e) {
+			printf("\n>>> CONFIG FILE ERROR in %s: I/O while reading file\n\n", configPath);
+			printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+			printf("This error usually means that a configuration file is corrupted.\n");
+			printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
+			throw e;
+		} catch (libconfig::SettingNotFoundException e) {
+			printf("\n>>> CONFIG FILE ERROR in %s: could not find \"%s\"\n\n", configPath, e.getPath());
+			printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+			printf("This error usually means that a configuration file is corrupted, and a specific setting is missing.\n");
+			printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
+			throw e;
+		} catch (libconfig::SettingTypeException e) {
+			printf("\n>>> CONFIG FILE ERROR in %s: \"%s\" is the wrong type\n\n", configPath, e.getPath());
+			printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+			printf("This error usually means that a configuration file is corrupted, and a setting is improperly formatted.\n");
+			printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
+			throw e;
+		}
 		startExecutionManager();
 	}
 
@@ -411,7 +436,27 @@ systems::Wam<4>* ProductManager::getWam4(bool waitForShiftActivate, const char* 
 		if (configPath == NULL) {
 			configPath = getWamDefaultConfigPath();
 		}
-		wam4 = new systems::Wam<4>(getExecutionManager(), wam4Pucks, getSafetyModule(), getConfig().lookup(configPath));
+		try {
+			wam4 = new systems::Wam<4>(getExecutionManager(), wam4Pucks, getSafetyModule(), getConfig().lookup(configPath));
+		} catch (libconfig::FileIOException e) {
+			printf("\n>>> CONFIG FILE ERROR in %s: I/O while reading file\n\n", configPath);
+			printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+			printf("This error usually means that a configuration file is corrupted.\n");
+			printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
+			throw e;
+		} catch (libconfig::SettingNotFoundException e) {
+			printf("\n>>> CONFIG FILE ERROR in %s: could not find \"%s\"\n\n", configPath, e.getPath());
+			printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+			printf("This error usually means that a configuration file is corrupted, and a specific setting is missing.\n");
+			printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
+			throw e;
+		} catch (libconfig::SettingTypeException e) {
+			printf("\n>>> CONFIG FILE ERROR in %s: \"%s\" is the wrong type\n\n", configPath, e.getPath());
+			printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+			printf("This error usually means that a configuration file is corrupted, and a setting is improperly formatted.\n");
+			printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
+			throw e;
+		}
 		startExecutionManager();
 	}
 
@@ -441,7 +486,27 @@ systems::Wam<7>* ProductManager::getWam7(bool waitForShiftActivate, const char* 
 		if (configPath == NULL) {
 			configPath = getWamDefaultConfigPath();
 		}
-		wam7 = new systems::Wam<7>(getExecutionManager(), wam7Pucks, getSafetyModule(), getConfig().lookup(configPath));
+		try {
+			wam7 = new systems::Wam<7>(getExecutionManager(), wam7Pucks, getSafetyModule(), getConfig().lookup(configPath));
+		} catch (libconfig::FileIOException e) {
+			printf("\n>>> CONFIG FILE ERROR in %s: I/O while reading file\n\n", configPath);
+			printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+			printf("This error usually means that a configuration file is corrupted.\n");
+			printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
+			throw e;
+		} catch (libconfig::SettingNotFoundException e) {
+			printf("\n>>> CONFIG FILE ERROR in %s: could not find \"%s\"\n\n", configPath, e.getPath());
+			printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+			printf("This error usually means that a configuration file is corrupted, and a specific setting is missing.\n");
+			printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
+			throw e;
+		} catch (libconfig::SettingTypeException e) {
+			printf("\n>>> CONFIG FILE ERROR in %s: \"%s\" is the wrong type\n\n", configPath, e.getPath());
+			printf("Check your configuration file directory to ensure that the proper configuration files are installed.\n");
+			printf("This error usually means that a configuration file is corrupted, and a setting is improperly formatted.\n");
+			printf("Note that if a ~/.barrett/ directory exists, this location will override the standard /etc/barrett/.\n\n");
+			throw e;
+		}
 		startExecutionManager();
 	}
 

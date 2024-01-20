@@ -99,6 +99,7 @@ template<typename T, typename Traits>
 inline void Reader<T, Traits>::exportCSV(const char* outputFileName)
 {
 	std::ofstream ofs(outputFileName);
+	ofs.precision(10);
 	exportCSV(ofs);
 	ofs.close();
 }

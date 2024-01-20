@@ -27,13 +27,13 @@ function(add_programs)
 endfunction()
 
 add_programs(
-	autohome
+#	autohome
 	can_terminal
 #	can_timing
 	constrain_to_path
 	cv_moves
 	ft_persistent_tare
-	full_system_test
+#	full_system_test
 	gimbals_hand_controller
 	hand
 #	hand_buttons_test
@@ -45,12 +45,13 @@ add_programs(
 	joint_encoder_index_adjustments
 	joint_encoder_init
 	joint_encoder_set_offsets
+  joint_encoder_test
 	load_ft_cal
 #	log_ft_data
 #	log_hand_jp
 #	log_hand_tact
 #	log_sg_data
-	log_temp_data
+#	log_temp_data
 #	log_velocity
 	low_level_wam
 #	mouse_follow
@@ -75,5 +76,5 @@ add_programs(
 )
 
 #target_link_libraries(hand_buttons_test parapin)
-target_link_libraries(full_system_test ${CURSES_LIBRARIES})
+#target_link_libraries(full_system_test ${CURSES_LIBRARIES})
 target_link_libraries(tactile_test ${CURSES_LIBRARIES})

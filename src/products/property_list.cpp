@@ -233,7 +233,7 @@ enum Puck::Property Puck::getPropertyEnumNoThrow(const char* str) {
 enum Puck::Property Puck::getPropertyEnum(const char* str)
 {
 	enum Property prop = getPropertyEnumNoThrow(str);
-	if (prop == -1) {
+	if (prop == (enum Property) -1) {
 		(logMessage("Puck::%s(): There is no property corresponding to \"%s\"")
 			% __func__ % str).raise<std::invalid_argument>();
 	}

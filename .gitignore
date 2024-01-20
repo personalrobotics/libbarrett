@@ -1,5 +1,24 @@
-# Prerequisites
-*.d
+# git mergetools
+*.orig
+*.egg*
+*.log
+
+*.pyc
+dist
+venv
+*.egg-info
+
+*.bak
+
+# Eclipse/Project Specific
+RemoteSystemsTempFiles/
+build/
+Release/
+.vscode
+Debug*/
+
+# Compiled doxygen
+docs/html
 
 # Compiled Object files
 *.slo
@@ -13,6 +32,7 @@
 
 # Compiled Dynamic libraries
 *.so
+*.so.*
 *.dylib
 *.dll
 
@@ -31,21 +51,32 @@
 *.out
 *.app
 
-# CMake
-CMakeLists.txt.user
-CMakeCache.txt
-CMakeFiles
-CMakeScripts
-Testing
-Makefile
-cmake_install.cmake
-install_manifest.txt
-compile_commands.json
-CTestTestfile.cmake
-_deps
-barrett-config.cmake
+# Doxygen generated files/directories
+html/
+latex/
+Debug/
+*.o
+*.elf
+*.hex
+*.map
+*~
+*.gcda
+*.gcno
+**/tests/test
+*.mk
 
-# Build Artifacts
-build/
+# CMake generated files
+*CMakeFiles/
+*Makefile
+*.cmake
+*CMakeCache.txt
+*install_manifest.txt
+
+# Ignore vim swap files
+.*.swp
+.*.swo
+.*.swn
+
+# Libbarrett generated files
 Doxyfile
-cmake/barrett-config.cmake
+include/barrett/config.h

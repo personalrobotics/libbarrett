@@ -45,6 +45,9 @@ int CommunicationsBus::receive(int expectedBusId, unsigned char* data, size_t& l
 	int actualBusId;
 	int ret = receiveRaw(actualBusId, data, len, blocking);
 
+	// Test to see if libbarrett ever uses this function - nope.
+	//logMessage("CommunicationsBus::receive()");
+
 	if (ret != 0) {
 		return ret;
 	}

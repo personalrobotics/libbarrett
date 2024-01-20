@@ -61,6 +61,8 @@ void ForceTorqueSensor::update(bool realtime)
 {
 	int ret;
 
+	BARRETT_SCOPED_LOCK(bus->getMutex());
+
 	ret = Puck::sendGetPropertyRequest(*bus, id, propId);
 	if (ret != 0) {
 		(logMessage("ForceTorqueSensor::%s(): Failed to send request. "
@@ -84,6 +86,7 @@ void ForceTorqueSensor::update(bool realtime)
 				"Puck::receiveGetPropertyReply() returned error %d while receiving FT Torque reply from ID=%d.")
 				% __func__ % ret % id).raise<std::runtime_error>();
 	}
+	boost::this_thread::yield();
 }
 /** updateAccel Method clears stored acceleration values in each axis */
 void ForceTorqueSensor::updateAccel(bool realtime)
@@ -93,6 +96,7 @@ void ForceTorqueSensor::updateAccel(bool realtime)
 	// TODO(dc): Fix this once FT sensors have working ROLE/VERS properties.
 	int accelPropId = Puck::getPropertyId(Puck::A, Puck::PT_ForceTorque, 0);
 
+	BARRETT_SCOPED_LOCK(bus->getMutex());
 	ret = Puck::sendGetPropertyRequest(*bus, id, accelPropId);
 	if (ret != 0) {
 		(logMessage("ForceTorqueSensor::%s(): Failed to send request. "
@@ -106,6 +110,7 @@ void ForceTorqueSensor::updateAccel(bool realtime)
 				"Puck::receiveGetPropertyReply() returned error %d while receiving FT Accel reply from ID=%d.")
 				% __func__ % ret % id).raise<std::runtime_error>();
 	}
+	boost::this_thread::yield();
 }
 /** parse Method splits data into readable format */
 int ForceTorqueSensor::parse(int id, int propId, base_type* result, const unsigned char* data, size_t len, double scaleFactor)

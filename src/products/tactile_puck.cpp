@@ -85,7 +85,7 @@ void TactilePuck::requestFull()
 void TactilePuck::receiveFull(bool realtime)
 {
 	for (size_t i = 0 ; i < NUM_FULL_MESSAGES; ++i) {
-		int ret = Puck::receiveGetPropertyReply<FullTactParser>(*bus, id, propId, &full, true, realtime);
+		int ret = Puck::receiveGetPropertyReply<FullTactParser>(*bus, id, propId, &tactile, true, realtime);
 		if (ret != 0) {
 			const size_t NFM = NUM_FULL_MESSAGES;  // Reserve storage for static const.
 			(logMessage("TactilePuck::%s(): Failed to receive reply. "
@@ -95,29 +95,29 @@ void TactilePuck::receiveFull(bool realtime)
 	}
 }
 
-//void TactilePuck::updateTop10(bool realtime)
-//{
-//	int ret;
-//
-//	if (tact == TOP10_FORMAT) {
-//		ret = Puck::sendGetPropertyRequest(*bus, id, propId);
-//		if (ret != 0) {
-//			(logMessage("TactilePuck::%s(): Failed to send request. "
-//					"Puck::sendGetPropertyRequest() returned error %d.")
-//					% __func__ % ret).raise<std::runtime_error>();
-//		}
-//	} else {
-//		tact = TOP10_FORMAT;
-//		p->setProperty(Puck::TACT, tact);
-//	}
-//
-//	ret = Puck::receiveGetPropertyReply<Top10TactParser>(*bus, id, propId, &top10, true, realtime);
-//	if (ret != 0) {
-//		(logMessage("TactilePuck::%s(): Failed to receive reply. "
-//				"Puck::receiveGetPropertyReply() returned error %d while receiving TOP10 TACT reply from ID=%d.")
-//				% __func__ % ret % id).raise<std::runtime_error>();
-//	}
-//}
+void TactilePuck::requestTop10()
+{
+	if (tact == TOP10_FORMAT) {
+		int ret = Puck::sendGetPropertyRequest(*bus, id, propId);
+		if (ret != 0) {
+			(logMessage("TactilePuck::%s(): Failed to send request. "
+					"Puck::sendGetPropertyRequest() returned error %d.")
+					% __func__ % ret).raise<std::runtime_error>();
+		}
+	} else {
+		tact = TOP10_FORMAT;
+		p->setProperty(Puck::TACT, tact);
+	}
+}
+void TactilePuck::receiveTop10(bool realtime)
+{
+	int ret = Puck::receiveGetPropertyReply<Top10TactParser>(*bus, id, propId, &tactile, true, realtime);
+	if (ret != 0) {
+		(logMessage("TactilePuck::%s(): Failed to receive reply. "
+				"Puck::receiveGetPropertyReply() returned error %d while receiving TOP10 TACT reply from ID=%d.")
+				% __func__ % ret % id).raise<std::runtime_error>();
+	}
+}
 
 
 int TactilePuck::FullTactParser::parse(int id, int propId, result_type* result, const unsigned char* data, size_t len)
@@ -141,6 +141,44 @@ int TactilePuck::FullTactParser::parse(int id, int propId, result_type* result, 
     if (i < NUM_SENSORS) {
     	(*result)[i] = ( (((int)data[6]&0x000F)<<8) | ((int)data[7]&0x00FF) ) / FULL_SCALE_FACTOR;
     }
+
+    return 0;
+}
+
+int TactilePuck::Top10TactParser::parse(int id, int propId, result_type* result, const unsigned char* data, size_t len)
+{
+	if (len != 8) {
+		logMessage("%s: expected message length of 8, got message length of %d") % __func__ % len;
+		return 1;
+	}
+
+	// Top10 Example: 
+	// 24.....17  16......9   8......1   AAAABBBB   CCCCDDDD   EEEEFFFF   GGGGHHHH   JJJJKKKK 
+	// [10011000] [00111010] [10000011] [01100100] [01011110] [01110111] [10110110] [10010011] 
+	// Sensors 1, 2, 8, 10, 12, 13, 14, 20, 21, and 24 are reporting the highest pressures. 
+	// The pressures are, respectively: 6, 4, 5, 14, 7, 7, 11, 6, 9, 3 (N/cm2)
+	
+	// I don't know how "data" is aligned, so align the data properly here...
+	uint64_t dat = 0; // No initialization required, but compiler complains otherwise
+	for(size_t i = 0; i < sizeof(uint64_t); i++){
+		dat <<= 8;
+		dat |= data[i];
+	}
+	
+	uint32_t map = dat >> 40; // Pick off the top 3 bytes
+	uint8_t *byte = (uint8_t*)&dat + 4; // Pointer to the AAAABBBB byte of dat
+	
+	// Now rotate through the map and shift out each non-zero value from the packed data
+	// Note: result is a math::Vector[24]
+	for(size_t i = 0; i < NUM_SENSORS; i++){
+		if(map & 1){
+			(*result)[i] = (*byte & 0xF0) >> 4; // 4-bit N/cm2 (0-15)
+			dat <<= 4;
+		}else{
+			(*result)[i] = 0; // No data returned for this cell, set to zero
+		}
+		map >>= 1;
+	}
 
     return 0;
 }

@@ -110,9 +110,11 @@ void Hand::initialize() const
 	for (size_t i = 0; i < DOF-1; ++i) {
 		pucks[i]->setProperty(Puck::CMD, CMD_HI);
 	}
+	btsleep(1.0); // Pucks take at least 0.5 seconds to respond to CAN messages again after cmdHI
 	waitUntilDoneMoving();
 
 	pucks[SPREAD_INDEX]->setProperty(Puck::CMD, CMD_HI);
+	btsleep(1.0);
 	waitUntilDoneMoving();
 }
 /** doneMoving Method */
@@ -194,33 +196,25 @@ void Hand::setTorqueCommand(const jt_type& jt, unsigned int whichDigits) const
 void Hand::update(unsigned int sensors, bool realtime)
 {
 	// Do we need to lock?
-	boost::unique_lock<thread::Mutex> ul(bus.getMutex(), boost::defer_lock);
-	if (realtime) {
-		ul.lock();
-	}
-
+	//boost::unique_lock<thread::Mutex> ul(bus.getMutex(), boost::defer_lock);
+	//if (realtime) {
+	//	ul.lock();
+	//}
 
 	// Send requests
 	if (sensors & S_POSITION) {
-		group.sendGetPropertyRequest(group.getPropertyId(Puck::P));
-	}
-	if (hasFingertipTorqueSensors()  &&  sensors & S_FINGERTIP_TORQUE) {
-		group.sendGetPropertyRequest(group.getPropertyId(Puck::SG));
-	}
-	if (hasTactSensors()  &&  sensors & S_TACT_FULL) {
-		group.setProperty(Puck::TACT, TactilePuck::FULL_FORMAT);
-	}
+		{
+			BARRETT_SCOPED_LOCK(bus.getMutex());
+			group.sendGetPropertyRequest(group.getPropertyId(Puck::P));
 
-
-	// Receive replies
-	if (sensors & S_POSITION) {
-		group.receiveGetPropertyReply<MotorPuck::CombinedPositionParser<int> >(group.getPropertyId(Puck::P), encoderTmp.data(), realtime);
+			group.receiveGetPropertyReply<MotorPuck::CombinedPositionParser<int> >(group.getPropertyId(Puck::P), encoderTmp.data(), realtime);
+		}
+		boost::this_thread::yield();
 
 		for (size_t i = 0; i < DOF; ++i) {
 			primaryEncoder[i] = encoderTmp[i].get<0>();
 			secondaryEncoder[i] = encoderTmp[i].get<1>();
 		}
-
 		// For the fingers
 		for (size_t i = 0; i < DOF-1; ++i) {
 			// If we got a reading from the secondary encoder and it's enabled...
@@ -237,13 +231,39 @@ void Hand::update(unsigned int sensors, bool realtime)
 		// For the spread
 		innerJp[SPREAD_INDEX] = outerJp[SPREAD_INDEX] = motorPucks[SPREAD_INDEX].counts2rad(primaryEncoder[SPREAD_INDEX]) / SPREAD_RATIO;
 	}
+	
 	if (hasFingertipTorqueSensors()  &&  sensors & S_FINGERTIP_TORQUE) {
-		group.receiveGetPropertyReply<Puck::StandardParser>(group.getPropertyId(Puck::SG), ftt.data(), realtime);
-	}
-	if (hasTactSensors()  &&  sensors & S_TACT_FULL) {
-		for (size_t i = 0; i < tactilePucks.size(); ++i) {
-			tactilePucks[i]->receiveFull(realtime);
+		{
+			BARRETT_SCOPED_LOCK(bus.getMutex());
+			group.sendGetPropertyRequest(group.getPropertyId(Puck::SG));
+
+			group.receiveGetPropertyReply<Puck::StandardParser>(group.getPropertyId(Puck::SG), ftt.data(), realtime);
 		}
+		boost::this_thread::yield();
+	}
+	
+	
+	if (hasTactSensors()) {
+		if(sensors & S_TACT_FULL){
+			BARRETT_SCOPED_LOCK(bus.getMutex());
+			// This should be TactilePuck::requestFull()
+			group.setProperty(Puck::TACT, TactilePuck::FULL_FORMAT);
+
+			for (size_t i = 0; i < tactilePucks.size(); ++i) {
+				tactilePucks[i]->receiveFull(realtime);
+			}
+		}
+
+		if (sensors & S_TACT_TOP10) {
+			BARRETT_SCOPED_LOCK(bus.getMutex());
+			// This should be TactilePuck::requestTop10()
+			group.setProperty(Puck::TACT, TactilePuck::TOP10_FORMAT);
+
+			for (size_t i = 0; i < tactilePucks.size(); ++i) {
+				tactilePucks[i]->receiveTop10(realtime);
+			}
+		}
+		boost::this_thread::yield();
 	}
 }
 

@@ -216,18 +216,9 @@ template<typename TraitsDerived> struct Traits<Eigen::MatrixBase<TraitsDerived> 
 	}
 
 	template<typename LDerived, typename RDerived> static
-	const Eigen::CwiseBinaryOp<
-		Eigen::internal::scalar_product_op<
-			typename Eigen::internal::scalar_product_traits<
-				typename Eigen::internal::traits<LDerived>::Scalar,
-				typename Eigen::internal::traits<RDerived>::Scalar
-				>::ReturnType
-		>,
-		const LDerived,
-		const RDerived
-	>
+	const typename MatrixBaseType::PlainObject
 	mult(const Eigen::MatrixBase<LDerived>& l, const Eigen::MatrixBase<RDerived>& r) {
-    return l.cwiseProduct(r);
+    	return l.cwiseProduct(r);
 	}
 
 	template<typename LDerived, typename RDerived> static
@@ -237,44 +228,31 @@ template<typename TraitsDerived> struct Traits<Eigen::MatrixBase<TraitsDerived> 
 		const RDerived
 	>
 	div(const Eigen::MatrixBase<LDerived>& l, const Eigen::MatrixBase<RDerived>& r) {
-    return l.cwiseQuotient(r);
+    	return l.cwiseQuotient(r);
 	}
 
 
 	// matrix-scalar
 	template<typename Derived> static
-	const Eigen::CwiseUnaryOp<
-		Eigen::internal::scalar_add_op<typename Eigen::internal::traits<Derived>::Scalar>,
-		const Derived
-	>
+	const typename MatrixBaseType::PlainObject
 	add(const Eigen::MatrixBase<Derived>& l, double r) {
-		return l + r;
+		return l.array() + r;
 	}
 
 	template<typename Derived> static
-	const Eigen::CwiseUnaryOp<
-		Eigen::internal::scalar_add_op<typename Eigen::internal::traits<Derived>::Scalar>,
-		const Derived
-	>
-	add(const double l, const Eigen::MatrixBase<Derived>& r) {
-    return Eigen::CwiseUnaryOp<Eigen::internal::scalar_add_op<typename Eigen::internal::traits<Derived>::Scalar>, const Derived>(r.derived(), Eigen::internal::scalar_add_op<typename Eigen::internal::traits<Derived>::Scalar>(l));
-    //return l + r;
+	const typename MatrixBaseType::PlainObject
+	add(double l, const Eigen::MatrixBase<Derived>& r) {
+    	return l + r.array();
 	}
 
 	template<typename Derived> static
-	const Eigen::CwiseUnaryOp<
-		Eigen::internal::scalar_add_op<typename Eigen::internal::traits<Derived>::Scalar>,
-		const Derived
-	>
+	const typename MatrixBaseType::PlainObject
 	sub(const Eigen::MatrixBase<Derived>& l, double r) {
-		return l - r;
+		return l.array() - r;
 	}
 
 	template<typename Derived> static
-	const Eigen::CwiseUnaryOp<
-		Eigen::internal::scalar_opposite_op<typename Eigen::internal::traits<Derived>::Scalar>,
-		const Derived
-	>
+	const typename MatrixBaseType::PlainObject
 	neg(const Eigen::MatrixBase<Derived>& t) {
 		return -t;
 	}
@@ -293,34 +271,25 @@ template<typename TraitsDerived> struct Traits<Eigen::MatrixBase<TraitsDerived> 
 //	>
 	const typename MatrixBaseType::PlainObject
 	sub(double l, const Eigen::MatrixBase<Derived>& r) {
-		return l - r;
+		return l - r.array();
 	}
 
 	template<typename Derived> static
-	const Eigen::CwiseUnaryOp<
-		Eigen::internal::scalar_multiple_op<typename Eigen::internal::traits<Derived>::Scalar>,
-		const Derived
-	>
+	const typename MatrixBaseType::PlainObject
 	mult(const Eigen::MatrixBase<Derived>& l, double r) {
-		return l * r;
+		return l.array() * r;
 	}
 
 	template<typename Derived> static
-	const Eigen::CwiseUnaryOp<
-		Eigen::internal::scalar_multiple_op<typename Eigen::internal::traits<Derived>::Scalar>,
-		const Derived
-	>
+	const typename MatrixBaseType::PlainObject
 	mult(double l, const Eigen::MatrixBase<Derived>& r) {
-		return l * r;
+		return l * r.array();
 	}
 
 	template<typename Derived> static
-	const Eigen::CwiseUnaryOp<
-		Eigen::internal::scalar_quotient1_op<typename Eigen::internal::traits<Derived>::Scalar>,
-		const Derived
-	>
+	const typename MatrixBaseType::PlainObject
 	div(const Eigen::MatrixBase<Derived>& l, double r) {
-		return l / r;
+		return l.array() / r;
 	}
 
 	template<typename Derived> static

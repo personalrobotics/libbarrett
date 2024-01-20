@@ -44,7 +44,7 @@ namespace bus {
 
 class CommunicationsBus {
 public:
-	static constexpr size_t MAX_MESSAGE_LEN = 8;  /** The maximum of any of the available communications buses */
+	static const size_t MAX_MESSAGE_LEN = 8;  /** The maximum of any of the available communications buses */
 	static constexpr double TIMEOUT = 1.0;  /** Bus connection timeout limit in seconds */
 
 	virtual ~CommunicationsBus() {} /** Destructor */

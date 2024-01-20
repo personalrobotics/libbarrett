@@ -47,6 +47,12 @@ void btsleep(double duration_s, bool realtime);
  */
 double highResolutionSystemTime();
 
+struct periodic_info
+{
+	int timer_fd;
+	unsigned long long wakeups_missed;
+};
+
 class PeriodicLoopTimer {
 public:
 	explicit PeriodicLoopTimer(double period_, int threadPriority = 10);
@@ -57,6 +63,7 @@ protected:
 	bool firstRun;
 	double period;
 	double releasePoint;
+	periodic_info info;
 };
 
 

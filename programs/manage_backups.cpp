@@ -39,7 +39,7 @@
 bool fileExists(const char* file)
 {
 	std::ifstream fs(file);
-	return fs.good();
+	return (bool)fs;
 }
 
 void backupFileName(char* str, const char* baseFileName, int backupNumer)

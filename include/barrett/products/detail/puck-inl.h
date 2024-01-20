@@ -86,10 +86,11 @@ int Puck::tryGetProperty(const bus::CommunicationsBus& bus, int id, int propId, 
 template<typename Parser>
 int Puck::getPropertyHelper(const bus::CommunicationsBus& bus, int id, int propId, typename Parser::result_type* result, bool blocking, bool realtime, double timeout_s)
 {
-	boost::unique_lock<thread::Mutex> ul(bus.getMutex(), boost::defer_lock);
-	if (realtime) {
-		ul.lock();
-	}
+	//boost::unique_lock<thread::Mutex> ul(bus.getMutex(), boost::defer_lock);
+	//if (realtime) {
+	//	ul.lock();
+	//}
+	BARRETT_SCOPED_LOCK(bus.getMutex());
 
 	int ret = sendGetPropertyRequest(bus, id, propId);
 	if (ret != 0) {

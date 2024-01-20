@@ -431,12 +431,13 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 	motorSlackPulled = 1.0;
 	slackDifference = 1.0;
 
-	// Check to see if we have met the slack thresholds
-	while (
-	    (motorSlackPulled > slackThreshold[motor] && slackDifference > 1e-3) ||
-	    !diff_tens) {
-		// Move to the initial safe position
-		wam.moveTo(jpInitial[motor], 1.2, 0.75);
+	while (motorSlackPulled > slackThreshold[motor] || !diff_tens) // Check to see if we have met the slack thresholds
+	{
+		motorSlackPulled = 1.0; // Large initial slack value for comparison against threshold
+		j1SlackPulled = 1.0;
+		if (std::find(joint_list.begin(), joint_list.end(), 1) != joint_list.end())
+			j1tens = true;
+		wam.moveTo(jpInitial[motor], true, 1.2, 0.75);
 		printf("\n**************************\n");
 
 		switch (joint) {
@@ -448,7 +449,7 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 
 			printf("Tensioning Joints 2 and 3");
 			// Pull tension from J2
-			wam.moveTo(jpStart[1], 1.2, 0.75);
+			wam.moveTo(jpStart[1], true, 1.2, 0.75);
 			puck[1]->setProperty(Puck::TENSION, true);
 			btsleep(2.0);
 
@@ -475,7 +476,7 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 
 			printf("Tensioning Joints 5 and 6");
 			// Pull tension from J5
-			wam.moveTo(jpStart[4], 1.2, 0.75);
+			wam.moveTo(jpStart[4], true, 1.2, 0.75);
 			puck[4]->setProperty(Puck::TENSION, true);
 
 			if (j6TangPos == 0.0) {
@@ -529,7 +530,7 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 			break;
 		}
 
-		wam.moveTo(jpStart[motor], 1.2, 0.75);
+		wam.moveTo(jpStart[motor], true, 1.2, 0.75);
 
 		// Engage tang for specified motor
 		if (joint != 6)
@@ -615,20 +616,20 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 		while (rep_cnt < reps) {
 			printf("%dx.. ", reps - rep_cnt);
 			fflush(stdout);
-			wam.moveTo(jpSlack2[motor], 1.2, 0.75);
-			wam.moveTo(jpSlack1[motor], 1.2, 0.75);
+			wam.moveTo(jpSlack2[motor], true, 1.2, 0.75);
+			wam.moveTo(jpSlack1[motor], true, 1.2, 0.75);
 			if (joint == 3) {
-				wam.moveTo(jpSlack1[1], 1.2, 0.75);
-				wam.moveTo(jpSlack2[1], 1.2, 0.75);
+				wam.moveTo(jpSlack1[1], true, 1.2, 0.75);
+				wam.moveTo(jpSlack2[1], true, 1.2, 0.75);
 			}
 			if (joint == 6) {
-				wam.moveTo(jpSlack1[4], 1.2, 0.75);
-				wam.moveTo(jpSlack2[4], 1.2, 0.75);
+				wam.moveTo(jpSlack1[4], true, 1.2, 0.75);
+				wam.moveTo(jpSlack2[4], true, 1.2, 0.75);
 			}
 			rep_cnt++;
 		}
 		printf("\n");
-		wam.moveTo(jpInitial[motor], 1.2, 0.75);
+		wam.moveTo(jpInitial[motor], true, 1.2, 0.75);
 		wam.moveHome();
 	}
 	switch (joint) {
@@ -816,12 +817,15 @@ void mainThread(void *arg) {
 	}
 
 	// For clean stack traces
+	ProductManager pm;
+	if (pm.foundWam7Gimbals()){  //gimbals error message
+		printf("\nGimbals do not have autotensioners. Please re-run with a different outer link\n\n");
+		return 0;
+	}
 	barrett::installExceptionHandler();
 
 	// Create our product manager
-	ProductManager pm;
 	pm.waitForWam();
-
 	if (pm.foundWam4()) {
 		wam_main<4>(armToAutotension, jointsToAutotension, pm,
 		            *pm.getWam4(true, NULL));

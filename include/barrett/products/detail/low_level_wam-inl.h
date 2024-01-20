@@ -291,7 +291,9 @@ void LowLevelWam<DOF>::update()
 	double now = highResolutionSystemTime();
 
 	if (noJointEncoders) {
-		group.getProperty<MotorPuck::MotorPositionParser<double> >(Puck::P, pp.data(), true);
+		// Changing realtime to false. If this thread never yields, there is a chance the CAN request will never go out.
+		//group.getProperty<MotorPuck::MotorPositionParser<double> >(Puck::P, pp.data(), true);
+		group.getProperty<MotorPuck::MotorPositionParser<double> >(Puck::P, pp.data(), false);
 		jp_motorEncoder = p2jp * pp;  // Convert from Puck positions to joint positions
 		jp_best = jp_motorEncoder;
 	} else {
@@ -303,7 +305,7 @@ void LowLevelWam<DOF>::update()
 		group.getProperty<MotorPuck::CombinedPositionParser<double> >(
 				Puck::P,
 				reinterpret_cast<MotorPuck::CombinedPositionParser<double>::result_type*>(pp_jep.data()),
-				true);
+				false);
 		jp_motorEncoder = p2jp * pp_jep.col(0);
 
 		for (size_t i = 0; i < DOF; ++i) {
@@ -337,6 +339,7 @@ void LowLevelWam<DOF>::setTorques(const jt_type& jt)
 	pt = j2pt * jt;  // Convert from joint torques to Puck torques
 
 	size_t i = 0;
+	BARRETT_SCOPED_LOCK(bus.getMutex());
 	for (size_t g = 0; g < torqueGroups.size(); ++g) {
 		MotorPuck::sendPackedTorques(bus, torqueGroups[g]->getId(), torquePropId, pt.data()+i, std::min(PUCKS_PER_TORQUE_GROUP, DOF-i));
 		i += PUCKS_PER_TORQUE_GROUP;

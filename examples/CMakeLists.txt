@@ -11,13 +11,15 @@ endif()
 ## libbarrett
 find_package(Barrett REQUIRED)
 include_directories(${BARRETT_INCLUDE_DIRS})
+message(STATUS "BARRETT_INCLUDE_DIRS: ${BARRETT_INCLUDE_DIRS}")
 link_directories(${BARRETT_LIBRARY_DIRS})
+message(STATUS "BARRETT_LIBRARY_DIRS: ${BARRETT_LIBRARY_DIRS}")
 add_definitions(${BARRETT_DEFINITIONS})
+message(STATUS "BARRETT_DEFINITIONS: ${BARRETT_DEFINITIONS}")
 
 ## curses
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
-
 
 function(add_programs)
 	foreach (prog ${ARGV})

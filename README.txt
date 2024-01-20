@@ -28,6 +28,7 @@ Download and install libbarrett:
 $ cd ~/
 $ git clone https://git.barrett.com/software/libbarrett.git
 $ cd libbarrett
+$ git checkout devel-14.04
 $ cmake .
 $ make
 $ sudo make install

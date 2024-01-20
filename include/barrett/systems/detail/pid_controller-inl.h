@@ -34,6 +34,7 @@
 #include <libconfig.h++>
 
 #include <barrett/math/utils.h>
+#include <barrett/math/traits.h>
 #include <barrett/thread/abstract/mutex.h>
 
 

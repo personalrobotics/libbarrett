@@ -92,17 +92,18 @@ int BusManager::receive(int expectedBusId, unsigned char* data, size_t& len, boo
 			return 1;
 		}
 
-		if ((highResolutionSystemTime() - start) > CommunicationsBus::TIMEOUT) {
+		double now = highResolutionSystemTime();
+		if ((now - start) > CommunicationsBus::TIMEOUT) {
 			m.unlock();
-			logMessage("BusManager::receive(): timed out", true);
+			logMessage("BusManager::receive(): timed out. Now: %lf, Start: %lf", true) %now %start;
 			return 2;
 		}
 
-		if (!realtime) {
-			int lc = m.fullUnlock();
-			btsleepRT(0.0001);
-			m.relock(lc);
-		}
+		//if (!realtime) {
+		//	int lc = m.fullUnlock();
+		//	btsleepRT(0.0001);			// Yield this thread, give CAN thread time to process data
+		//	m.relock(lc);
+		//}
 	}
 }
 

@@ -38,6 +38,7 @@
 #include <syslog.h>
 #include <signal.h>
 #include <sys/mman.h>
+#include <sys/timerfd.h>
 
 #ifdef BARRETT_XENOMAI
 #include <alchemy/task.h>
@@ -95,7 +96,10 @@ namespace barrett {
 
 void btsleep(double duration_s)
 {
-	assert(duration_s > 1e-6);  // Minimum duration is 1 us
+	// Why do we need duration_s to be > 1 us? 
+	// This would call abort() for durations under 1 us, which seems bad!
+	//assert(duration_s > 1e-6);  // Minimum duration is 1 us
+	
 	boost::this_thread::sleep(boost::posix_time::microseconds(long(duration_s * 1e6)));
 }
 
@@ -130,11 +134,58 @@ double highResolutionSystemTime()
 #ifdef BARRETT_XENOMAI
 	return 1e-9 * rt_timer_read();
 #else
-	return (boost::posix_time::microsec_clock::local_time() - START_OF_PROGRAM_TIME).total_nanoseconds() * 1e-9;
+	// total_nanoseconds() returns a long, which is insufficient beyond 2 seconds on a 32-bit system.
+	// Plus, the subtraction is performed in microseconds, so there is no advantage to converting to nano.
+	//return (boost::posix_time::microsec_clock::local_time() - START_OF_PROGRAM_TIME).total_nanoseconds() * 1e-9;
+	return (boost::posix_time::microsec_clock::local_time() - START_OF_PROGRAM_TIME).total_microseconds() * 1e-6;
 #endif
 }
 
+// period in us
+static int make_periodic (unsigned int period, struct periodic_info *info)
+{
+	int ret;
+	unsigned int ns;
+	unsigned int sec;
+	int fd;
+	struct itimerspec itval;
 
+	/* Create the timer */
+	fd = timerfd_create (CLOCK_MONOTONIC, 0);
+	info->wakeups_missed = 0;
+	info->timer_fd = fd;
+	if (fd == -1)
+		return fd;
+
+	/* Make the timer periodic */
+	sec = period/1000000;
+	ns = (period - (sec * 1000000)) * 1000;
+	itval.it_interval.tv_sec = sec;
+	itval.it_interval.tv_nsec = ns;
+	itval.it_value.tv_sec = sec;
+	itval.it_value.tv_nsec = ns;
+	ret = timerfd_settime (fd, 0, &itval, NULL);
+	return ret;
+}
+
+static void wait_period (struct periodic_info *info)
+{
+	unsigned long long missed;
+	int ret;
+
+	/* Wait for the next timer event. If we have missed any the
+	   number is written to "missed" */
+	ret = read (info->timer_fd, &missed, sizeof (missed));
+	if (ret == -1)
+	{
+		perror ("read timer");
+		return;
+	}
+
+	/* "missed" should always be >= 1, but just to be sure, check it is not 0 anyway */
+	if (missed > 0)
+		info->wakeups_missed = (missed - 1);
+}
 
 PeriodicLoopTimer::PeriodicLoopTimer(double period_, int threadPriority) :
 		firstRun(true), period(period_), releasePoint(-1.0)
@@ -155,6 +206,9 @@ PeriodicLoopTimer::PeriodicLoopTimer(double period_, int threadPriority) :
 		(logMessage("PeriodicLoopTimer::%s: rt_task_set_periodic(): (%d) %s")
 				% __func__ % -ret % strerror(-ret)).raise<std::runtime_error>();
 	}
+#else
+	logMessage("PeriodicLoopTimer is using timer_fd");
+	make_periodic (period * 1e6, &info);
 #endif
 }
 
@@ -170,16 +224,19 @@ unsigned long PeriodicLoopTimer::wait()
 
 	return missedReleasePoints;
 #else
-	const double now = highResolutionSystemTime();
-	const double remainder = releasePoint - now;
-	if (remainder <= 0) {
-		releasePoint = now + period;
+	wait_period(&info);
+	return info.wakeups_missed;
+/*
+	const double now = highResolutionSystemTime();	// Get the current time
+	const double remainder = releasePoint - now; 	// Calculate the amount of time remaining until our next release point
+	if (remainder <= 0) { 							// If we are already past our next scheduled release point, then we missed it
+		releasePoint = now + period; 				// Schedule a new release point at period seconds into the future
 
 		if (firstRun) {
 			firstRun = false;
-			return 0;
-		} else {
-			return ceil(-remainder / period);
+			return 0;								// Don't worry if we missed the very first release point
+		} else {									// Otherwise, report the number of periods missed
+			return ceil(-remainder / period);		// ceil() returns the smallest integer not less than arg
 		}
 	} else {
 		// Calculate the new releasePoint based on the old one.
@@ -188,6 +245,7 @@ unsigned long PeriodicLoopTimer::wait()
 		btsleep(remainder);
 		return 0;
 	}
+*/
 #endif
 }
 

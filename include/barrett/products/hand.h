@@ -107,8 +107,9 @@ public:
 
 	// Sensors
 	static const unsigned int S_POSITION          = 1 << 0;
-	static const unsigned int S_FINGERTIP_TORQUE = 1 << 1;
+	static const unsigned int S_FINGERTIP_TORQUE  = 1 << 1;
 	static const unsigned int S_TACT_FULL         = 1 << 2;
+	static const unsigned int S_TACT_TOP10        = 1 << 3;
 	static const unsigned int S_ALL = S_POSITION | S_FINGERTIP_TORQUE | S_TACT_FULL;
 	/** update Method */
 	void update(unsigned int sensors = S_ALL, bool realtime = false);

@@ -44,26 +44,10 @@ set(OS_dependent_sources
 )
 # Always compile OS-dependent sources
 list(APPEND barrett_SOURCES ${OS_dependent_sources})
-
-if (NON_REALTIME)
-	# Linux only sources
-	list(APPEND barrett_SOURCES
-		bus/can_socket-linux.cpp
-	)
-else()
-	foreach (src_file ${OS_dependent_sources})
-		# Define BARRETT_XENOMAI preprocessor symbol
-		set_property(
-			SOURCE ${src_file}
-			APPEND PROPERTY COMPILE_DEFINITIONS BARRETT_XENOMAI
-		)
-	endforeach()
-	
-	# Xenomai only sources
-	list(APPEND barrett_SOURCES
-		bus/can_socket-rtcan.cpp
-	)
-endif()
+# Linux only sources
+list(APPEND barrett_SOURCES
+	bus/can_socket-linux.cpp
+)
 
 # Maybe include Python sources
 if (WITH_PYTHON)
@@ -77,10 +61,7 @@ if (WITH_PYTHON)
 endif()
 
 
-set(libs ${Boost_LIBRARIES} ${GSL_LIBRARIES} config config++)  #TODO(dc): libconfig finder?
-if (NOT NON_REALTIME)
-	set(libs ${libs} ${XENOMAI_LIBRARY_ALCHEMY} ${XENOMAI_LIBRARY_COPPERPLATE} ${XENOMAI_LIBRARY_XENOMAI} ${XENOMAI_LIBRARY_RTDM})
-endif()
+set(libs ${Boost_LIBRARIES} ${GSL_LIBRARIES} config config++ pthread)  #TODO(dc): libconfig finder?
 if (WITH_PYTHON)
 	set(libs ${libs} ${PYTHON_LIBRARIES})
 endif()

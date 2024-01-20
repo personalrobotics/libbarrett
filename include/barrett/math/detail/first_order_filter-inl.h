@@ -7,7 +7,7 @@
 
 
 #include <string>
-
+#include <barrett/math/traits.h>
 
 namespace barrett {
 namespace math {

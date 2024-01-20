@@ -211,10 +211,10 @@ public:
 		default:
 			switch (k) {
 			case K_LEFT:
-				digit = std::min(MAX_DIGIT, digit+1);
+				digit = std::min(0 /*MAX_DIGIT*/, digit+1);
 				break;
 			case K_RIGHT:
-				digit = std::max(MIN_DIGIT, digit-1);
+				digit = std::max(-3 /*MIN_DIGIT*/, digit-1);
 				break;
 
 			case K_UP:

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 	Copyright 2012 Barrett Technology <support@barrett.com>
@@ -52,8 +52,8 @@ AUTOTENS_CONFIG_FILES = [AUTOTENS_VERS_FILE]
 
 def main():
 	args = parseArguments()
-	print ">>> Source: %s" % args.source
-	print ">>> Destination: %s" % args.dest
+	print(">>> Source: %s" % args.source)
+	print(">>> Destination: %s" % args.dest)
 	
 	backupDir = getBackupDirName(args.dest)
 	os.mkdir(backupDir)
@@ -68,7 +68,7 @@ def main():
 	except OSError:
 		pass
 	
-	print ">>> Done!"
+	print(">>> Done!")
 
 
 def parseArguments():
@@ -84,7 +84,7 @@ def parseArguments():
 def cleanDirPath(p):
 	p = os.path.abspath(os.path.expanduser(p))
 	if not os.path.isdir(p):
-		print "ERROR: %s is not a directory." % p
+		print("ERROR: %s is not a directory." % p)
 		sys.exit(1)
 	return p
 
@@ -104,30 +104,30 @@ def joinPaths(a, b):
 
 
 def installConfig(s, d, backupDir, versFile, configFiles):
-	print ">>> Updating configuration group: %s" % versFile
+	print(">>> Updating configuration group: %s" % versFile)
 	
 	sVers = getConfigVers(s, versFile)
 	if sVers == -1:
-		print "ERROR: \"%s\" not present in source directory." % versFile
+		print("ERROR: \"%s\" not present in source directory." % versFile)
 		return
 	dVers = getConfigVers(d, versFile)
-	print "  --> Source version:", sVers
-	print "  --> Destination version:",
+	print("  --> Source version:", sVers)
+	print("  --> Destination version:",)
 	if dVers == -1:
-		print "(none)"
+		print("(none)")
 	else:
-		print dVers
+		print(dVers)
 	
 	if sVers == dVers:
-		print "  --> Group is already up to date"
+		print("  --> Group is already up to date")
 		return
 	else:
 		# Only announce the backup if we found a versFile...
 		if dVers != -1:
-			print "  --> Creating backup in:", backupDir
+			print("  --> Creating backup in:", backupDir)
 		# ... but perform the backup always, just in case.
 		copyGroup(d, backupDir, configFiles, False, True)
-		print "  --> Copying new configuration files"
+		print("  --> Copying new configuration files")
 		copyGroup(s, d, configFiles, True, False)
 
 def getConfigVers(d, f):
@@ -137,7 +137,7 @@ def getConfigVers(d, f):
 	if not os.path.exists(p):
 		return -1
 	if not os.path.isfile(p):
-		print "ERROR: %s is not a file." % p
+		print("ERROR: %s is not a file." % p)
 		sys.exit(1)
 	
 	vers = 0
@@ -147,7 +147,7 @@ def getConfigVers(d, f):
 		if m:
 			if vers != 0:
 				# Then there were two matches
-				print "ERROR: %s has multiple CONFIG_VERSION settings." % p
+				print("ERROR: %s has multiple CONFIG_VERSION settings." % p)
 				sys.exit(1)
 			vers = int(m.group(1))
 	return vers
@@ -157,13 +157,13 @@ def copyGroup(src, dst, fileList, srcMustExist, dstMustNotExist):
 		sPath = joinPaths(src, f)
 		if not os.path.exists(sPath):
 			if srcMustExist:
-				print "ERROR: %s does not exist." % sPath
+				print("ERROR: %s does not exist." % sPath)
 				sys.exit(2)
 			else:
 				continue
 		dPath = joinPaths(dst, f)
 		if dstMustNotExist and os.path.exists(dPath):
-				print "ERROR: %s already exists." % dPath
+				print("ERROR: %s already exists." % dPath)
 				sys.exit(2)
 		copyFileOrDir(sPath, dPath)
 

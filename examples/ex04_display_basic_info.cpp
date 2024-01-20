@@ -96,6 +96,10 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 	mvprintw(line++,0, "         Tool Position (m): ");
 	mvprintw(line++,0, "   Tool Orientation (quat): ");
 	line++;
+	mvprintw(line++,0, "                            ");
+	mvprintw(line++,0, "    Tool Orientation (mat): ");
+	mvprintw(line++,0, "     (world-to-tool)        ");
+	line++;
 
 	if (fts != NULL) {
 		mvprintw(line++,0, "F/T Sensor");
@@ -137,6 +141,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 	jt_type jt;
 	cp_type cp;
 	Eigen::Quaterniond to;
+	Eigen::Matrix3d R;
 	math::Matrix<6,DOF> J;
 
 	cf_type cf;
@@ -182,6 +187,11 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 		to = wam.getToolOrientation();  // We work only with unit quaternions. No saturation necessary.
     	mvprintw(line++,wamX, "%+7.4f %+7.4fi %+7.4fj %+7.4fk", to.w(), to.x(), to.y(), to.z());
 
+    R = to.toRotationMatrix(); // convert to a 3x3 rotation matrix
+    	line++;
+    	mvprintw(line++,wamX, "[%+7.4f %+7.4f %+7.4f]", R(0,0), R(0,1), R(0,2));
+    	mvprintw(line++,wamX, "[%+7.4f %+7.4f %+7.4f]", R(1,0), R(1,1), R(1,2));
+    	mvprintw(line++,wamX, "[%+7.4f %+7.4f %+7.4f]", R(2,0), R(2,1), R(2,2));
 
 		// FTS
 		if (fts != NULL) {
@@ -202,7 +212,8 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 		// Hand
 		if (hand != NULL) {
 			line = handY;
-			hand->update();  // Update all sensors
+			//hand->update();  // Update all sensors, includes Hand::S_TACT_FULL, if installed
+			hand->update(Hand::S_POSITION + Hand::S_FINGERTIP_TORQUE + Hand::S_TACT_TOP10);  // Update these sensors
 
 			hjp = math::saturate(hand->getInnerLinkPosition(), 9.999);
 			mvprintw(line++,handX, "[%6.3f, %6.3f, %6.3f, %6.3f]",
@@ -223,7 +234,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 			if (hand->hasTactSensors()) {
 				for (size_t i = 0; i < tps.size(); ++i) {
 					graphPressures(stdscr, line, i * TACT_BOARD_STRIDE,
-							tps[i]->getFullData());
+							tps[i]->getTactileData());
 				}
 			}
 		}

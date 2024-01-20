@@ -16,7 +16,8 @@ target_link_libraries(teach ${BARRETT_LIBRARIES} ${CURSES_LIBRARIES})
 
 add_executable(play play.cpp)
 ## target_link_libraries(play ${BARRETT_LIBRARIES} boost_system boost_filesystem)
-target_link_libraries(play ${BARRETT_LIBRARIES} boost_filesystem)
+## target_link_libraries(play ${BARRETT_LIBRARIES} boost_filesystem)
+target_link_libraries(play ${BARRETT_LIBRARIES})
 
 add_executable(bt-wam-ccg calibrate_control_gains.cpp)
 target_link_libraries(bt-wam-ccg ${BARRETT_LIBRARIES})

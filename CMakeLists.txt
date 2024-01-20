@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 2.6)
 
 project(libbarrett)
-set(libbarrett_VERSION_MAJOR 1)
-set(libbarrett_VERSION_MINOR 2)
-set(libbarrett_VERSION_PATCH 4)
+set(libbarrett_VERSION_MAJOR 3)
+set(libbarrett_VERSION_MINOR 0)
+set(libbarrett_VERSION_PATCH 1)
 set(libbarrett_VERSION "${libbarrett_VERSION_MAJOR}.${libbarrett_VERSION_MINOR}.${libbarrett_VERSION_PATCH}")
 set(libbarrett_SOVERSION "${libbarrett_VERSION_MAJOR}.${libbarrett_VERSION_MINOR}")
 
@@ -20,7 +20,6 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules/")
 
 ### Options
 option(BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON)
-option(NON_REALTIME "Set to ON to avoid building code that depends on a real-time operating system" OFF)
 option(OPTIMIZE_FOR_PROCESSOR "Set to ON to build binaries that are optimized for this specific computer and can't be copied to other machines" OFF)
 option(WITH_PYTHON "Set to ON to build Python bindings for libbarrett" ON)
 option(INSTALL_EXAMPLES "Set to ON to copy libbarrett example programs to the current user's home folder when the library is installed" OFF)
@@ -34,6 +33,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-in-bool-context -Wno-ignored-at
 
 if (OPTIMIZE_FOR_PROCESSOR)
 	# TODO(dc): Does this turn on sse2 if supported by processor? What about -mfpmath=sse?
+	# WARNING: This option results in frequent segfaults (why?)
 	set(NEW_FLAGS "-march=native -mtune=native")
 	
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${NEW_FLAGS}")
@@ -80,22 +80,6 @@ include_directories("${PROJECT_BINARY_DIR}/include")
 set(exported_include_dirs ${exported_include_dirs} ${CMAKE_INSTALL_PREFIX}/include)
 set(exported_link_dirs ${exported_link_dirs} ${CMAKE_INSTALL_PREFIX}/lib)
 
-
-## Xenomai
-if (NON_REALTIME)
-	message(STATUS "NON_REALTIME: Not using Xeonmai")
-else()
-	find_package(Xenomai REQUIRED)
-	include_directories(${XENOMAI_INCLUDE_DIR}/trank)
-	include_directories(${XENOMAI_INCLUDE_DIR}) # Needed twice for include_next
-	include_directories(${XENOMAI_INCLUDE_DIR}/cobalt)
-	add_definitions(${XENOMAI_DEFINITIONS})
-
-	set(exported_include_dirs ${exported_include_dirs} ${XENOMAI_INCLUDE_DIR} ${XENOMAI_INCLUDE_DIR}/cobalt)
-	set(exported_definitions ${exported_definitions} ${XENOMAI_DEFINITIONS})
-endif()
-
-
 ## GSL
 find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS})
@@ -104,32 +88,42 @@ link_directories(${GSL_LIBRARY_DIRS})
 set(exported_include_dirs ${exported_include_dirs} ${GSL_INCLUDE_DIRS})
 set(exported_link_dirs ${exported_link_dirs} ${GSL_LIBRARY_DIRS})
 
-
-## Boost
-# Python snippet to generate version list:
-#for minor in range(45, 60):
-#	print '"1.%d" "1.%d.0"' % (minor, minor),
-set(Boost_ADDITIONAL_VERSIONS "1.45" "1.45.0" "1.46" "1.46.0" "1.47" "1.47.0" "1.48" "1.48.0" "1.49" "1.49.0" "1.50" "1.50.0" "1.51" "1.51.0" "1.52" "1.52.0" "1.53" "1.53.0" "1.54" "1.54.0" "1.55" "1.55.0" "1.56" "1.56.0" "1.57" "1.57.0" "1.58" "1.58.0" "1.59" "1.59.0")
-set(boost_components system thread program_options)
-if (WITH_PYTHON)
-	set(boost_components ${boost_components} python)
-endif()
-find_package(Boost 1.45.0 REQUIRED ${boost_components})
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
-
-set(exported_include_dirs ${exported_include_dirs} ${Boost_INCLUDE_DIRS})
-set(exported_link_dirs ${exported_link_dirs} ${Boost_LIBRARY_DIRS})
-
-
 ## Python
 if (WITH_PYTHON)
 	find_package(PythonLibs REQUIRED)
 	include_directories(${PYTHON_INCLUDE_PATH})
 endif()
 
+## Boost
+set(boost_components system thread)
+if (WITH_PYTHON)
+	# Extract major/minor python version
+	string(REPLACE "." ";" VERSION_LIST ${PYTHONLIBS_VERSION_STRING})
+	list(GET VERSION_LIST 0 PYTHONLIBS_VERSION_MAJOR)                                                                                                                             
+	list(GET VERSION_LIST 1 PYTHONLIBS_VERSION_MINOR)
+	
+	set(boost_components ${boost_components} python${PYTHONLIBS_VERSION_MAJOR}${PYTHONLIBS_VERSION_MINOR})
+endif()
+message(STATUS "Boost components: ${boost_components}")
+find_package(Boost REQUIRED ${boost_components})
 
-## Eigen2
+## Translate cmake's new "Boost::blah" library naming format to a normal "libboost_blah" name that can be passed to the linker.
+## TODO(bz): Hunt down anyone who makes stupid changes like this and make them suffer.
+set(boost_libraries "")
+foreach (prop ${Boost_LIBRARIES}) 
+	get_target_property(lib ${prop} LOCATION)
+	message(STATUS "The name ${prop} has location: ${lib}.")
+	set(boost_libraries ${boost_libraries} ${lib})
+endforeach(prop)
+set(Boost_LIBRARIES ${boost_libraries})
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+
+set(exported_include_dirs ${exported_include_dirs} ${Boost_INCLUDE_DIRS})
+set(exported_link_dirs ${exported_link_dirs} ${Boost_LIBRARY_DIRS})
+
+## Eigen3
 find_package(Eigen3 REQUIRED)
 include_directories(${Eigen_INCLUDE_DIRS})
 set(exported_include_dirs ${exported_include_dirs} ${Eigen_INCLUDE_DIRS})
@@ -172,10 +166,10 @@ configure_file(${PROJECT_SOURCE_DIR}/cmake/barrett-config.cmake.in ${PROJECT_SOU
 	ESCAPE_QUOTES @ONLY
 )
 if (CONFIG_DEBIAN)	
-	message(STATUS "Using standard barrett-config.cmake for Debian installation.")
-	install(FILES ${PROJECT_SOURCE_DIR}/cmake/debian/barrett-config.cmake
-		DESTINATION share/barrett
-	)
+	message(STATUS "Using standard barrett-config-non-realtime.cmake for Debian installation.")
+	install(FILES ${PROJECT_SOURCE_DIR}/cmake/debian/barrett-config-non-realtime.cmake
+			DESTINATION share/barrett
+		)
 	message(STATUS "Temporarily installing configuration files.")
 	install(DIRECTORY ${PROJECT_SOURCE_DIR}/config/
     	DESTINATION share/barrett/config
@@ -313,9 +307,6 @@ if (CONFIG_PACKAGE)
 	set(CPACK_DEBIAN_PACKAGE_NAME "libbarrett-dev")
 	set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${CPACK_PACKAGE_CONTACT}")
 	set(CPACK_DEBIAN_PACKAGE_DEPENDS "libconfig-barrett (>=1.4.5), libboost-thread-dev (>= 1.45.0), libboost-python-dev (>=1.45.0), libgsl0-dev (>=1.14), libncurses5-dev, python-dev (>=2.7)")
-	if (NOT NON_REALTIME)
-		set(CPACK_DEBIAN_PACKAGE_DEPENDS "${CPACK_DEBIAN_PACKAGE_DEPENDS}, libxenomai-dev (>= 2.5.5.2)")
-	endif()
 	set(CPACK_DEBIAN_PACKAGE_DESCRIPTION_SUMMARY "${CPACK_PACKAGE_DESCRIPTION_SUMMARY}")
 	set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "${CPACK_PACKAGE_DESCRIPTION}")
 	set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")

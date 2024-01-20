@@ -115,10 +115,10 @@ public:
 	template<typename Parser> static void getProperty(
 			const bus::CommunicationsBus& bus, int id, int propId, typename Parser::result_type* result, bool realtime = false);
 	static int tryGetProperty(const bus::CommunicationsBus& bus, int id, int propId,
-			int* result, double timeout_s = 0.001);
+			int* result, double timeout_s = 0.005);
 	template<typename Parser> static int tryGetProperty(
 			const bus::CommunicationsBus& bus, int id, int propId, typename Parser::result_type* result,
-			double timeout_s = 0.001);
+			double timeout_s = 0.005);
 	static void setProperty(const bus::CommunicationsBus& bus, int id, int propId,
 			int value, bool blocking = false);
 

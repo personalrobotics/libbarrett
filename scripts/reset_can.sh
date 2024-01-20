@@ -1,3 +1,3 @@
 #!/bin/bash
-/usr/xenomai/sbin/rtcanconfig rtcan0 -b 1000000 start
+sudo ip link set can0 up type can restart-ms 100 bitrate 1000000
 echo "CAN port 0 has been reset"

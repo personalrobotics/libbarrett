@@ -191,7 +191,7 @@ for(int i = 11; i <= 14; i++){
 
 	bool firstRun = true;
 	int numBadTransitions = 0;
-	const TactilePuck::v_type& pressures = tactPuck.getFullData();
+	const TactilePuck::v_type& pressures = tactPuck.getTactileData();
 	TactilePuck::v_type pressures_1;
 	TactilePuck::v_type tmp;
 

@@ -1,0 +1,71 @@
+#!/usr/bin/python3
+
+"""
+	Copyright 2022 Barrett Technology <support@barrett.com>
+
+	This file is part of libbarrett.
+
+	This version of libbarrett is free software: you can redistribute it
+	and/or modify it under the terms of the GNU General Public License as
+	published by the Free Software Foundation, either version 3 of the
+	License, or (at your option) any later version.
+
+	This version of libbarrett is distributed in the hope that it will be
+	useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along
+	with this version of libbarrett.  If not, see
+	<http://www.gnu.org/licenses/>.
+
+	Further, non-binding information about licensing is available at:
+	<http://wiki.barrett.com/libbarrett/wiki/LicenseNotes>
+"""
+
+"""
+This utility can be installed on a computer to make it discoverable by the wamdiscover
+program. 
+
+The script listens for a UDP broadcast to request that any target systems identify
+themselves sent by wamdiscover and responds with the systems name and IP address.
+"""
+
+from sys import argv
+from os.path import basename
+from socket import socket, AF_INET, SOCK_DGRAM
+from syslog import openlog, syslog, LOG_ERR
+
+
+PORT = 1337
+NAME_FILE = "/etc/barrett/serial"
+DEFAULT_NAME = "UNNAMED_WAM"
+
+
+openlog(basename(argv[0]))
+
+while True:
+	# Make a socket, listen on PORT
+	sock = socket(AF_INET, SOCK_DGRAM)
+	sock.bind(("", PORT))
+	
+	# Wait for a message (no data needed)
+	remoteAddr = sock.recvfrom(0)[1]
+
+	# Find the name of this computer
+	try:
+		name = open(NAME_FILE).readline().strip()
+	except:
+		name = DEFAULT_NAME
+	
+	# Find the local IP address associated with the interface that is used to
+	# talk to remoteAddr
+	sock.connect(remoteAddr)
+	localIp = sock.getsockname()[0]
+	
+	# Reply with name and local IP address
+	replyStr = name + "|" + localIp
+	sock.send(replyStr.encode())
+	syslog(LOG_ERR, "Replied to %s with \"%s\"" % (remoteAddr[0], replyStr))
+
+	sock.close()
