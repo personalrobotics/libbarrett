@@ -55,6 +55,25 @@ inline double numericToDouble(const libconfig::Setting &setting) {
 	}
 }
 
+// Access private config_setting_t* in libconfig::Setting
+// See:
+// https://stackoverflow.com/questions/424104/can-i-access-private-members-from-outside-the-class-without-using-friends
+template <typename Tag, typename Tag::type M> struct PrivateAccess {
+	friend typename Tag::type get(Tag) { return M; }
+};
+
+// tag used to access A::member
+struct Settings_Access {
+	typedef config_setting_t *libconfig::Setting::*type;
+	friend type get(Settings_Access);
+};
+
+template struct PrivateAccess<Settings_Access, &libconfig::Setting::_setting>;
+
+inline config_setting_t *getCSetting(const libconfig::Setting &setting) {
+	return setting.*get(Settings_Access());
+}
+
 } // namespace detail
 } // namespace barrett
 

@@ -104,7 +104,7 @@ class Matrix
 	    const Eigen::RotationBase<OtherDerived, Base::ColsAtCompileTime> &r);
 	//	template<typename OtherDerived>
 	//	Matrix& operator=(const
-	//Eigen::RotationBase<OtherDerived,Base::ColsAtCompileTime>& r);
+	// Eigen::RotationBase<OtherDerived,Base::ColsAtCompileTime>& r);
 
 	// Additional ctors
 
@@ -257,12 +257,12 @@ struct Traits<Eigen::MatrixBase<TraitsDerived>> {
 	    // values when it has the commented-out return type. i don't know why.
 	    //	const Eigen::CwiseUnaryOp<
 	    //		Eigen::internal::scalar_add_op<typename
-	    //Eigen::internal::traits<Eigen::CwiseUnaryOp<
+	    // Eigen::internal::traits<Eigen::CwiseUnaryOp<
 	    //			Eigen::internal::scalar_opposite_op<typename
-	    //Eigen::internal::traits<Derived>::Scalar>, 			Derived 		> >::Scalar>,
-	    //		Eigen::CwiseUnaryOp<
+	    // Eigen::internal::traits<Derived>::Scalar>, 			Derived >
+	    // >::Scalar>, 		Eigen::CwiseUnaryOp<
 	    //			Eigen::internal::scalar_opposite_op<typename
-	    //Eigen::internal::traits<Derived>::Scalar>, 			Derived
+	    // Eigen::internal::traits<Derived>::Scalar>, 			Derived
 	    //		>
 	    //	>
 	    const typename MatrixBaseType::PlainObject
@@ -294,12 +294,12 @@ struct Traits<Eigen::MatrixBase<TraitsDerived>> {
 	    // values when it has the commented-out return type. i don't know why.
 	    //	const Eigen::CwiseUnaryOp<
 	    //		Eigen::internal::scalar_multiple_op<typename
-	    //Eigen::internal::traits<Eigen::CwiseUnaryOp<
+	    // Eigen::internal::traits<Eigen::CwiseUnaryOp<
 	    //			Eigen::internal::scalar_inverse_op<typename
-	    //Eigen::internal::traits<Derived>::Scalar>, 			Derived 		> >::Scalar>,
-	    //		Eigen::CwiseUnaryOp<
+	    // Eigen::internal::traits<Derived>::Scalar>, 			Derived >
+	    // >::Scalar>, 		Eigen::CwiseUnaryOp<
 	    //			Eigen::internal::scalar_inverse_op<typename
-	    //Eigen::internal::traits<Derived>::Scalar>, 			Derived
+	    // Eigen::internal::traits<Derived>::Scalar>, 			Derived
 	    //		>
 	    //	>
 	    const typename MatrixBaseType::PlainObject

@@ -14,6 +14,7 @@
 #include "exposed_io_system.h"
 #include <barrett/cdlbt/control_cartesian_xyz_q.h>
 #include <barrett/cdlbt/dynamics.h>
+#include <barrett/detail/libconfig_utils.h>
 #include <barrett/systems/constant.h>
 #include <barrett/systems/helpers.h>
 #include <barrett/systems/kinematics_base.h>
@@ -41,8 +42,8 @@ TEST(ToolOrientationTest, Blah) {
 	systems::Constant<jp_type> jpSys(jp);
 	systems::Constant<jv_type> jvSys(jv);
 	//	systems::Constant<Eigen::Quaterniond>
-	//qSys(Eigen::Quaterniond(cos(M_PI_4), 0.0, 0.6*sin(M_PI_4),
-	//0.8*sin(M_PI_4)));
+	// qSys(Eigen::Quaterniond(cos(M_PI_4), 0.0, 0.6*sin(M_PI_4),
+	// 0.8*sin(M_PI_4)));
 	systems::Constant<Eigen::Quaterniond> qSys(
 	    Eigen::Quaterniond(0.517266, 0.453975, -0.528556, -0.496962));
 
@@ -72,7 +73,9 @@ TEST(ToolOrientationTest, Blah2) {
 
 	struct bt_control_cartesian_xyz_q *con = NULL;
 	bt_control_cartesian_xyz_q_create(
-	    &con, config.lookup("wam.control_cartesian_xyz_q").getCSetting(),
+	    &con,
+	    barrett::detail::getCSetting(
+	        config.lookup("wam.control_cartesian_xyz_q")),
 	    kin.impl, NULL);
 	ASSERT_TRUE(con != NULL);
 

@@ -47,7 +47,8 @@ class ExposedIOSystem : public barrett::systems::SingleIO<T, T> {
 	virtual void operate() { operateCalled = true; }
 
 	// This System's Outputs are not a function of its Inputs.
-	virtual void invalidateOutputs() { /* do nothing */ }
+	virtual void invalidateOutputs() { /* do nothing */
+	}
 
 	virtual void onExecutionManagerChanged() {
 		// First, call super

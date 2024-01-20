@@ -277,7 +277,7 @@ template <size_t DOF>
 inline void Wam<DOF>::moveTo(const jp_type &destination, bool blocking,
                              double velocity, double acceleration) {
 	//	moveTo(currentPosHelper(getJointPositions()), getJointVelocities(),
-	//destination, blocking, velocity, acceleration);
+	// destination, blocking, velocity, acceleration);
 	moveTo(currentPosHelper(getJointPositions()), /*jv_type(0.0),*/ destination,
 	       blocking, velocity, acceleration);
 }

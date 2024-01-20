@@ -48,6 +48,7 @@
 #include <barrett/cdlbt/calgrav.h>
 #include <barrett/cdlbt/gsl.h>
 #include <barrett/cdlbt/kinematics.h>
+#include <barrett/detail/libconfig_utils.h>
 #include <barrett/os.h>
 
 #include <barrett/config.h>
@@ -513,9 +514,10 @@ int wam_main(int argc, char **argv, ProductManager &pm,
 
 		libconfig::Setting &setting =
 		    pm.getConfig().lookup(pm.getWamDefaultConfigPath());
-		bt_kinematics_create(&kin, setting["kinematics"].getCSetting(), n);
-		bt_calgrav_create(&grav, setting["gravity_compensation"].getCSetting(),
-		                  n);
+		barrett::detail::getCSetting(
+		    bt_kinematics_create(&kin, setting["kinematics"]), n);
+		barrett::detail::getCSetting(
+		    bt_calgrav_create(&grav, setting["gravity_compensation"]), n);
 
 		/* Make the nLL matrix */
 		nLL = gsl_matrix_calloc(3 * num_poses, 3 + 2 * num_poses);

@@ -65,8 +65,7 @@ struct can_handle {
 
 CANSocket::CANSocket() : mutex(), handle(new detail::can_handle) {}
 
-CANSocket::CANSocket(int port) throw(std::runtime_error)
-    : mutex(), handle(new detail::can_handle) {
+CANSocket::CANSocket(int port) : mutex(), handle(new detail::can_handle) {
 	open(port);
 }
 
@@ -76,7 +75,7 @@ CANSocket::~CANSocket() {
 	handle = NULL;
 }
 
-void CANSocket::open(int port) throw(std::logic_error, std::runtime_error) {
+void CANSocket::open(int port) {
 	if (isOpen()) {
 		(logMessage("CANSocket::%s(): This object is already associated with a "
 		            "CAN port.") %
@@ -146,18 +145,18 @@ void CANSocket::open(int port) throw(std::logic_error, std::runtime_error) {
 	}
 
 	//	nanosecs_rel_t timeout = (nanosecs_rel_t) 1e9 *
-	//CommunicationsBus::TIMEOUT; 	ret = ioctl(handle->h,
-	//RTCAN_RTIOC_RCV_TIMEOUT, &timeout); 	if (ret != 0) { 		close();
+	// CommunicationsBus::TIMEOUT; 	ret = ioctl(handle->h,
+	// RTCAN_RTIOC_RCV_TIMEOUT, &timeout); 	if (ret != 0) { 		close();
 	//		(logMessage("CANSocket::%s(): Could not open CAN port.
-	//ioctl(RCV_TIMEOUT): (%d) %s") 				% __func__ % -ret %
-	//strerror(-ret)).raise<std::runtime_error>();
+	// ioctl(RCV_TIMEOUT): (%d) %s") 				% __func__ % -ret %
+	// strerror(-ret)).raise<std::runtime_error>();
 	//	}
 	//	ret = ioctl(handle->h, RTCAN_RTIOC_SND_TIMEOUT, &timeout);
 	//	if (ret != 0) {
 	//		close();
 	//		(logMessage("CANSocket::%s(): Could not open CAN port.
-	//ioctl(SND_TIMEOUT): (%d) %s") 				% __func__ % -ret %
-	//strerror(-ret)).raise<std::runtime_error>();
+	// ioctl(SND_TIMEOUT): (%d) %s") 				% __func__ % -ret %
+	// strerror(-ret)).raise<std::runtime_error>();
 	//	}
 }
 

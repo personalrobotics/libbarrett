@@ -79,7 +79,7 @@ void GimbalsHandController::update() {
 	white = tmp & 0x2;
 
 	//	printf("%d,\t%d,\t%d,\t%d,\t%d,\t%d,\t%d,\t%d\n", brown, dGreen, orange,
-	//yellow, lGreen, blue, violet, white);
+	// yellow, lGreen, blue, violet, white);
 
 	// convert to inputs
 	thumbOpen = !blue;

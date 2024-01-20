@@ -146,15 +146,16 @@ template <typename Scalar> struct Traits<Eigen::Quaternion<Scalar>> {
 
 // template<typename TraitsDerived> struct
 // Traits<Eigen::MatrixBase<TraitsDerived> > : 		public
-//DefaultTraits<Eigen::MatrixBase<TraitsDerived> > { 	typedef typename
-//DefaultTraits<Eigen::MatrixBase<TraitsDerived> >::parameter_type
-//parameter_type; 	static void asCSV(parameter_type source, std::ostream& os) {
+// DefaultTraits<Eigen::MatrixBase<TraitsDerived> > { 	typedef typename
+// DefaultTraits<Eigen::MatrixBase<TraitsDerived> >::parameter_type
+// parameter_type; 	static void asCSV(parameter_type source, std::ostream& os) {
 //		os << source;
 //	}
 // };
 //
 // template<int R, int C, typename Units> struct Traits<math::Matrix<R,C, Units>
-// > : 		public Traits<Eigen::MatrixBase<typename math::Matrix<R,C, Units>::Base>
+// > : 		public Traits<Eigen::MatrixBase<typename math::Matrix<R,C,
+// Units>::Base>
 //> {};
 
 template <int R, int C, typename Units>

@@ -98,8 +98,8 @@ int BusManager::receive(int expectedBusId, unsigned char *data, size_t &len,
 
 		// if (!realtime) {
 		//	int lc = m.fullUnlock();
-		//	btsleepRT(0.0001);			// Yield this thread, give CAN thread time
-		//to process data 	m.relock(lc);
+		//	btsleepRT(0.0001);			// Yield this thread, give CAN thread
+		// time to process data 	m.relock(lc);
 		// }
 	}
 }

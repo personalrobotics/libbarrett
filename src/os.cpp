@@ -231,8 +231,8 @@ unsigned long PeriodicLoopTimer::wait() {
    time remaining until our next release point
 	if (remainder <= 0) { 							// If we are already past
    our next scheduled release point, then we missed it releasePoint = now +
-   period; 				// Schedule a new release point at period seconds into the
-   future
+   period; 				// Schedule a new release point at period seconds into
+   the future
 
 	    if (firstRun) {
 	        firstRun = false;

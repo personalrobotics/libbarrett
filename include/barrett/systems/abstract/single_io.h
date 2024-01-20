@@ -40,7 +40,7 @@ namespace systems {
 
 template <typename InputType>
 class SingleInput { // not a System in order to avoid diamond inheritance
-	// IO
+	                // IO
   public:
 	System::Input<InputType> input;
 
@@ -53,7 +53,7 @@ class SingleInput { // not a System in order to avoid diamond inheritance
 
 template <typename OutputType>
 class SingleOutput { // not a System in order to avoid diamond inheritance
-	// IO
+	                 // IO
   public:
 	System::Output<OutputType> output;
 

@@ -27,10 +27,6 @@ option(INSTALL_SANDBOX "Set to ON to copy libbarrett sandbox programs to the cur
 option(CONFIG_PACKAGE "Set to ON to set up CPACK variables necessary for packaging" OFF)
 option(CONFIG_DEBIAN "Set to ON to copy standard barrett-config.cmake, required for Debian packaging" OFF)
 
-# Eigen 3.2 Warnings (TODO: Upgrade to 3.3)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-int-in-bool-context -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-misleading-indentation")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-int-in-bool-context -Wno-ignored-attributes -Wno-deprecated-declarations -Wno-misleading-indentation")
-
 if (OPTIMIZE_FOR_PROCESSOR)
 	# TODO(dc): Does this turn on sse2 if supported by processor? What about -mfpmath=sse?
 	# WARNING: This option results in frequent segfaults (why?)
@@ -107,6 +103,10 @@ endif()
 message(STATUS "Boost components: ${boost_components}")
 find_package(Boost REQUIRED ${boost_components})
 
+# Ignore Boost internal deprecation
+add_definitions("-DBOOST_ALLOW_DEPRECATED_HEADERS")
+add_definitions("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
+
 ## Translate cmake's new "Boost::blah" library naming format to a normal "libboost_blah" name that can be passed to the linker.
 ## TODO(bz): Hunt down anyone who makes stupid changes like this and make them suffer.
 set(boost_libraries "")
@@ -125,9 +125,9 @@ set(exported_link_dirs ${exported_link_dirs} ${Boost_LIBRARY_DIRS})
 
 ## Eigen3
 find_package(Eigen3 REQUIRED)
-include_directories(${Eigen_INCLUDE_DIRS})
-set(exported_include_dirs ${exported_include_dirs} ${Eigen_INCLUDE_DIRS})
-
+include_directories(${EIGEN3_INCLUDE_DIRS})
+set(exported_include_dirs ${exported_include_dirs} ${EIGEN3_INCLUDE_DIRS})
+message(STATUS "Eigen Include Dirs: ${EIGEN3_INCLUDE_DIRS}")
 
 ## curses
 find_package(Curses REQUIRED)

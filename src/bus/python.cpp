@@ -119,7 +119,7 @@ void pythonBusInterface() {
 
 	    // TODO(dc): Why is this broken?
 	    //.def("getMutex", &CommunicationsBus::getMutex,
-	    //return_internal_reference<>())
+	    // return_internal_reference<>())
 
 	    .def("open", &CommunicationsBus::open)
 	    .def("close", &CommunicationsBus::close)

@@ -33,7 +33,7 @@ template <size_t DOF> class Dynamics {
 
 	//	typedef const jt_type& result_type;  ///< For use with boost::bind().
 	//	result_type operator() (const boost::tuple<jv_type, ja_type>&
-	//jointState);
+	// jointState);
 
   protected:
 	struct bt_dynamics *impl;

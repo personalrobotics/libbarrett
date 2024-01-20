@@ -8,6 +8,7 @@
 #include <libconfig.h++>
 
 #include <barrett/cdlbt/kinematics.h>
+#include <barrett/detail/libconfig_utils.h>
 #include <barrett/units.h>
 
 namespace barrett {
@@ -15,7 +16,8 @@ namespace math {
 
 template <size_t DOF>
 Kinematics<DOF>::Kinematics(const libconfig::Setting &setting) {
-	if (bt_kinematics_create(&impl, setting.getCSetting(), DOF)) {
+	if (bt_kinematics_create(&impl, barrett::detail::getCSetting(setting),
+	                         DOF)) {
 		throw(std::runtime_error("(math::Kinematics::Kinematics): Couldn't "
 		                         "initialize Kinematics struct."));
 	}

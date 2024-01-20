@@ -51,11 +51,11 @@ TEST_F(KinematicsTest, Ctor) {
 //-0.0226513; 	jv.setConstant(0.0);
 //
 //	EXPECT_EQ(units::CartesianPosition::type(), (*kin)(boost::make_tuple(jp,
-//jv)));
+// jv)));
 //
 //	jp.setConstant(0.0);
 //	EXPECT_EQ(units::CartesianPosition::type(), (*kin)(boost::make_tuple(jp,
-//jv)));
+// jv)));
 // }
 
 } // namespace

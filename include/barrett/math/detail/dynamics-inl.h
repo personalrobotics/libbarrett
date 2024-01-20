@@ -8,6 +8,7 @@
 #include <libconfig.h++>
 
 #include <barrett/cdlbt/dynamics.h>
+#include <barrett/detail/libconfig_utils.h>
 #include <barrett/units.h>
 
 namespace barrett {
@@ -15,7 +16,7 @@ namespace math {
 
 template <size_t DOF>
 Dynamics<DOF>::Dynamics(const libconfig::Setting &setting) {
-	if (bt_dynamics_create(&impl, setting.getCSetting(), DOF)) {
+	if (bt_dynamics_create(&impl, barrett::detail::getCSetting(setting), DOF)) {
 		throw(std::runtime_error("(math::Dynamics::Dynamics): Couldn't "
 		                         "initialize Dynamics struct."));
 	}
@@ -37,7 +38,7 @@ Dynamics<DOF>::evalInverse(const Kinematics<DOF> &kin, const jv_type &jv,
 // boost::tuple<jv_type, ja_type>& jointState)
 //{
 //	return eval(boost::tuples::get<0>(jointState),
-//boost::tuples::get<1>(jointState));
+// boost::tuples::get<1>(jointState));
 // }
 
 } // namespace math

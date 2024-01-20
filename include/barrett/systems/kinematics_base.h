@@ -43,7 +43,7 @@ namespace systems {
 
 template <size_t DOF>
 class KinematicsInput { // not a System in order to avoid diamond inheritance
-	// IO
+	                    // IO
   public:
 	System::Input<math::Kinematics<DOF>> kinInput;
 

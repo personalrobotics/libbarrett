@@ -85,8 +85,8 @@ class ToolOrientationController
 
 	virtual void operate() {
 		//		error = this->referenceInput.getValue() *
-		//this->feedbackInput.getValue().inverse();  // I think it should be
-		//this way
+		// this->feedbackInput.getValue().inverse();  // I think it should be
+		// this way
 		error =
 		    this->feedbackInput.getValue() *
 		    this->referenceInput.getValue()

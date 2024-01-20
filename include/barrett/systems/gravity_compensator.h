@@ -36,6 +36,7 @@
 
 #include <barrett/cdlbt/calgrav.h>
 #include <barrett/detail/ca_macro.h>
+#include <barrett/detail/libconfig_utils.h>
 #include <barrett/units.h>
 
 #include <barrett/systems/abstract/single_io.h>
@@ -60,7 +61,7 @@ class GravityCompensator
 	    : System(sysName), KinematicsInput<DOF>(this), SingleOutput<jt_type>(
 	                                                       this),
 	      impl(NULL), data() {
-		bt_calgrav_create(&impl, setting.getCSetting(), DOF);
+		bt_calgrav_create(&impl, barrett::detail::getCSetting(setting), DOF);
 	}
 
 	bool setGravity(double new_grav) {
