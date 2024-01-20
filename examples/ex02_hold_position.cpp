@@ -27,6 +27,7 @@
  * configuration files if your WAM is mounted in a different orientation.
  */
 
+
 #include <iostream>
 #include <string>
 
@@ -34,90 +35,91 @@
 //     http://eigen.tuxfamily.org/dox-2.0/
 #include <Eigen/Geometry>
 
-#include <barrett/products/product_manager.h>
 #include <barrett/systems.h>
+#include <barrett/products/product_manager.h>
 
 #include <barrett/standard_main_function.h>
 
+
 using namespace barrett;
 
+
 void printMenu() {
-  printf("Commands:\n");
-  printf("  j  Hold joint positions\n");
-  printf("  p  Hold tool position (in Cartesian space)\n");
-  printf("  o  Hold tool orientation\n");
-  printf("  b  Hold both tool position and orientation\n");
-  printf("  i  Idle (release position/orientation constraints)\n");
-  printf("  q  Quit\n");
+	printf("Commands:\n");
+	printf("  j  Hold joint positions\n");
+	printf("  p  Hold tool position (in Cartesian space)\n");
+	printf("  o  Hold tool orientation\n");
+	printf("  b  Hold both tool position and orientation\n");
+	printf("  i  Idle (release position/orientation constraints)\n");
+	printf("  q  Quit\n");
 }
 
-template <size_t DOF>
-int wam_main(int argc, char **argv, ProductManager &pm,
-             systems::Wam<DOF> &wam) {
-  wam.gravityCompensate();
-  printMenu();
+template<size_t DOF>
+int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) {
+	wam.gravityCompensate();
+	printMenu();
 
-  std::string line;
-  bool going = true;
-  while (going) {
-    printf(">>> ");
-    std::getline(std::cin, line);
+	std::string line;
+	bool going = true;
+	while (going) {
+		printf(">>> ");
+		std::getline(std::cin, line);
 
-    switch (line[0]) {
-    case 'j':
-      printf("Holding joint positions.\n");
-      wam.moveTo(wam.getJointPositions());
-      break;
+		switch (line[0]) {
+		case 'j':
+			printf("Holding joint positions.\n");
+			wam.moveTo(wam.getJointPositions());
+			break;
 
-    case 'p':
-      printf("Holding tool position.\n");
-      wam.moveTo(wam.getToolPosition());
-      break;
+		case 'p':
+			printf("Holding tool position.\n");
+			wam.moveTo(wam.getToolPosition());
+			break;
 
-    case 'o':
-      printf("Holding tool orientation.\n");
-      wam.moveTo(wam.getToolOrientation());
-      break;
+		case 'o':
+			printf("Holding tool orientation.\n");
+			wam.moveTo(wam.getToolOrientation());
+			break;
 
-    case 'b':
-      printf("Holding both tool position and orientation.\n");
-      wam.moveTo(wam.getToolPose());
-      break;
+		case 'b':
+			printf("Holding both tool position and orientation.\n");
+			wam.moveTo(wam.getToolPose());
+			break;
 
-    case 'i':
-      printf("WAM idled.\n");
+		case 'i':
+			printf("WAM idled.\n");
 
-      // Note that this use of the word "idle" does not mean "Shift-idle".
-      // Calling Wam::idle() will disable any of the controllers that may
-      // be connected (joint position, tool position, tool orientation,
-      // etc.) leaving only gravity compensation. (More specifically,
-      // Wam::idle() disconnects any inputs that were connected using
-      // Wam::trackReferenceSignal().)
-      wam.idle();
-      break;
+			// Note that this use of the word "idle" does not mean "Shift-idle".
+			// Calling Wam::idle() will disable any of the controllers that may
+			// be connected (joint position, tool position, tool orientation,
+			// etc.) leaving only gravity compensation. (More specifically,
+			// Wam::idle() disconnects any inputs that were connected using
+			// Wam::trackReferenceSignal().)
+			wam.idle();
+			break;
 
-    case 'q':
-    case 'x':
-      printf("Quitting.\n");
-      wam.moveHome();
-      going = false;
-      break;
+		case 'q':
+		case 'x':
+			printf("Quitting.\n");
+			wam.moveHome();
+			going = false;
+			break;
 
-    default:
-      if (line.size() != 0) {
-        printf("Unrecognized option.\n");
-        printMenu();
-      }
-      break;
-    }
-  }
+		default:
+			if (line.size() != 0) {
+				printf("Unrecognized option.\n");
+				printMenu();
+			}
+			break;
+		}
+	}
 
-  // Release the WAM if we're holding. This is convenient because it allows
-  // users to move the WAM back to some collapsed position before exiting, if
-  // they want.
-  wam.idle();
+	// Release the WAM if we're holding. This is convenient because it allows
+	// users to move the WAM back to some collapsed position before exiting, if
+	// they want.
+	wam.idle();
 
-  // Wait for the user to press Shift-idle
-  pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
-  return 0;
+	// Wait for the user to press Shift-idle
+	pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
+	return 0;
 }

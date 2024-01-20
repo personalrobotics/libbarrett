@@ -33,34 +33,33 @@
 
 #include <stdexcept>
 
-#include <barrett/bus/abstract/communications_bus.h>
 #include <barrett/os.h>
+#include <barrett/bus/abstract/communications_bus.h>
+
 
 namespace barrett {
 namespace bus {
 
-int CommunicationsBus::receive(int expectedBusId, unsigned char *data,
-                               size_t &len, bool blocking,
-                               bool realtime) const {
-  int actualBusId;
-  int ret = receiveRaw(actualBusId, data, len, blocking);
 
-  // Test to see if libbarrett ever uses this function - nope.
-  // logMessage("CommunicationsBus::receive()");
+int CommunicationsBus::receive(int expectedBusId, unsigned char* data, size_t& len, bool blocking, bool realtime) const {
+	int actualBusId;
+	int ret = receiveRaw(actualBusId, data, len, blocking);
 
-  if (ret != 0) {
-    return ret;
-  }
+	// Test to see if libbarrett ever uses this function - nope.
+	//logMessage("CommunicationsBus::receive()");
 
-  if (actualBusId != expectedBusId) {
-    (logMessage("CommunicationsBus::%s: Received unexpected message from "
-                "busId=%d while expecting a message from busId=%d.") %
-     __func__ % actualBusId % expectedBusId)
-        .raise<std::runtime_error>();
-  }
+	if (ret != 0) {
+		return ret;
+	}
 
-  return 0;
+	if (actualBusId != expectedBusId) {
+		(logMessage("CommunicationsBus::%s: Received unexpected message from busId=%d while expecting a message from busId=%d.") %__func__ %actualBusId %expectedBusId).raise<std::runtime_error>();
+	}
+
+	return 0;
 }
 
-} // namespace bus
-} // namespace barrett
+
+
+}
+}

@@ -20,8 +20,9 @@
  * Shift-idle the WAM and it will again be ready to use.
  */
 
-#include <barrett/products/product_manager.h>
+
 #include <barrett/systems.h>
+#include <barrett/products/product_manager.h>
 
 // The file below defines Barrett's standard main() function (SMF). It helps you
 // initialize Barrett's products properly without having to repeat the necessary
@@ -30,8 +31,10 @@
 // wam_main() function below once the WAM is ready to start applying torques.
 #include <barrett/standard_main_function.h>
 
+
 // The root namespace for libbarrett
 using namespace barrett;
+
 
 // In this case, wam_main() is a function template. For a brief introduction to
 // C++ templates, see:
@@ -45,14 +48,15 @@ using namespace barrett;
 // version of this function where DOF = 7, and a version where DOF = 4. The SMF
 // will choose between the two versions based on what kind of robot is present
 // when the program is executed.
-template <size_t DOF>
-int wam_main(int argc, char **argv, ProductManager &pm,
-             systems::Wam<DOF> &wam) {
+template<size_t DOF>
+int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) {
 
-  // The WAM is now Shift-activated and applying zero torque with a loop-rate
-  // of 500Hz.
 
-  // Wait for the user to press Shift-idle
-  pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
-  return 0;
+	// The WAM is now Shift-activated and applying zero torque with a loop-rate
+	// of 500Hz.
+
+
+	// Wait for the user to press Shift-idle
+	pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
+	return 0;
 }

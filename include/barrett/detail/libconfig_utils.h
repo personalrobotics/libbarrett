@@ -28,53 +28,41 @@
  * @file libconfig_utils.h
  * @date 02/01/2010
  * @author Dan Cody
- *
+ * 
  */
 
 #ifndef BARRETT_DETAIL_LIBCONFIG_UTILS_H_
 #define BARRETT_DETAIL_LIBCONFIG_UTILS_H_
 
+
 #include <libconfig.h++>
+
 
 namespace barrett {
 namespace detail {
 
-inline double numericToDouble(const libconfig::Setting &setting) {
-  switch (setting.getType()) {
-  case libconfig::Setting::TypeInt:
-    return static_cast<int>(setting);
-    break;
 
-  case libconfig::Setting::TypeInt64:
-    return static_cast<long long>(setting);
-    break;
+inline double numericToDouble(const libconfig::Setting& setting)
+{
+	switch (setting.getType()) {
+	case libconfig::Setting::TypeInt:
+		return static_cast<int>(setting);
+		break;
 
-  default:
-    return setting;
-    break;
-  }
+	case libconfig::Setting::TypeInt64:
+		return static_cast<long long>(setting);
+		break;
+
+	default:
+		return setting;
+		break;
+	}
+
 }
 
-// Access private config_setting_t* in libconfig::Setting
-// See:
-// https://stackoverflow.com/questions/424104/can-i-access-private-members-from-outside-the-class-without-using-friends
-template <typename Tag, typename Tag::type M> struct PrivateAccess {
-  friend typename Tag::type get(Tag) { return M; }
-};
 
-// tag used to access A::member
-struct Settings_Access {
-  typedef config_setting_t *libconfig::Setting::*type;
-  friend type get(Settings_Access);
-};
-
-template struct PrivateAccess<Settings_Access, &libconfig::Setting::_setting>;
-
-inline config_setting_t *getCSetting(const libconfig::Setting &setting) {
-  return setting.*get(Settings_Access());
+}
 }
 
-} // namespace detail
-} // namespace barrett
 
 #endif /* BARRETT_DETAIL_LIBCONFIG_UTILS_H_ */

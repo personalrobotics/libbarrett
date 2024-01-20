@@ -34,116 +34,111 @@
 #include <stdexcept>
 
 #include <barrett/os.h>
+#include <barrett/products/puck.h>
 #include <barrett/products/abstract/special_puck.h>
 #include <barrett/products/force_torque_sensor.h>
-#include <barrett/products/puck.h>
+
 
 namespace barrett {
 
 /** setPuck Method changes puck properties to be ForceTorqueSensor settings */
-void ForceTorqueSensor::setPuck(Puck *puck) {
-  // Call super
-  SpecialPuck::setPuck(puck);
+void ForceTorqueSensor::setPuck(Puck* puck)
+{
+	// Call super
+	SpecialPuck::setPuck(puck);
 
-  p->wake();
-  bus = &p->getBus();
-  id = p->getId();
+	p->wake();
+	bus = &p->getBus();
+	id = p->getId();
 
-  // TODO(dc): Fix this once FT sensors have working ROLE/VERS properties.
-  propId = Puck::getPropertyId(Puck::FT, Puck::PT_ForceTorque, 0);
+	// TODO(dc): Fix this once FT sensors have working ROLE/VERS properties.
+	propId = Puck::getPropertyId(Puck::FT, Puck::PT_ForceTorque, 0);
 
-  tare();
+	tare();
 }
 /** update Method establishes new force and torque values from the sensor */
-void ForceTorqueSensor::update(bool realtime) {
-  int ret;
+void ForceTorqueSensor::update(bool realtime)
+{
+	int ret;
 
-  BARRETT_SCOPED_LOCK(bus->getMutex());
+	BARRETT_SCOPED_LOCK(bus->getMutex());
 
-  ret = Puck::sendGetPropertyRequest(*bus, id, propId);
-  if (ret != 0) {
-    (logMessage("ForceTorqueSensor::%s(): Failed to send request. "
-                "Puck::sendGetPropertyRequest() returned error %d.") %
-     __func__ % ret)
-        .raise<std::runtime_error>();
-  }
+	ret = Puck::sendGetPropertyRequest(*bus, id, propId);
+	if (ret != 0) {
+		(logMessage("ForceTorqueSensor::%s(): Failed to send request. "
+				"Puck::sendGetPropertyRequest() returned error %d.")
+				% __func__ % ret).raise<std::runtime_error>();
+	}
 
-  // Receive force message
-  ret = Puck::receiveGetPropertyReply<ForceParser>(*bus, id, propId, &cf, true,
-                                                   realtime);
-  if (ret != 0) {
-    (logMessage("ForceTorqueSensor::%s(): Failed to receive reply. "
-                "Puck::receiveGetPropertyReply() returned error %d while "
-                "receiving FT Force reply from ID=%d.") %
-     __func__ % ret % id)
-        .raise<std::runtime_error>();
-  }
 
-  // Receive torque message
-  ret = Puck::receiveGetPropertyReply<TorqueParser>(*bus, id, propId, &ct, true,
-                                                    realtime);
-  if (ret != 0) {
-    (logMessage("ForceTorqueSensor::%s(): Failed to receive reply. "
-                "Puck::receiveGetPropertyReply() returned error %d while "
-                "receiving FT Torque reply from ID=%d.") %
-     __func__ % ret % id)
-        .raise<std::runtime_error>();
-  }
-  boost::this_thread::yield();
+	// Receive force message
+	ret = Puck::receiveGetPropertyReply<ForceParser>(*bus, id, propId, &cf, true, realtime);
+	if (ret != 0) {
+		(logMessage("ForceTorqueSensor::%s(): Failed to receive reply. "
+				"Puck::receiveGetPropertyReply() returned error %d while receiving FT Force reply from ID=%d.")
+				% __func__ % ret % id).raise<std::runtime_error>();
+	}
+
+	// Receive torque message
+	ret = Puck::receiveGetPropertyReply<TorqueParser>(*bus, id, propId, &ct, true, realtime);
+	if (ret != 0) {
+		(logMessage("ForceTorqueSensor::%s(): Failed to receive reply. "
+				"Puck::receiveGetPropertyReply() returned error %d while receiving FT Torque reply from ID=%d.")
+				% __func__ % ret % id).raise<std::runtime_error>();
+	}
+	boost::this_thread::yield();
 }
 /** updateAccel Method clears stored acceleration values in each axis */
-void ForceTorqueSensor::updateAccel(bool realtime) {
-  int ret;
+void ForceTorqueSensor::updateAccel(bool realtime)
+{
+	int ret;
 
-  // TODO(dc): Fix this once FT sensors have working ROLE/VERS properties.
-  int accelPropId = Puck::getPropertyId(Puck::A, Puck::PT_ForceTorque, 0);
+	// TODO(dc): Fix this once FT sensors have working ROLE/VERS properties.
+	int accelPropId = Puck::getPropertyId(Puck::A, Puck::PT_ForceTorque, 0);
 
-  BARRETT_SCOPED_LOCK(bus->getMutex());
-  ret = Puck::sendGetPropertyRequest(*bus, id, accelPropId);
-  if (ret != 0) {
-    (logMessage("ForceTorqueSensor::%s(): Failed to send request. "
-                "Puck::sendGetPropertyRequest() returned error %d.") %
-     __func__ % ret)
-        .raise<std::runtime_error>();
-  }
+	BARRETT_SCOPED_LOCK(bus->getMutex());
+	ret = Puck::sendGetPropertyRequest(*bus, id, accelPropId);
+	if (ret != 0) {
+		(logMessage("ForceTorqueSensor::%s(): Failed to send request. "
+				"Puck::sendGetPropertyRequest() returned error %d.")
+				% __func__ % ret).raise<std::runtime_error>();
+	}
 
-  ret = Puck::receiveGetPropertyReply<AccelParser>(*bus, id, accelPropId, &ca,
-                                                   true, realtime);
-  if (ret != 0) {
-    (logMessage("ForceTorqueSensor::%s(): Failed to receive reply. "
-                "Puck::receiveGetPropertyReply() returned error %d while "
-                "receiving FT Accel reply from ID=%d.") %
-     __func__ % ret % id)
-        .raise<std::runtime_error>();
-  }
-  boost::this_thread::yield();
+	ret = Puck::receiveGetPropertyReply<AccelParser>(*bus, id, accelPropId, &ca, true, realtime);
+	if (ret != 0) {
+		(logMessage("ForceTorqueSensor::%s(): Failed to receive reply. "
+				"Puck::receiveGetPropertyReply() returned error %d while receiving FT Accel reply from ID=%d.")
+				% __func__ % ret % id).raise<std::runtime_error>();
+	}
+	boost::this_thread::yield();
 }
 /** parse Method splits data into readable format */
-int ForceTorqueSensor::parse(int id, int propId, base_type *result,
-                             const unsigned char *data, size_t len,
-                             double scaleFactor) {
-  if (len != 6 && len != 7) {
-    logMessage("ForceTorqueSensor::%s(): expected message length of 6 or "
-               "7, got message length of %d.") %
-        __func__ % len;
-    return 1;
-  }
+int ForceTorqueSensor::parse(int id, int propId, base_type* result, const unsigned char* data, size_t len, double scaleFactor)
+{
+	if (len != 6  &&  len != 7) {
+		logMessage("ForceTorqueSensor::%s(): expected message length of 6 or 7, got message length of %d.")
+				% __func__ % len;
+		return 1;
+	}
 
-  (*result)[0] = twoByte2int(data[0], data[1]) / scaleFactor;
-  (*result)[1] = twoByte2int(data[2], data[3]) / scaleFactor;
-  (*result)[2] = twoByte2int(data[4], data[5]) / scaleFactor;
 
-  return 0;
+	(*result)[0] = twoByte2int(data[0], data[1]) / scaleFactor;
+	(*result)[1] = twoByte2int(data[2], data[3]) / scaleFactor;
+	(*result)[2] = twoByte2int(data[4], data[5]) / scaleFactor;
+
+	return 0;
 }
 /** */
-int ForceTorqueSensor::twoByte2int(unsigned char lsb, unsigned char msb) {
-  int res = ((int)msb << 8) | lsb;
+int ForceTorqueSensor::twoByte2int(unsigned char lsb, unsigned char msb)
+{
+	int res = ((int)msb << 8)  |  lsb;
 
-  if (res & 0x00008000) {
-    res |= ~((int)0xffff);
-  }
+	if (res & 0x00008000) {
+		res |= ~((int)0xffff);
+	}
 
-  return res;
+	return res;
 }
 
-} // namespace barrett
+
+}

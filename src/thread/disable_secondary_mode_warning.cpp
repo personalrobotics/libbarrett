@@ -27,11 +27,11 @@
  * @file disable_secondary_mode_warning.cpp
  * @date 12/14/2010
  * @author Dan Cody
- *
+ * 
  */
 
 #ifdef BARRETT_XENOMAI
-#include <alchemy/task.h>
+#include <native/task.h>
 #endif
 
 #include <barrett/thread/disable_secondary_mode_warning.h>
@@ -39,21 +39,25 @@
 namespace barrett {
 namespace thread {
 
-DisableSecondaryModeWarning::DisableSecondaryModeWarning() {
+
+DisableSecondaryModeWarning::DisableSecondaryModeWarning()
+{
 #ifdef BARRETT_XENOMAI
-  int oldMode;
-  rt_task_set_mode(T_WARNSW, 0, &oldMode);
-  leaveWarnSwitchOn = oldMode & T_WARNSW;
+	int oldMode;
+	rt_task_set_mode(T_WARNSW, 0, &oldMode);
+	leaveWarnSwitchOn = oldMode & T_WARNSW;
 #endif
 }
 
-DisableSecondaryModeWarning::~DisableSecondaryModeWarning() {
+DisableSecondaryModeWarning::~DisableSecondaryModeWarning()
+{
 #ifdef BARRETT_XENOMAI
-  if (leaveWarnSwitchOn) {
-    rt_task_set_mode(0, T_WARNSW, NULL);
-  }
+	if (leaveWarnSwitchOn) {
+		rt_task_set_mode(0, T_WARNSW, NULL);
+	}
 #endif
 }
 
-} // namespace thread
-} // namespace barrett
+
+}
+}

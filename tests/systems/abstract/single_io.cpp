@@ -5,15 +5,19 @@
  *      Author: dc
  */
 
-#include "../exposed_io_system.h"
+
 #include <gtest/gtest.h>
+#include "../exposed_io_system.h"
+
 
 namespace {
 using namespace barrett;
 
+
 TEST(SingleIOTest, DefaultCtor) {
-  ExposedIOSystem<double> eios;
-  checkDisconnected(eios);
+	ExposedIOSystem<double> eios;
+	checkDisconnected(eios);
 }
 
-} // namespace
+
+}

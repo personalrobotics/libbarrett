@@ -5,25 +5,28 @@
  *      Author: dc
  */
 
-#include "./exposed_io_system.h"
+#include <gtest/gtest.h>
 #include <barrett/systems/constant.h>
 #include <barrett/systems/manual_execution_manager.h>
-#include <gtest/gtest.h>
+#include "./exposed_io_system.h"
+
 
 namespace {
 using namespace barrett;
 
+
 TEST(ConstantSystemTest, OutputsConstant) {
-  systems::ManualExecutionManager mem;
-  systems::Constant<double> conSys(5.1);
+	systems::ManualExecutionManager mem;
+	systems::Constant<double> conSys(5.1);
 
-  ExposedIOSystem<double> eios;
-  mem.startManaging(eios);
+	ExposedIOSystem<double> eios;
+	mem.startManaging(eios);
 
-  systems::connect(conSys.output, eios.input);
+	systems::connect(conSys.output, eios.input);
 
-  EXPECT_TRUE(eios.inputValueDefined()) << "constant value undefined";
-  EXPECT_EQ(5.1, eios.getInputValue()) << "wrong constant value given";
+	EXPECT_TRUE(eios.inputValueDefined()) << "constant value undefined";
+	EXPECT_EQ(5.1, eios.getInputValue()) << "wrong constant value given";
 }
 
-} // namespace
+
+}

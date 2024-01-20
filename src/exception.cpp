@@ -36,25 +36,31 @@
  *	Newton, MA 02458
  */
 
+
+#include <exception>
 #include <barrett/detail/stacktrace.h>
 #include <barrett/exception.h>
-#include <exception>
+
 
 namespace barrett {
 
+
 namespace detail {
 
-void (*oldTerminate)(); // pointer to the system's default terminate function
+void (*oldTerminate)();  // pointer to the system's default terminate function
 
 void myTerminate() {
-  print_stacktrace();
-  oldTerminate();
+	print_stacktrace();
+	oldTerminate();
 }
 
-} // namespace detail
-
-void installExceptionHandler() {
-  detail::oldTerminate = std::set_terminate(detail::myTerminate);
 }
 
-} // namespace barrett
+
+void installExceptionHandler()
+{
+	detail::oldTerminate = std::set_terminate(detail::myTerminate);
+}
+
+
+}

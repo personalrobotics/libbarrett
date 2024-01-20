@@ -2,7 +2,7 @@
  * @file stl_utils.cpp
  * @date 11/05/2010
  * @author Dan Cody
- *
+ * 
  */
 
 /**
@@ -33,13 +33,16 @@
 #include <iostream>
 #include <string>
 
+
 namespace barrett {
 namespace detail {
 
+
 void waitForEnter() {
-  static std::string line;
-  std::getline(std::cin, line);
+	static std::string line;
+	std::getline(std::cin, line);
 }
 
-} // namespace detail
-} // namespace barrett
+
+}
+}

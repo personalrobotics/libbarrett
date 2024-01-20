@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 2.6)
 
 project(libbarrett)
 set(libbarrett_VERSION_MAJOR 3)
@@ -22,7 +22,7 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules/")
 option(BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON)
 option(OPTIMIZE_FOR_PROCESSOR "Set to ON to build binaries that are optimized for this specific computer and can't be copied to other machines" OFF)
 option(WITH_PYTHON "Set to ON to build Python bindings for libbarrett" ON)
-option(INSTALL_EXAMPLES "Set to ON to copy libbarrett example programs to the current user's home folder when the library is installed" OFF)
+option(INSTALL_EXAMPLES "Set to ON to copy libbarrett example programs to the current user's home folder when the library is installed" ON)
 option(INSTALL_SANDBOX "Set to ON to copy libbarrett sandbox programs to the current user's home folder when the library is installed" ON)
 option(CONFIG_PACKAGE "Set to ON to set up CPACK variables necessary for packaging" OFF)
 option(CONFIG_DEBIAN "Set to ON to copy standard barrett-config.cmake, required for Debian packaging" OFF)
@@ -79,10 +79,7 @@ set(exported_link_dirs ${exported_link_dirs} ${CMAKE_INSTALL_PREFIX}/lib)
 ## GSL
 find_package(GSL REQUIRED)
 include_directories(${GSL_INCLUDE_DIRS})
-link_directories(${GSL_LIBRARY_DIRS})
-
 set(exported_include_dirs ${exported_include_dirs} ${GSL_INCLUDE_DIRS})
-set(exported_link_dirs ${exported_link_dirs} ${GSL_LIBRARY_DIRS})
 
 ## Python
 if (WITH_PYTHON)
@@ -103,10 +100,6 @@ endif()
 message(STATUS "Boost components: ${boost_components}")
 find_package(Boost REQUIRED ${boost_components})
 
-# Ignore Boost internal deprecation
-add_definitions("-DBOOST_ALLOW_DEPRECATED_HEADERS")
-add_definitions("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
-
 ## Translate cmake's new "Boost::blah" library naming format to a normal "libboost_blah" name that can be passed to the linker.
 ## TODO(bz): Hunt down anyone who makes stupid changes like this and make them suffer.
 set(boost_libraries "")
@@ -125,9 +118,9 @@ set(exported_link_dirs ${exported_link_dirs} ${Boost_LIBRARY_DIRS})
 
 ## Eigen3
 find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIRS})
-set(exported_include_dirs ${exported_include_dirs} ${EIGEN3_INCLUDE_DIRS})
-message(STATUS "Eigen Include Dirs: ${EIGEN3_INCLUDE_DIRS}")
+include_directories(${Eigen_INCLUDE_DIRS})
+set(exported_include_dirs ${exported_include_dirs} ${Eigen_INCLUDE_DIRS})
+
 
 ## curses
 find_package(Curses REQUIRED)
@@ -140,28 +133,6 @@ include_directories(${CURSES_INCLUDE_DIR})
 # barrett-config.cmake is generated.
 add_subdirectory(src)
 
-### Auto Format
-# Only files that are substantially different from upstream libbarrett should
-# be formatted.
-include(ClangFormat)
-clang_format_setup(VERSION 14)
-
-if (CLANG_FORMAT_EXECUTABLE)
-	file(GLOB_RECURSE ALL_SOURCE_FILES
-	    LIST_DIRECTORIES false
-	    include/*.h
-	    include/*.hpp
-	    src/*.c
-	    src/*.cpp
-	    tests/*.cpp
-	    tests/*.hpp
-	    tests/*.h
-	    programs/*.cpp
-	    examples/*.h
-	    examples/*.cpp)
-  clang_format_add_sources(${ALL_SOURCE_FILES})
-  clang_format_add_targets()
-endif()
 
 
 ### Installation

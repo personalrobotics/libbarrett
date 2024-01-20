@@ -102,24 +102,14 @@ else( WIN32 AND NOT CYGWIN AND NOT MSYS )
         ERROR_QUIET
         )
       if( RET EQUAL 0 )
-        string(STRIP "${GSL_LIBRARIES}" GSL_CONFIG_LIBRARIES )
-        separate_arguments( GSL_CONFIG_LIBRARIES )
+        string(STRIP "${GSL_LIBRARIES}" GSL_LIBRARIES )
+        separate_arguments( GSL_LIBRARIES )
 
         # extract linkdirs (-L) for rpath (i.e., LINK_DIRECTORIES)
         string( REGEX MATCHALL "-L[^;]+"
-          GSL_LIBRARY_DIRS "${GSL_CONFIG_LIBRARIES}" )
+          GSL_LIBRARY_DIRS "${GSL_LIBRARIES}" )
         string( REPLACE "-L" ""
           GSL_LIBRARY_DIRS "${GSL_LIBRARY_DIRS}" )
-
-        # extract libraries (-l)
-        # ignore "x86_64-linux-gnu"
-        string( REGEX MATCHALL ";-l[^;]+"
-          GSL_LIBRARIES "${GSL_CONFIG_LIBRARIES}" )
-        string( REGEX MATCHALL "-l[^;]+"
-          GSL_LIBRARIES "${GSL_LIBRARIES}" )
-        string( REPLACE "-l" ""
-          GSL_LIBRARIES "${GSL_LIBRARIES}" )
-
       else( RET EQUAL 0 )
         set( GSL_FOUND FALSE )
       endif( RET EQUAL 0 )
