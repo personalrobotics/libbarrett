@@ -5,14 +5,11 @@
  *      Author: dc
  */
 
-
-#include <gtest/gtest.h>
 #include <barrett/math/traits.h>
-
+#include <gtest/gtest.h>
 
 namespace {
 using namespace barrett;
-
 
 TEST(MathTraitsTest, Double) {
 	typedef math::Traits<double> T;
@@ -29,5 +26,4 @@ TEST(MathTraitsTest, Double) {
 	EXPECT_EQ(8.0, T::div(16, 2));
 }
 
-
-}
+} // namespace

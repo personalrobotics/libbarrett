@@ -9,25 +9,23 @@
 #include <boost/tuple/tuple.hpp>
 
 #include <barrett/exception.h>
-#include <barrett/units.h>
-#include <barrett/systems.h>
 #include <barrett/products/product_manager.h>
+#include <barrett/systems.h>
+#include <barrett/units.h>
 
 #define BARRETT_SMF_VALIDATE_ARGS
 #include <barrett/standard_main_function.h>
 
 #include "ex10_haptics.h"
 
-
 using namespace barrett;
 using systems::connect;
 BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
 
-
-char* remoteHost = NULL;
+char *remoteHost = NULL;
 double kp = 3e3;
 double kd = 3e1;
-bool validate_args(int argc, char** argv) {
+bool validate_args(int argc, char **argv) {
 	switch (argc) {
 	case 4:
 		kd = atof(argv[3]);
@@ -47,13 +45,14 @@ bool validate_args(int argc, char** argv) {
 	return true;
 }
 
-
 cf_type scale(boost::tuple<cf_type, double> t) {
 	return t.get<0>() * t.get<1>();
 }
 
 template <size_t DOF>
-typename units::JointTorques<DOF>::type saturateJt(const typename units::JointTorques<DOF>::type& x, const typename units::JointTorques<DOF>::type& limit) {
+typename units::JointTorques<DOF>::type
+saturateJt(const typename units::JointTorques<DOF>::type &x,
+           const typename units::JointTorques<DOF>::type &limit) {
 	int index;
 	double minRatio;
 
@@ -66,18 +65,18 @@ typename units::JointTorques<DOF>::type saturateJt(const typename units::JointTo
 }
 
 template <size_t DOF>
-int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) {
+int wam_main(int argc, char **argv, ProductManager &pm,
+             systems::Wam<DOF> &wam) {
 	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-
-    // instantiate Systems
+	// instantiate Systems
 	NetworkHaptics nh(pm.getExecutionManager(), remoteHost);
-	
+
 	cp_type center;
 	center << 0.4, -0.3, 0.0;
 	systems::HapticBall ball(center, 0.2);
 	center << 0.35, 0.4, 0.0;
-		
+
 	math::Vector<3>::type size;
 	size << 0.3, 0.3, 0.3;
 	systems::HapticBox box(center, size);
@@ -91,7 +90,8 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 	systems::ToolForceToJointTorques<DOF> tf2jt;
 
 	jt_type jtLimits(35.0);
-	systems::Callback<jt_type> jtSat(boost::bind(saturateJt<DOF>, _1, jtLimits));
+	systems::Callback<jt_type> jtSat(
+	    boost::bind(saturateJt<DOF>, _1, jtLimits));
 
 	// configure Systems
 	comp.setKp(kp);
@@ -105,23 +105,23 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 	systems::modXYZ<cf_type> modforce;
 	modforce.negX();
 	modforce.negY();
-	if(DOF == 3) { 
-	connect(wam.toolPosition.output, modcp.input);
-	connect(modcp.output, nh.input);
+	if (DOF == 3) {
+		connect(wam.toolPosition.output, modcp.input);
+		connect(modcp.output, nh.input);
 
-	connect(modcp.output, ball.input);
-	connect(modcp.output, box.input);
+		connect(modcp.output, ball.input);
+		connect(modcp.output, box.input);
 
-	connect(mult.output, modforce.input);
-	connect(modforce.output, tf2jt.input);
+		connect(mult.output, modforce.input);
+		connect(modforce.output, tf2jt.input);
 	} else {
-	// connect Systems
-	connect(wam.toolPosition.output, nh.input);
+		// connect Systems
+		connect(wam.toolPosition.output, nh.input);
 
-	connect(wam.toolPosition.output, ball.input);
-	connect(wam.toolPosition.output, box.input);
+		connect(wam.toolPosition.output, ball.input);
+		connect(wam.toolPosition.output, box.input);
 
-	connect(mult.output, tf2jt.input);
+		connect(mult.output, tf2jt.input);
 	}
 
 	connect(ball.directionOutput, dirSum.getInput(0));
@@ -139,7 +139,6 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 
 	connect(tg.output, mult.input);
 	connect(tf2jt.output, jtSat.input);
-
 
 	// adjust velocity fault limit
 	pm.getSafetyModule()->setVelocityLimit(1.5);

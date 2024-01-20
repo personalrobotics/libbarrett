@@ -38,10 +38,9 @@
 extern "C" {
 #endif
 
-#include <libconfig.h>
-#include <gsl/gsl_vector.h>
 #include <gsl/gsl_matrix.h>
-
+#include <gsl/gsl_vector.h>
+#include <libconfig.h>
 
 /** Perform a vector cross-product, res += a x b.
  *
@@ -54,8 +53,7 @@ extern "C" {
  * \param[out] res Result vector to add to
  * \retval 0 Success
  */
-int bt_gsl_cross(gsl_vector * a, gsl_vector * b, gsl_vector * res);
-
+int bt_gsl_cross(gsl_vector *a, gsl_vector *b, gsl_vector *res);
 
 /** Format the vector into the buffer.
  *
@@ -69,8 +67,7 @@ int bt_gsl_cross(gsl_vector * a, gsl_vector * b, gsl_vector * res);
  * \param[in] vector The vector to format
  * \returns The value of buffer
  */
-char * bt_gsl_vector_sprintf(char * buffer, gsl_vector * vector);
-
+char *bt_gsl_vector_sprintf(char *buffer, gsl_vector *vector);
 
 /** Retrieve a double from a libconfig setting.
  *
@@ -80,8 +77,7 @@ char * bt_gsl_vector_sprintf(char * buffer, gsl_vector * vector);
  * \retval -1 The setting does not exist
  * \retval -2 The setting's value is not convertable to double
  */
-int bt_gsl_config_get_double(config_setting_t * setting, double * result);
-
+int bt_gsl_config_get_double(config_setting_t *setting, double *result);
 
 /** Retrieve a double from a named setting in a libconfig group.
  *
@@ -92,9 +88,8 @@ int bt_gsl_config_get_double(config_setting_t * setting, double * result);
  * \retval -1 The named setting does not exist
  * \retval -2 The setting's value is not convertable to double
  */
-int bt_gsl_config_double_from_group(config_setting_t * grp, char * name,
-                                    double * result);
-
+int bt_gsl_config_double_from_group(config_setting_t *grp, char *name,
+                                    double *result);
 
 /** Fill a vector from a libconfig array or list.
  *
@@ -109,15 +104,12 @@ int bt_gsl_config_double_from_group(config_setting_t * grp, char * name,
  * \retval -2 At least one of the array or list's values is not convertable
  *            to double
  */
-int bt_gsl_fill_vector_cfggroup(gsl_vector * vec, config_setting_t * parent,
-                       const char * name);
+int bt_gsl_fill_vector_cfggroup(gsl_vector *vec, config_setting_t *parent,
+                                const char *name);
 
+int bt_gsl_fill_vector_cfgarray(gsl_vector *vec, config_setting_t *array);
 
-int bt_gsl_fill_vector_cfgarray(gsl_vector * vec, config_setting_t * array);
-
-
-int bt_gsl_fill_vector(gsl_vector * vec, ...);
-
+int bt_gsl_fill_vector(gsl_vector *vec, ...);
 
 /** Fill a matrix from a libconfig list of arrays or lists.
  *
@@ -131,9 +123,8 @@ int bt_gsl_fill_vector(gsl_vector * vec, ...);
  *            lists with the same dimensions as the matrix
  * \retval -2 At least one of the read values is not convertable to double
  */
-int bt_gsl_fill_matrix(gsl_matrix * mat, config_setting_t * parent,
-                       const char * name);
-
+int bt_gsl_fill_matrix(gsl_matrix *mat, config_setting_t *parent,
+                       const char *name);
 
 #ifdef __cplusplus
 }

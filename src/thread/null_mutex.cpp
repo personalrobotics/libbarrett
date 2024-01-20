@@ -27,19 +27,15 @@
  * @file null_mutex.cpp
  * @date 01/06/2010
  * @author Dan Cody
- * 
+ *
  */
 
-
 #include <barrett/thread/null_mutex.h>
-
 
 namespace barrett {
 namespace thread {
 
-
 NullMutex NullMutex::aNullMutex;
 
-
 }
-}
+} // namespace barrett

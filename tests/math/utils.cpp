@@ -5,28 +5,23 @@
  *      Author: dc
  */
 
-
-#include <gtest/gtest.h>
 #include <barrett/math/matrix.h>
 #include <barrett/math/utils.h>
-
+#include <gtest/gtest.h>
 
 namespace {
 using namespace barrett;
 
-
 const size_t N = 5;
 
-
 class MathUtilsTest : public ::testing::Test {
-protected:
+  protected:
 	math::Vector<N>::type a, b, e;
 };
 
-
 TEST_F(MathUtilsTest, VectorSignTest) {
 	a << -10, -0.5, 0, 0.5, 10;
-	e <<  -1,   -1, 0,   1, 1;
+	e << -1, -1, 0, 1, 1;
 	EXPECT_EQ(e, math::sign(a));
 }
 
@@ -38,7 +33,7 @@ TEST_F(MathUtilsTest, ScalarSignTest) {
 
 TEST_F(MathUtilsTest, VectorAbsTest) {
 	a << -10, -0.5, 0, 0.5, 10;
-	e <<  10,  0.5, 0, 0.5, 10;
+	e << 10, 0.5, 0, 0.5, 10;
 	EXPECT_EQ(e, math::abs(a));
 }
 
@@ -49,8 +44,8 @@ TEST_F(MathUtilsTest, ScalarAbsTest) {
 }
 
 TEST_F(MathUtilsTest, VectorMinTest) {
-	a << -10, -0.5,  0,  0.5, 10;
-	b <<  -9,  0.5, -1, 0.25, 11;
+	a << -10, -0.5, 0, 0.5, 10;
+	b << -9, 0.5, -1, 0.25, 11;
 	e << -10, -0.5, -1, 0.25, 10;
 	EXPECT_EQ(e, math::min(a, b));
 }
@@ -65,10 +60,10 @@ TEST_F(MathUtilsTest, ScalarMinTest) {
 }
 
 TEST_F(MathUtilsTest, VectorMaxTest) {
-	a << -10, -0.5,  0,  0.5, 10;
-	b <<  -9,  0.5, -1, 0.25, 11;
-	e <<  -9,  0.5,  0,  0.5, 11;
-	EXPECT_EQ(e, math::max(a, b));  //NOLINT: irrelevant
+	a << -10, -0.5, 0, 0.5, 10;
+	b << -9, 0.5, -1, 0.25, 11;
+	e << -9, 0.5, 0, 0.5, 11;
+	EXPECT_EQ(e, math::max(a, b)); // NOLINT: irrelevant
 }
 
 TEST_F(MathUtilsTest, ScalarMaxTest) {
@@ -133,5 +128,4 @@ TEST_F(MathUtilsTest, ScalarScalarDeadbandTest) {
 	EXPECT_DOUBLE_EQ(-12337, math::deadband(-12342.0, 5.0));
 }
 
-
-}
+} // namespace

@@ -5,18 +5,16 @@
  *      Author: dc
  */
 
-
 #include <cstring>
 #include <fstream>
 //#include <iostream>
 #include <stdio.h>
 
-#include <gtest/gtest.h>
 #include "./verify_file_contents.h"
+#include <gtest/gtest.h>
 
-
-void verifyFileContents(const char* fileName, const char* expectedContents, long expectedSize)
-{
+void verifyFileContents(const char *fileName, const char *expectedContents,
+                        long expectedSize) {
 	std::ifstream fh(fileName, std::fstream::binary);
 
 	// get size of file
@@ -26,13 +24,14 @@ void verifyFileContents(const char* fileName, const char* expectedContents, long
 	ASSERT_EQ(expectedSize, size);
 
 	// read file
-	char* buffer = new char[expectedSize];
+	char *buffer = new char[expectedSize];
 	fh.read(buffer, expectedSize);
 	EXPECT_EQ(0, std::memcmp(expectedContents, buffer, size));
 	if (std::memcmp(expectedContents, buffer, size)) {
 		for (int i = 0; i < size; ++i) {
 			if (expectedContents[i] != buffer[i]) {
-				printf("%d: '%c' (%d), '%c' (%d)\n", i, expectedContents[i], (int)expectedContents[i], buffer[i], (int)buffer[i]);
+				printf("%d: '%c' (%d), '%c' (%d)\n", i, expectedContents[i],
+				       (int)expectedContents[i], buffer[i], (int)buffer[i]);
 			}
 		}
 	}

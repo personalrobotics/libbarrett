@@ -5,58 +5,51 @@
  *      Author: dc
  */
 
-#include <gtest/gtest.h>
 #include <barrett/systems/rate_limiter.h>
+#include <gtest/gtest.h>
 
-#include <barrett/math/utils.h>
-#include <barrett/math/matrix.h>
-#include <barrett/systems/manual_execution_manager.h>
-#include <barrett/systems/helpers.h>
 #include "exposed_io_system.h"
-
+#include <barrett/math/matrix.h>
+#include <barrett/math/utils.h>
+#include <barrett/systems/helpers.h>
+#include <barrett/systems/manual_execution_manager.h>
 
 namespace {
 using namespace barrett;
 
-
-template<typename T>
-void expectEqual(const T& a, const T& b) {
-	EXPECT_TRUE(math::abs(a - b).maxCoeff() < 1e-9) << "a = " << a << "; b = " << b;
+template <typename T> void expectEqual(const T &a, const T &b) {
+	EXPECT_TRUE(math::abs(a - b).maxCoeff() < 1e-9)
+	    << "a = " << a << "; b = " << b;
 }
 
-template<>
-void expectEqual(const double& a, const double& b) {
+template <> void expectEqual(const double &a, const double &b) {
 	EXPECT_DOUBLE_EQ(a, b);
 }
 
-template<typename T>
-class RateLimiterTest : public ::testing::Test {
-public:
-	RateLimiterTest() : mem(T_s) {
-		mem.startManaging(eios);
-	}
+template <typename T> class RateLimiterTest : public ::testing::Test {
+  public:
+	RateLimiterTest() : mem(T_s) { mem.startManaging(eios); }
 
-	void startTesting(systems::RateLimiter<T>& rl) {
+	void startTesting(systems::RateLimiter<T> &rl) {
 		systems::connect(eios.output, rl.input);
 		systems::connect(rl.output, eios.input);
 	}
 
-	void setAndRun(const T& inputValue) {
+	void setAndRun(const T &inputValue) {
 		eios.setOutputValue(inputValue);
 		mem.runExecutionCycle();
 	}
 
-	void setRunAndExpect(const T& inputValue, const T& expectedOutputValue) {
+	void setRunAndExpect(const T &inputValue, const T &expectedOutputValue) {
 		setAndRun(inputValue);
 		expectEqual(expectedOutputValue, eios.getInputValue());
 	}
 
-protected:
+  protected:
 	static constexpr double T_s = 0.1;
 	systems::ManualExecutionManager mem;
 	ExposedIOSystem<T> eios;
 };
-
 
 // Test for T = double
 typedef RateLimiterTest<double> RateLimiterDoubleTest;
@@ -83,19 +76,19 @@ TEST_F(RateLimiterDoubleTest, LimitCanBeModified) {
 	systems::RateLimiter<double> rl(rate1);
 	startTesting(rl);
 
-	double value = 0.5 * rate1*T_s;
+	double value = 0.5 * rate1 * T_s;
 	setRunAndExpect(0.5, value);
 
-	value += rate1*T_s;
+	value += rate1 * T_s;
 	setRunAndExpect(value + 0.001, value);
 
 	double rate2 = 100.0;
 	rl.setLimit(rate2);
 
-	value += rate2*T_s;
+	value += rate2 * T_s;
 	setRunAndExpect(value + 0.001, value);
 
-	value += 0.5 * rate2*T_s;
+	value += 0.5 * rate2 * T_s;
 	setRunAndExpect(value, value);
 }
 
@@ -118,7 +111,7 @@ TEST_F(RateLimiterDoubleTest, RampsUp) {
 	startTesting(rl);
 
 	for (int i = 0; i < 10; ++i) {
-		setRunAndExpect(1.0, (1+i) * T_s*rate);
+		setRunAndExpect(1.0, (1 + i) * T_s * rate);
 	}
 	for (int i = 0; i < 10; ++i) {
 		setRunAndExpect(1.0, 1.0);
@@ -131,10 +124,10 @@ TEST_F(RateLimiterDoubleTest, RampsDown) {
 	startTesting(rl);
 
 	for (int i = 0; i < 20; ++i) {
-		setRunAndExpect(-rate*2, -(1+i) * T_s*rate);
+		setRunAndExpect(-rate * 2, -(1 + i) * T_s * rate);
 	}
 	for (int i = 0; i < 10; ++i) {
-		setRunAndExpect(-rate*2, -rate*2);
+		setRunAndExpect(-rate * 2, -rate * 2);
 	}
 }
 
@@ -144,13 +137,13 @@ TEST_F(RateLimiterDoubleTest, SwitchesDirection) {
 	startTesting(rl);
 
 	for (int i = 0; i < 8; ++i) {
-		setRunAndExpect(9e9, (1+i) * T_s*rate);
+		setRunAndExpect(9e9, (1 + i) * T_s * rate);
 	}
 	for (int i = 0; i < 5; ++i) {
-		setRunAndExpect(-9e9, (7-i) * T_s*rate);
+		setRunAndExpect(-9e9, (7 - i) * T_s * rate);
 	}
 	for (int i = 0; i < 8; ++i) {
-		setRunAndExpect(9e9, (4+i) * T_s*rate);
+		setRunAndExpect(9e9, (4 + i) * T_s * rate);
 	}
 }
 
@@ -160,7 +153,7 @@ TEST_F(RateLimiterDoubleTest, GetsSamplePeriodFromEM) {
 	startTesting(rl);
 
 	setRunAndExpect(9e9, rate * T_s);
-	setRunAndExpect(9e9, rate * 2*T_s);
+	setRunAndExpect(9e9, rate * 2 * T_s);
 
 	double T_s2 = 1.0;
 	systems::ManualExecutionManager mem2(T_s2);
@@ -173,18 +166,16 @@ TEST_F(RateLimiterDoubleTest, GetsSamplePeriodFromEM) {
 
 	eios2.setOutputValue(9e9);
 	mem2.runExecutionCycle();
-	EXPECT_DOUBLE_EQ(rate * (2*T_s + T_s2), eios2.getInputValue());
+	EXPECT_DOUBLE_EQ(rate * (2 * T_s + T_s2), eios2.getInputValue());
 
 	eios2.setOutputValue(9e9);
 	mem2.runExecutionCycle();
-	EXPECT_DOUBLE_EQ(rate * (2*T_s + 2*T_s2), eios2.getInputValue());
+	EXPECT_DOUBLE_EQ(rate * (2 * T_s + 2 * T_s2), eios2.getInputValue());
 }
-
 
 // Test for T = v_type
 typedef math::Vector<3>::type v_type;
 typedef RateLimiterTest<v_type> RateLimiterVectorTest;
-
 
 const v_type ZERO_VECTOR(0.0);
 const v_type BIG_VECTOR(9e9);
@@ -213,13 +204,12 @@ TEST_F(RateLimiterVectorTest, RampsUp) {
 	startTesting(rl);
 
 	for (int i = 0; i < 10; ++i) {
-		setRunAndExpect(input, (1+i) * T_s*rate);
+		setRunAndExpect(input, (1 + i) * T_s * rate);
 	}
 	for (int i = 0; i < 10; ++i) {
 		setRunAndExpect(input, input);
 	}
 }
-
 
 // Death tests
 TEST(RateLimiterDoubleDeathTest, LimitCantBeNegative) {
@@ -236,5 +226,4 @@ TEST(RateLimiterVectorDeathTest, LimitCantBeNegative) {
 	EXPECT_DEATH(systems::RateLimiter<v_type> rl2(v_type(-1.0)), "");
 }
 
-
-}
+} // namespace

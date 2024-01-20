@@ -5,35 +5,29 @@
  *      Author: dc
  */
 
-#include <ostream>
-#include <gtest/gtest.h>
-#include <barrett/systems/gain.h>
-#include <barrett/systems/manual_execution_manager.h>
-#include <barrett/systems/helpers.h>
 #include "./exposed_io_system.h"
-
+#include <barrett/systems/gain.h>
+#include <barrett/systems/helpers.h>
+#include <barrett/systems/manual_execution_manager.h>
+#include <gtest/gtest.h>
+#include <ostream>
 
 namespace {
 using namespace barrett;
 
-
 class GainSystemTest : public ::testing::Test {
-public:
-	GainSystemTest() {
-		mem.startManaging(eios);
-	}
+  public:
+	GainSystemTest() { mem.startManaging(eios); }
 
-protected:
+  protected:
 	systems::ManualExecutionManager mem;
 	ExposedIOSystem<double> eios;
 };
 
-
 TEST_F(GainSystemTest, OutputInitiallyUndefined) {
 	systems::Gain<double> gainSys(12.5);
 
-	EXPECT_FALSE(gainSys.input.valueDefined())
-		<< "value defined without input";
+	EXPECT_FALSE(gainSys.input.valueDefined()) << "value defined without input";
 }
 
 TEST_F(GainSystemTest, ConnectsIO) {
@@ -71,48 +65,44 @@ TEST_F(GainSystemTest, SetGain) {
 	EXPECT_EQ(-3.8 * -38.52, eios.getInputValue());
 }
 
-
-
-
 using std::ostream;
 class A;
 class B;
 class C;
 
 class A {
-	friend const C operator * (const B& b, const A& a);
-private:
+	friend const C operator*(const B &b, const A &a);
+
+  private:
 	float value;
-public:
+
+  public:
 	A() : value(0.0) {}
-	explicit A(float value) :
-		value(value) {}
+	explicit A(float value) : value(value) {}
 };
 
 class B {
-	friend const C operator * (const B& b, const A& a);
-private:
+	friend const C operator*(const B &b, const A &a);
+
+  private:
 	float value;
-public:
-	explicit B(float value) :
-		value(value) {}
+
+  public:
+	explicit B(float value) : value(value) {}
 };
 class C {
-	friend ostream& operator<<(ostream& os, C c);
-private:
+	friend ostream &operator<<(ostream &os, C c);
+
+  private:
 	float value;
-public:
+
+  public:
 	C() : value(0.0) {}
-	explicit C(float value) :
-		value(value) {}
-	bool operator== (const C& other) const {
-		return value == other.value;
-	}
+	explicit C(float value) : value(value) {}
+	bool operator==(const C &other) const { return value == other.value; }
 };
-const C operator* (const B& b, const A& a) {
-	return C(a.value * b.value);
-}
-ostream& operator<<(ostream& os, C c) {
+const C operator*(const B &b, const A &a) { return C(a.value * b.value); }
+ostream &operator<<(ostream &os, C c) {
 	os << c.value;
 	return os;
 }
@@ -130,8 +120,7 @@ TEST_F(GainSystemTest, IGOCanBeDifferentTypes) {
 	out.setOutputValue(A(9.0));
 	mem.runExecutionCycle();
 	EXPECT_EQ(B(-3.0) * A(9.0), in.getInputValue())
-		<< "did multiplication wrong";
+	    << "did multiplication wrong";
 }
 
-
-}
+} // namespace

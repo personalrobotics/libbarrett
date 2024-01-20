@@ -5,15 +5,13 @@
  *      Author: dc
  */
 
-#include <gtest/gtest.h>
+#include "./exposed_io_system.h"
 #include <barrett/systems/constant.h>
 #include <barrett/systems/manual_execution_manager.h>
-#include "./exposed_io_system.h"
-
+#include <gtest/gtest.h>
 
 namespace {
 using namespace barrett;
-
 
 TEST(ConstantSystemTest, OutputsConstant) {
 	systems::ManualExecutionManager mem;
@@ -28,5 +26,4 @@ TEST(ConstantSystemTest, OutputsConstant) {
 	EXPECT_EQ(5.1, eios.getInputValue()) << "wrong constant value given";
 }
 
-
-}
+} // namespace

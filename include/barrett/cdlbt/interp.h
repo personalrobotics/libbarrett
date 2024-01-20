@@ -60,29 +60,22 @@ extern "C" {
 
 #include <gsl/gsl_interp.h>
 
-   
 /** The type of a bt_interp endpoint, either natural or slope.
  *
  * An endpoint of type BT_INTERP_NATURAL has a zero concavity (or
  * second-derivative), while an endpoint of type BT_INTERP_SLOPE has an
  * explicitly defined slope at the endpoint.
  */
-enum bt_interp_type {
-   BT_INTERP_NATURAL,
-   BT_INTERP_SLOPE
-};
-
+enum bt_interp_type { BT_INTERP_NATURAL, BT_INTERP_SLOPE };
 
 /** This is the GSL interpolator type object to be used with
  * gsl_interp_alloc() when a bt_interp type is to be used. */
-const gsl_interp_type * bt_interp;
-
+const gsl_interp_type *bt_interp;
 
 /** This function is used to set the types of the two endpoints before the
  *  interpolator is initialized. */
-int bt_interp_set_type(gsl_interp * interp, enum bt_interp_type ltype,
+int bt_interp_set_type(gsl_interp *interp, enum bt_interp_type ltype,
                        enum bt_interp_type rtype);
-
 
 /** This function is used to set the explicit slopes of the two endpoints
  *  before the interpolator is initialized.
@@ -90,8 +83,7 @@ int bt_interp_set_type(gsl_interp * interp, enum bt_interp_type ltype,
  * \note The values specified here will only be used if the endpoint is also
  *       of type BT_INTERP_SLOPE.
  */
-int bt_interp_set_slopes(gsl_interp * interp, double lslope, double rslope);
-
+int bt_interp_set_slopes(gsl_interp *interp, double lslope, double rslope);
 
 #ifdef __cplusplus
 }

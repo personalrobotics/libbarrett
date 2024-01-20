@@ -28,22 +28,18 @@
  * @file libconfig_utils.h
  * @date 02/01/2010
  * @author Dan Cody
- * 
+ *
  */
 
 #ifndef BARRETT_DETAIL_LIBCONFIG_UTILS_H_
 #define BARRETT_DETAIL_LIBCONFIG_UTILS_H_
 
-
 #include <libconfig.h++>
-
 
 namespace barrett {
 namespace detail {
 
-
-inline double numericToDouble(const libconfig::Setting& setting)
-{
+inline double numericToDouble(const libconfig::Setting &setting) {
 	switch (setting.getType()) {
 	case libconfig::Setting::TypeInt:
 		return static_cast<int>(setting);
@@ -57,12 +53,9 @@ inline double numericToDouble(const libconfig::Setting& setting)
 		return setting;
 		break;
 	}
-
 }
 
-
-}
-}
-
+} // namespace detail
+} // namespace barrett
 
 #endif /* BARRETT_DETAIL_LIBCONFIG_UTILS_H_ */

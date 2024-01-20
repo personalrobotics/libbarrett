@@ -28,30 +28,28 @@
  * @file real_time_mutex_impl-xenomai.cpp
  * @date 06/20/2013
  * @author Dan Cody
- * 
+ *
  */
 
-#include <alchemy/task.h>
 #include <alchemy/mutex.h>
+#include <alchemy/task.h>
 
 #include <barrett/detail/ca_macro.h>
 #include <barrett/os.h>
-
 
 namespace barrett {
 namespace thread {
 namespace detail {
 
-
 class mutex_impl {
-public:
-	mutex_impl() :
-		lockCount(0), leaveWarnSwitchOn(false)
-	{
+  public:
+	mutex_impl() : lockCount(0), leaveWarnSwitchOn(false) {
 		int ret = rt_mutex_create(&m, NULL);
 		if (ret != 0) {
-			(logMessage("thread::detail::mutex_impl::%s: Could not create RT_MUTEX: (%d) %s")
-					% __func__ % -ret % strerror(-ret)).raise<std::logic_error>();
+			(logMessage("thread::detail::mutex_impl::%s: Could not create "
+			            "RT_MUTEX: (%d) %s") %
+			 __func__ % -ret % strerror(-ret))
+			    .raise<std::logic_error>();
 		}
 	}
 
@@ -60,23 +58,22 @@ public:
 
 		if (ret != 0) {
 			// Don't throw exceptions from a dtor!
-			logMessage("thread::detail::mutex_impl::%s: Could not delete RT_MUTEX: (%d) %s")
-					% __func__ % -ret % strerror(-ret);
+			logMessage("thread::detail::mutex_impl::%s: Could not delete "
+			           "RT_MUTEX: (%d) %s") %
+			    __func__ % -ret % strerror(-ret);
 		}
 	}
 
 	void lock() {
 		int ret = acquireWrapper(true);
 		if (ret != 0) {
-			logMessage("thread::detail::mutex_impl::lock(): %s returned %d")
-					% __func__ % ret;
+			logMessage("thread::detail::mutex_impl::lock(): %s returned %d") %
+			    __func__ % ret;
 			throw boost::thread_resource_error(ret);
 		}
 	}
 
-	bool try_lock() {
-		return acquireWrapper(false) == 0;
-	}
+	bool try_lock() { return acquireWrapper(false) == 0; }
 
 	void unlock() {
 		--lockCount;
@@ -84,21 +81,23 @@ public:
 
 		int ret = rt_mutex_release(&m);
 		if (ret != 0) {
-			(logMessage("thread::detail::mutex_impl::%s:  Could not release RT_MUTEX: (%d) %s")
-					% __func__ % -ret % strerror(-ret)).raise<std::logic_error>();
+			(logMessage("thread::detail::mutex_impl::%s:  Could not release "
+			            "RT_MUTEX: (%d) %s") %
+			 __func__ % -ret % strerror(-ret))
+			    .raise<std::logic_error>();
 		}
 
 		if (changeMode) {
 			ret = rt_task_set_mode(T_WARNSW, 0, NULL);
 			if (ret != 0) {
-				throw std::runtime_error("thread::detail::mutex_impl::unlock(): Could not clear T_WARNSW mode.");
+				throw std::runtime_error("thread::detail::mutex_impl::unlock():"
+				                         " Could not clear T_WARNSW mode.");
 			}
 		}
 	}
 
-protected:
-	int acquireWrapper(bool blocking)
-	{
+  protected:
+	int acquireWrapper(bool blocking) {
 		const RTIME timeout = blocking ? TM_INFINITE : TM_NONBLOCK;
 		int ret;
 
@@ -108,10 +107,10 @@ protected:
 
 			// Allocate a new RT_TASK struct, and then forget the pointer. This
 			// leak allows us to avoid ownership issues for the RT_TASK, which
-			// shouldn't necessarily be deleted when the mutex is released, or when
-			// the mutex is deleted, etc.. It is a small overhead that happens (at
-			// most) once per thread. If needed, we can always get the pointer back
-			// by calling rt_task_self().
+			// shouldn't necessarily be deleted when the mutex is released, or
+			// when the mutex is deleted, etc.. It is a small overhead that
+			// happens (at most) once per thread. If needed, we can always get
+			// the pointer back by calling rt_task_self().
 			rt_task_shadow(new RT_TASK, NULL, 10, 0);
 
 			ret = rt_mutex_acquire(&m, timeout);
@@ -124,7 +123,9 @@ protected:
 			int oldMode;
 			ret = rt_task_set_mode(0, T_WARNSW, &oldMode);
 			if (ret != 0) {
-				throw std::runtime_error("thread::detail::mutex_impl::acquireWrapper(): Could not set T_WARNSW mode.");
+				throw std::runtime_error(
+				    "thread::detail::mutex_impl::acquireWrapper(): Could not "
+				    "set T_WARNSW mode.");
 			}
 			leaveWarnSwitchOn = oldMode & T_WARNSW;
 		}
@@ -137,11 +138,10 @@ protected:
 	int lockCount;
 	bool leaveWarnSwitchOn;
 
-private:
+  private:
 	DISALLOW_COPY_AND_ASSIGN(mutex_impl);
 };
 
-
-}
-}
-}
+} // namespace detail
+} // namespace thread
+} // namespace barrett

@@ -42,9 +42,8 @@
  * control loop uses a RealTimeExecutionManager.
  */
 
-
-#include <vector>
 #include <string>
+#include <vector>
 
 // Base class: barrett::systems::System
 #include <barrett/systems/abstract/system.h>
@@ -53,32 +52,35 @@
 // non-abstract Systems
 #include <barrett/systems.h>
 
-
 using namespace barrett;
-
 
 // A System that evaluates a polynomial of the form:
 //    result = c[0] + c[1]*x + c[2]*x^2 + ... + c[n]*x^n
 // for a given input value, x, and vector of coefficients, c.
 class PolynomialEvaluator : public systems::System {
-// IO
-// Marked as "public" because Inputs and Output are (except in special cases)
-// part of a System's public interface.
-public:		Input<double> input;
-public:		Output<double> output;
+	// IO
+	// Marked as "public" because Inputs and Output are (except in special
+	// cases) part of a System's public interface.
+  public:
+	Input<double> input;
 
-// Marked as "protected" because this object lets us change the value of an
-// Output, which should only be allowed from within this System.
-protected:	Output<double>::Value* outputValue;
+  public:
+	Output<double> output;
 
-public:
+	// Marked as "protected" because this object lets us change the value of an
+	// Output, which should only be allowed from within this System.
+  protected:
+	Output<double>::Value *outputValue;
+
+  public:
 	// Every System has a human readable name. It's good practice to provide an
 	// appropriate default. Notice that outputValue is associated with output
 	// via output's constructor.
-	explicit PolynomialEvaluator(const std::vector<double>& coefficients,
-			const std::string& sysName = "PolynomialEvaluator") :
-		systems::System(sysName), input(this), output(this, &outputValue),
-		coeff(coefficients) {}
+	explicit PolynomialEvaluator(
+	    const std::vector<double> &coefficients,
+	    const std::string &sysName = "PolynomialEvaluator")
+	    : systems::System(sysName), input(this), output(this, &outputValue),
+	      coeff(coefficients) {}
 
 	// Every System is required to call System::mandatoryCleanUp() in its
 	// destructor, preferably as early as possible. It's common for libbarrett
@@ -89,32 +91,31 @@ public:
 	// program crash with the message: "Pure virtual function called".
 	virtual ~PolynomialEvaluator() { mandatoryCleanUp(); }
 
-protected:
+  protected:
 	double result;
 
 	// Implement System::operate(). The operate() function must be declared with
 	// the "protected" access specifier.
 	virtual void operate() {
-		const double& x = input.getValue();  // Pull data from the input
+		const double &x = input.getValue(); // Pull data from the input
 		result = 0.0;
 
-        // Operate on the input value and state
-		for (int i = coeff.size()-1; i >= 0; --i) {
-			result = coeff[i] + x*result;
+		// Operate on the input value and state
+		for (int i = coeff.size() - 1; i >= 0; --i) {
+			result = coeff[i] + x * result;
 		}
 
-		outputValue->setData(&result);  // Push data into the output
+		outputValue->setData(&result); // Push data into the output
 	}
 
 	std::vector<double> coeff;
 };
 
-
 int main() {
 	// Make vector of coefficients
-	double coeffArray[] = { 1.0, 2.0, 3.0 };
+	double coeffArray[] = {1.0, 2.0, 3.0};
 	std::vector<double> coeff(coeffArray,
-			coeffArray + sizeof(coeffArray) / sizeof(double));
+	                          coeffArray + sizeof(coeffArray) / sizeof(double));
 
 	// Create execution manager
 	systems::ManualExecutionManager mem;
@@ -128,8 +129,7 @@ int main() {
 	systems::connect(eoSys.output, peSys.input);
 	systems::connect(peSys.output, printSys.input);
 
-
-    // Push data into peSys' input and run an execution cycle,
+	// Push data into peSys' input and run an execution cycle,
 	// causing peSys::operate() to be called
 	eoSys.setValue(-1.0);
 	mem.runExecutionCycle();
@@ -141,7 +141,6 @@ int main() {
 	mem.runExecutionCycle();
 	eoSys.setValue(1.0);
 	mem.runExecutionCycle();
-	
 
 	return 0;
 }

@@ -5,18 +5,15 @@
  *      Author: dc
  */
 
-
 #include <cstdio>
 
-#include <gtest/gtest.h>
-#include <barrett/math/matrix.h>
-#include <barrett/log/writer.h>
 #include "./verify_file_contents.h"
-
+#include <barrett/log/writer.h>
+#include <barrett/math/matrix.h>
+#include <gtest/gtest.h>
 
 namespace {
 using namespace barrett;
-
 
 TEST(LogWriterTest, CtorThrows) {
 	// TODO(dc): test this!
@@ -32,7 +29,7 @@ TEST(LogWriterTest, Double) {
 	lw.putRecord(d);
 	lw.close();
 
-	verifyFileContents(tmpFile, reinterpret_cast<char*>(&d), sizeof(double));
+	verifyFileContents(tmpFile, reinterpret_cast<char *>(&d), sizeof(double));
 	std::remove(tmpFile);
 }
 
@@ -48,7 +45,8 @@ TEST(LogWriterTest, Tuple) {
 	lw.putRecord(d);
 	lw.close();
 
-	verifyFileContents(tmpFile, reinterpret_cast<char*>(&d), 2 * sizeof(double));
+	verifyFileContents(tmpFile, reinterpret_cast<char *>(&d),
+	                   2 * sizeof(double));
 	std::remove(tmpFile);
 }
 
@@ -57,15 +55,14 @@ TEST(LogWriterTest, Array) {
 	ASSERT_TRUE(mkstemp(tmpFile) != -1);
 
 	math::Vector<15>::type d;
-	d <<	23,	54,		34,		4,		25,
-			23,	6,		46,		23,		-6,
-			11,	868,	12312,	-44.2,	1;
+	d << 23, 54, 34, 4, 25, 23, 6, 46, 23, -6, 11, 868, 12312, -44.2, 1;
 
 	log::Writer<math::Vector<15>::type> lw(tmpFile);
 	lw.putRecord(d);
 	lw.close();
 
-	verifyFileContents(tmpFile, reinterpret_cast<char*>(d.data()), sizeof(double) * d.size());
+	verifyFileContents(tmpFile, reinterpret_cast<char *>(d.data()),
+	                   sizeof(double) * d.size());
 	std::remove(tmpFile);
 }
 
@@ -82,9 +79,8 @@ TEST(LogWriterTest, SeveralRecords) {
 	lw.putRecord(ds[3]);
 	lw.close();
 
-	verifyFileContents(tmpFile, reinterpret_cast<char*>(ds), sizeof(ds));
+	verifyFileContents(tmpFile, reinterpret_cast<char *>(ds), sizeof(ds));
 	std::remove(tmpFile);
 }
 
-
-}
+} // namespace

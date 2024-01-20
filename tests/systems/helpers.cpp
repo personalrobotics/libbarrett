@@ -5,29 +5,25 @@
  *      Author: dc
  */
 
-
-#include <stdexcept>
-#include <gtest/gtest.h>
-#include <barrett/systems/manual_execution_manager.h>
-#include <barrett/systems/helpers.h>
 #include "./exposed_io_system.h"
+#include <barrett/systems/helpers.h>
+#include <barrett/systems/manual_execution_manager.h>
+#include <gtest/gtest.h>
+#include <stdexcept>
 
 namespace {
 using namespace barrett;
 
 class SystemHelperTest : public ::testing::Test {
-public:
-	SystemHelperTest() {
-		mem.startManaging(in);
-	}
+  public:
+	SystemHelperTest() { mem.startManaging(in); }
 
-protected:
+  protected:
 	systems::ManualExecutionManager mem;
 	ExposedIOSystem<double> out;
 	ExposedIOSystem<double> in;
 	ExposedIOSystem<double> other;
 };
-
 
 TEST_F(SystemHelperTest, ConnectConnects) {
 	systems::connect(out.output, in.input);
@@ -58,7 +54,6 @@ TEST_F(SystemHelperTest, ConnectAllowsInputWithNullEm) {
 	EXPECT_FALSE(other.hasExecutionManager());
 	EXPECT_FALSE(other.hasDirectExecutionManager());
 	EXPECT_EQ(NULL, other.getExecutionManager());
-
 }
 
 TEST_F(SystemHelperTest, ReconnectReconnects) {
@@ -203,7 +198,6 @@ TEST_F(SystemHelperTest, DisconnectOutputPropagatesEm) {
 	EXPECT_EQ(NULL, out.getExecutionManager());
 }
 
-
 // death tests
 typedef SystemHelperTest SystemHelperDeathTest;
 
@@ -226,5 +220,4 @@ TEST_F(SystemHelperDeathTest, NoMixedEm) {
 	EXPECT_DEATH(systems::reconnect(out.output, in.input), "");
 }
 
-
-}
+} // namespace

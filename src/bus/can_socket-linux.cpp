@@ -31,28 +31,26 @@
  *      Author: dc
  */
 
-#include <stdexcept>
 #include <cstdio>
 #include <cstring>
+#include <stdexcept>
 
-#include <unistd.h>
 #include <errno.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <sys/uio.h>
-#include <net/if.h>
 #include <linux/can.h>
 #include <linux/can/raw.h>
+#include <net/if.h>
+#include <sys/ioctl.h>
+#include <sys/socket.h>
+#include <sys/uio.h>
+#include <unistd.h>
 
-#include <barrett/os.h>
-#include <barrett/thread/real_time_mutex.h>
-#include <barrett/products/puck.h>
 #include <barrett/bus/can_socket.h>
-
+#include <barrett/os.h>
+#include <barrett/products/puck.h>
+#include <barrett/thread/real_time_mutex.h>
 
 namespace barrett {
 namespace bus {
-
 
 namespace detail {
 struct can_handle {
@@ -63,44 +61,42 @@ struct can_handle {
 	can_handle() : h(NULL_HANDLE) {}
 	bool isValid() const { return h != NULL_HANDLE; }
 };
-}
+} // namespace detail
 
+CANSocket::CANSocket() : mutex(), handle(new detail::can_handle) {}
 
-CANSocket::CANSocket() :
-	mutex(), handle(new detail::can_handle)
-{
-}
-
-CANSocket::CANSocket(int port) throw(std::runtime_error) :
-	mutex(), handle(new detail::can_handle)
-{
+CANSocket::CANSocket(int port) throw(std::runtime_error)
+    : mutex(), handle(new detail::can_handle) {
 	open(port);
 }
 
-CANSocket::~CANSocket()
-{
+CANSocket::~CANSocket() {
 	close();
 	delete handle;
 	handle = NULL;
 }
 
-
-void CANSocket::open(int port) throw(std::logic_error, std::runtime_error)
-{
+void CANSocket::open(int port) throw(std::logic_error, std::runtime_error) {
 	if (isOpen()) {
-		(logMessage("CANSocket::%s(): This object is already associated with a CAN port.")
-				% __func__).raise<std::logic_error>();
+		(logMessage("CANSocket::%s(): This object is already associated with a "
+		            "CAN port.") %
+		 __func__)
+		    .raise<std::logic_error>();
 	}
 
-	logMessage("CANSocket::open(%d) using Linux SocketCAN driver (NON-REALTIME!)") % port;
+	logMessage(
+	    "CANSocket::open(%d) using Linux SocketCAN driver (NON-REALTIME!)") %
+	    port;
 
 	int ret;
 
 	ret = socket(PF_CAN, SOCK_RAW, CAN_RAW);
 	if (ret < 0) {
 		close();
-		(logMessage("CANSocket::%s(): Could not open CAN port. socket(): (%d) %s")
-				% __func__ % -ret % strerror(-ret)).raise<std::runtime_error>();
+		(logMessage(
+		     "CANSocket::%s(): Could not open CAN port. socket(): (%d) %s") %
+		 __func__ % -ret % strerror(-ret))
+		    .raise<std::runtime_error>();
 	}
 	handle->h = ret;
 
@@ -110,13 +106,17 @@ void CANSocket::open(int port) throw(std::logic_error, std::runtime_error)
 	strncpy(ifr.ifr_name, devname, IFNAMSIZ);
 
 	struct can_filter recvFilter[1];
-	recvFilter[0].can_id = (Puck::HOST_ID << Puck::NODE_ID_WIDTH) | CAN_INV_FILTER;
+	recvFilter[0].can_id =
+	    (Puck::HOST_ID << Puck::NODE_ID_WIDTH) | CAN_INV_FILTER;
 	recvFilter[0].can_mask = Puck::FROM_MASK;
-	ret = setsockopt(handle->h, SOL_CAN_RAW, CAN_RAW_FILTER, &recvFilter, sizeof(recvFilter));
+	ret = setsockopt(handle->h, SOL_CAN_RAW, CAN_RAW_FILTER, &recvFilter,
+	                 sizeof(recvFilter));
 	if (ret != 0) {
 		close();
-		(logMessage("CANSocket::%s(): Could not open CAN port. setsockopt(CAN_RAW_FILTER): (%d) %s")
-				% __func__ % -ret % strerror(-ret)).raise<std::runtime_error>();
+		(logMessage("CANSocket::%s(): Could not open CAN port. "
+		            "setsockopt(CAN_RAW_FILTER): (%d) %s") %
+		 __func__ % -ret % strerror(-ret))
+		    .raise<std::runtime_error>();
 	}
 
 	// Note: This must be done after the ioctl(SIOCGCANSTATE) call above,
@@ -126,51 +126,51 @@ void CANSocket::open(int port) throw(std::logic_error, std::runtime_error)
 	ret = ioctl(handle->h, SIOCGIFINDEX, &ifr);
 	if (ret != 0) {
 		close();
-		(logMessage("CANSocket::%s(): Could not open CAN port. ioctl(SIOCGIFINDEX): (%d) %s")
-				% __func__ % -ret % strerror(-ret)).raise<std::runtime_error>();
+		(logMessage("CANSocket::%s(): Could not open CAN port. "
+		            "ioctl(SIOCGIFINDEX): (%d) %s") %
+		 __func__ % -ret % strerror(-ret))
+		    .raise<std::runtime_error>();
 	}
 
 	struct sockaddr_can toAddr;
 	memset(&toAddr, 0, sizeof(toAddr));
 	toAddr.can_ifindex = ifr.ifr_ifindex;
 	toAddr.can_family = AF_CAN;
-	ret = bind(handle->h, (struct sockaddr *) &toAddr, sizeof(toAddr));
+	ret = bind(handle->h, (struct sockaddr *)&toAddr, sizeof(toAddr));
 	if (ret != 0) {
 		close();
-		(logMessage("CANSocket::%s(): Could not open CAN port. bind(): (%d) %s")
-				% __func__ % -ret % strerror(-ret)).raise<std::runtime_error>();
+		(logMessage(
+		     "CANSocket::%s(): Could not open CAN port. bind(): (%d) %s") %
+		 __func__ % -ret % strerror(-ret))
+		    .raise<std::runtime_error>();
 	}
 
-//	nanosecs_rel_t timeout = (nanosecs_rel_t) 1e9 * CommunicationsBus::TIMEOUT;
-//	ret = ioctl(handle->h, RTCAN_RTIOC_RCV_TIMEOUT, &timeout);
-//	if (ret != 0) {
-//		close();
-//		(logMessage("CANSocket::%s(): Could not open CAN port. ioctl(RCV_TIMEOUT): (%d) %s")
-//				% __func__ % -ret % strerror(-ret)).raise<std::runtime_error>();
-//	}
-//	ret = ioctl(handle->h, RTCAN_RTIOC_SND_TIMEOUT, &timeout);
-//	if (ret != 0) {
-//		close();
-//		(logMessage("CANSocket::%s(): Could not open CAN port. ioctl(SND_TIMEOUT): (%d) %s")
-//				% __func__ % -ret % strerror(-ret)).raise<std::runtime_error>();
-//	}
+	//	nanosecs_rel_t timeout = (nanosecs_rel_t) 1e9 *
+	//CommunicationsBus::TIMEOUT; 	ret = ioctl(handle->h,
+	//RTCAN_RTIOC_RCV_TIMEOUT, &timeout); 	if (ret != 0) { 		close();
+	//		(logMessage("CANSocket::%s(): Could not open CAN port.
+	//ioctl(RCV_TIMEOUT): (%d) %s") 				% __func__ % -ret %
+	//strerror(-ret)).raise<std::runtime_error>();
+	//	}
+	//	ret = ioctl(handle->h, RTCAN_RTIOC_SND_TIMEOUT, &timeout);
+	//	if (ret != 0) {
+	//		close();
+	//		(logMessage("CANSocket::%s(): Could not open CAN port.
+	//ioctl(SND_TIMEOUT): (%d) %s") 				% __func__ % -ret %
+	//strerror(-ret)).raise<std::runtime_error>();
+	//	}
 }
 
-void CANSocket::close()
-{
+void CANSocket::close() {
 	if (isOpen()) {
 		::close(handle->h);
 		handle->h = detail::can_handle::NULL_HANDLE;
 	}
 }
 
-bool CANSocket::isOpen() const
-{
-	return handle->isValid();
-}
+bool CANSocket::isOpen() const { return handle->isValid(); }
 
-int CANSocket::send(int busId, const unsigned char* data, size_t len) const
-{
+int CANSocket::send(int busId, const unsigned char *data, size_t len) const {
 	BARRETT_SCOPED_LOCK(mutex);
 
 	struct can_frame frame;
@@ -181,82 +181,84 @@ int CANSocket::send(int busId, const unsigned char* data, size_t len) const
 	// (BZ) For C++ non-experts (like me), the '::' here says to look outside of
 	// the present namespace for a send() function. We are not calling ourselves
 	// recursively, we are forcing the linker to find & use socket.h's function.
-	int ret = ::send(handle->h, (void *) &frame, sizeof(struct can_frame), 0);
+	int ret = ::send(handle->h, (void *)&frame, sizeof(struct can_frame), 0);
 	if (ret < 0) {
-		ret = -errno;  // Specific error info is in errno. Save a copy.
+		ret = -errno; // Specific error info is in errno. Save a copy.
 
 		switch (ret) {
 		case -EAGAIN: // -EWOULDBLOCK
 			logMessage("CANSocket::%s: "
-					"send(): data would block during non-blocking send (output buffer full)")
-					% __func__;
+			           "send(): data would block during non-blocking send "
+			           "(output buffer full)") %
+			    __func__;
 			return 1;
 			break;
 		case -ETIMEDOUT:
 			logMessage("CANSocket::%s: "
-					"send(): timed out")
-					% __func__;
+			           "send(): timed out") %
+			    __func__;
 			return 2;
 			break;
 		case -EBADF:
 			logMessage("CANSocket::%s: "
-					"send(): aborted because socket was closed")
-					% __func__;
+			           "send(): aborted because socket was closed") %
+			    __func__;
 			return 2;
 		default:
 			logMessage("CANSocket::%s: "
-					"send(): (%d) %s")
-					% __func__ % -ret % strerror(-ret);
+			           "send(): (%d) %s") %
+			    __func__ % -ret % strerror(-ret);
 			return 2;
 		}
 	} else if (ret != sizeof(struct can_frame)) {
-		logMessage("CANSocket::%s: sent incomplete CAN frame (ret = %d")
-				% __func__ % ret;
+		logMessage("CANSocket::%s: sent incomplete CAN frame (ret = %d") %
+		    __func__ % ret;
 		return 2;
 	}
 
 	return 0;
 }
 
-int CANSocket::receiveRaw(int& busId, unsigned char* data, size_t& len, bool blocking) const
-{
+int CANSocket::receiveRaw(int &busId, unsigned char *data, size_t &len,
+                          bool blocking) const {
 	BARRETT_SCOPED_LOCK(mutex);
 
 	struct can_frame frame;
-	int ret = recv(handle->h, (void *) &frame, sizeof(struct can_frame), blocking ? 0 : MSG_DONTWAIT);
+	int ret = recv(handle->h, (void *)&frame, sizeof(struct can_frame),
+	               blocking ? 0 : MSG_DONTWAIT);
 
 	if (ret < 0) {
-		ret = -errno;  // Specific error info is in errno. Save a copy.
+		ret = -errno; // Specific error info is in errno. Save a copy.
 
 		switch (ret) {
 		case -EAGAIN: // -EWOULDBLOCK
-			//logMessage("CANSocket::%s: "
+			// logMessage("CANSocket::%s: "
 			//		"recv(): no data available during non-blocking read")
 			//		% __func__;
 			return 1;
 			break;
 		case -ETIMEDOUT:
 			logMessage("CANSocket::%s: "
-					"recv(): timed out")
-					% __func__;
+			           "recv(): timed out") %
+			    __func__;
 			return 2;
 			break;
 		case -EBADF:
 			logMessage("CANSocket::%s: "
-					"recv(): aborted because socket was closed")
-					% __func__;
+			           "recv(): aborted because socket was closed") %
+			    __func__;
 			return 2;
 			break;
 		default:
 			logMessage("CANSocket::%s: "
-					"recv(): (%d) %s")
-					% __func__ % -ret % strerror(-ret);
+			           "recv(): (%d) %s") %
+			    __func__ % -ret % strerror(-ret);
 			return 2;
 			break;
 		}
 	} else if (ret != sizeof(struct can_frame)) {
-		logMessage("CANSocket::%s: received incomplete CAN frame (ret = %d")
-				% __func__ % ret;
+		logMessage("CANSocket::%s: received incomplete CAN frame (ret = %d") %
+		    __func__ % ret;
 		return 2;
 	} else if (frame.can_id & CAN_ERR_FLAG) {
 		logMessage("CANSocket::%s: CAN_ERR_FLAG was set") % __func__;
@@ -270,6 +272,5 @@ int CANSocket::receiveRaw(int& busId, unsigned char* data, size_t& len, bool blo
 	return 0;
 }
 
-
-}
-}
+} // namespace bus
+} // namespace barrett

@@ -6,25 +6,24 @@
  */
 
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
-#include <boost/ref.hpp>
 #include <boost/bind.hpp>
+#include <boost/ref.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #define EIGEN_USE_NEW_STDVECTOR
 #include <Eigen/StdVector>
 
-#include <barrett/detail/stl_utils.h>  // waitForEnter()
-#include <barrett/math.h>
-#include <barrett/units.h>
-#include <barrett/systems.h>
+#include <barrett/detail/stl_utils.h> // waitForEnter()
 #include <barrett/log.h>
+#include <barrett/math.h>
 #include <barrett/products/product_manager.h>
+#include <barrett/systems.h>
+#include <barrett/units.h>
 
 #include <barrett/standard_main_function.h>
-
 
 using namespace barrett;
 using detail::waitForEnter;
@@ -32,9 +31,9 @@ using systems::connect;
 using systems::disconnect;
 using systems::reconnect;
 
-
-template<size_t DOF>
-int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) {
+template <size_t DOF>
+int wam_main(int argc, char **argv, ProductManager &pm,
+             systems::Wam<DOF> &wam) {
 	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 	typedef boost::tuple<double, jp_type> jp_sample_type;
 
@@ -46,7 +45,6 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 
 	const double T_s = pm.getExecutionManager()->getPeriod();
 
-
 	wam.gravityCompensate();
 
 	systems::Ramp time(pm.getExecutionManager());
@@ -54,9 +52,10 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 	systems::TupleGrouper<double, jp_type> jpLogTg;
 
 	// Record at 1/10th of the loop rate
-	systems::PeriodicDataLogger<jp_sample_type> jpLogger(pm.getExecutionManager(),
-			new barrett::log::RealTimeWriter<jp_sample_type>(tmpFile, 10*T_s), 10);
-
+	systems::PeriodicDataLogger<jp_sample_type> jpLogger(
+	    pm.getExecutionManager(),
+	    new barrett::log::RealTimeWriter<jp_sample_type>(tmpFile, 10 * T_s),
+	    10);
 
 	printf("Press [Enter] to start teaching.\n");
 	waitForEnter();
@@ -78,10 +77,9 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 	jpLogger.closeLog();
 	disconnect(jpLogger.input);
 
-
 	// Build spline between recorded points
 	log::Reader<jp_sample_type> lr(tmpFile);
-	std::vector<jp_sample_type, Eigen::aligned_allocator<jp_sample_type> > vec;
+	std::vector<jp_sample_type, Eigen::aligned_allocator<jp_sample_type>> vec;
 	for (size_t i = 0; i < lr.numRecords(); ++i) {
 		vec.push_back(lr.getRecord());
 	}
@@ -107,11 +105,9 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 		usleep(100000);
 	}
 
-
 	printf("Press [Enter] to idle the WAM.\n");
 	waitForEnter();
 	wam.idle();
-
 
 	std::remove(tmpFile);
 	pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);

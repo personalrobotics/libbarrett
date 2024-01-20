@@ -27,22 +27,19 @@
  * @file execution_manager.cpp
  * @date 12//09/2009
  * @author Dan Cody
- * 
+ *
  */
 
 #include <cassert>
 
-#include <barrett/thread/abstract/mutex.h>
-#include <barrett/systems/abstract/system.h>
 #include <barrett/systems/abstract/execution_manager.h>
-
+#include <barrett/systems/abstract/system.h>
+#include <barrett/thread/abstract/mutex.h>
 
 namespace barrett {
 namespace systems {
 
-
-ExecutionManager::~ExecutionManager()
-{
+ExecutionManager::~ExecutionManager() {
 	{
 		BARRETT_SCOPED_LOCK(getMutex());
 		managedSystems.clear_and_dispose(System::StopManagingDisposer());
@@ -51,8 +48,7 @@ ExecutionManager::~ExecutionManager()
 	delete mutex;
 }
 
-void ExecutionManager::startManaging(System& sys)
-{
+void ExecutionManager::startManaging(System &sys) {
 	BARRETT_SCOPED_LOCK(getMutex());
 
 	if (sys.hasDirectExecutionManager()) {
@@ -65,14 +61,14 @@ void ExecutionManager::startManaging(System& sys)
 }
 
 // this ExecutionManager must be currently managing sys
-void ExecutionManager::stopManaging(System& sys)
-{
+void ExecutionManager::stopManaging(System &sys) {
 	BARRETT_SCOPED_LOCK(getMutex());
 
 	assert(sys.hasDirectExecutionManager());
 	assert(sys.getExecutionManager() == this);
 
-	managedSystems.erase(ExecutionManager::managed_system_list_type::s_iterator_to(sys));
+	managedSystems.erase(
+	    ExecutionManager::managed_system_list_type::s_iterator_to(sys));
 	sys.unsetDirectExecutionManager();
 }
 
@@ -81,12 +77,12 @@ void ExecutionManager::runExecutionCycle() {
 
 	++ut;
 
-	managed_system_list_type::iterator i(managedSystems.begin()), iEnd(managedSystems.end());
+	managed_system_list_type::iterator i(managedSystems.begin()),
+	    iEnd(managedSystems.end());
 	for (; i != iEnd; ++i) {
 		i->update(ut);
 	}
 }
 
-
-}
-}
+} // namespace systems
+} // namespace barrett

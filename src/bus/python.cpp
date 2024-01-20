@@ -31,28 +31,24 @@
  *      Author: dc
  */
 
-
-#include <stdexcept>
 #include <boost/python.hpp>
+#include <stdexcept>
 
 #include <barrett/bus/abstract/communications_bus.h>
-#include <barrett/bus/can_socket.h>
 #include <barrett/bus/bus_manager.h>
+#include <barrett/bus/can_socket.h>
 
 #include "../python.h"
-
 
 using namespace barrett;
 using namespace bus;
 using namespace boost::python;
 
-
 // Reserve storage for static constants.
 const size_t MAX_MESSAGE_LEN = CommunicationsBus::MAX_MESSAGE_LEN;
 const double TIMEOUT = CommunicationsBus::TIMEOUT;
 
-
-void send(const CommunicationsBus& cb, int busId, object pyData) {
+void send(const CommunicationsBus &cb, int busId, object pyData) {
 	const size_t L = len(pyData);
 	if (L > (int)cb.MAX_MESSAGE_LEN) {
 		throw std::logic_error("data exceeds the maximum length");
@@ -65,20 +61,24 @@ void send(const CommunicationsBus& cb, int busId, object pyData) {
 
 	int ret = cb.send(busId, data, L);
 	if (ret != 0) {
-		throw std::runtime_error("bus::CommunicationsBus::send() failed. See /var/log/syslog for details.");
+		throw std::runtime_error("bus::CommunicationsBus::send() failed. See "
+		                         "/var/log/syslog for details.");
 	}
 }
 
-list receive(const CommunicationsBus& cb, int expectedBusId, bool blocking = true) {
+list receive(const CommunicationsBus &cb, int expectedBusId,
+             bool blocking = true) {
 	unsigned char data[CommunicationsBus::MAX_MESSAGE_LEN];
 	size_t l = 0;
-	int ret = cb.receive(expectedBusId, data, l, blocking, false);  // No realtime for python!
+	int ret = cb.receive(expectedBusId, data, l, blocking,
+	                     false); // No realtime for python!
 
 	// If we failed because receive() would have blocked, return an empty list
-	if (!blocking  &&  ret == 1) {
+	if (!blocking && ret == 1) {
 		return list();
 	} else if (ret != 0) {
-		throw std::runtime_error("bus::CommunicationsBus::receive() failed. See /var/log/syslog for details.");
+		throw std::runtime_error("bus::CommunicationsBus::receive() failed. "
+		                         "See /var/log/syslog for details.");
 	}
 
 	list pyData;
@@ -89,17 +89,19 @@ list receive(const CommunicationsBus& cb, int expectedBusId, bool blocking = tru
 }
 BOOST_PYTHON_FUNCTION_OVERLOADS(receive_overloads, receive, 2, 3)
 
-tuple receiveRaw(const CommunicationsBus& cb, bool blocking = true) {
+tuple receiveRaw(const CommunicationsBus &cb, bool blocking = true) {
 	int busId = 0;
 	unsigned char data[CommunicationsBus::MAX_MESSAGE_LEN];
 	size_t l = 0;
 	int ret = cb.receiveRaw(busId, data, l, blocking);
 
-	// If we failed because receiveRaw() would have blocked, return an empty list
-	if (!blocking  &&  ret == 1) {
+	// If we failed because receiveRaw() would have blocked, return an empty
+	// list
+	if (!blocking && ret == 1) {
 		return make_tuple(0, list());
 	} else if (ret != 0) {
-		throw std::runtime_error("bus::CommunicationsBus::receiveRaw() failed. See /var/log/syslog for details.");
+		throw std::runtime_error("bus::CommunicationsBus::receiveRaw() failed. "
+		                         "See /var/log/syslog for details.");
 	}
 
 	list pyData;
@@ -110,32 +112,31 @@ tuple receiveRaw(const CommunicationsBus& cb, bool blocking = true) {
 }
 BOOST_PYTHON_FUNCTION_OVERLOADS(receiveRaw_overloads, receiveRaw, 1, 2)
 
-
 void pythonBusInterface() {
 	class_<CommunicationsBus, boost::noncopyable>("CommunicationsBus", no_init)
-		.def_readonly("MAX_MESSAGE_LEN", MAX_MESSAGE_LEN)
-		.def_readonly("TIMEOUT", TIMEOUT)
+	    .def_readonly("MAX_MESSAGE_LEN", MAX_MESSAGE_LEN)
+	    .def_readonly("TIMEOUT", TIMEOUT)
 
-		// TODO(dc): Why is this broken?
-		//.def("getMutex", &CommunicationsBus::getMutex, return_internal_reference<>())
+	    // TODO(dc): Why is this broken?
+	    //.def("getMutex", &CommunicationsBus::getMutex,
+	    //return_internal_reference<>())
 
-		.def("open", &CommunicationsBus::open)
-		.def("close", &CommunicationsBus::close)
-		.def("isOpen", &CommunicationsBus::isOpen)
+	    .def("open", &CommunicationsBus::open)
+	    .def("close", &CommunicationsBus::close)
+	    .def("isOpen", &CommunicationsBus::isOpen)
 
-		.def("send", &send)
-		.def("receive", &receive, receive_overloads())
-		.def("receiveRaw", &receiveRaw, receiveRaw_overloads())
-	;
+	    .def("send", &send)
+	    .def("receive", &receive, receive_overloads())
+	    .def("receiveRaw", &receiveRaw, receiveRaw_overloads());
 
 	class_<CANSocket, bases<CommunicationsBus>, boost::noncopyable>("CANSocket")
-		.def(init<int>())
-	;
+	    .def(init<int>());
 
-	class_<BusManager, bases<CommunicationsBus>, boost::noncopyable>("BusManager")
-		.def(init<CommunicationsBus*>()[with_custodian_and_ward<1,2>()])
-		.def(init<int>())
+	class_<BusManager, bases<CommunicationsBus>, boost::noncopyable>(
+	    "BusManager")
+	    .def(init<CommunicationsBus *>()[with_custodian_and_ward<1, 2>()])
+	    .def(init<int>())
 
-		.def("getUnderlyingBus", &BusManager::getUnderlyingBus, return_internal_reference<>())
-	;
+	    .def("getUnderlyingBus", &BusManager::getUnderlyingBus,
+	         return_internal_reference<>());
 }

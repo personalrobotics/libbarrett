@@ -31,35 +31,39 @@
  *      Author: dc
  */
 
-#include <vector>
 #include <stdexcept>
+#include <vector>
 
 #include <barrett/os.h>
+#include <barrett/products/abstract/multi_puck_product.h>
+#include <barrett/products/motor_puck.h>
 #include <barrett/products/puck.h>
 #include <barrett/products/puck_group.h>
-#include <barrett/products/motor_puck.h>
-#include <barrett/products/abstract/multi_puck_product.h>
-
 
 namespace barrett {
 
-
-MultiPuckProduct::MultiPuckProduct(size_t DOF, const std::vector<Puck*>& _pucks, int groupId, const enum Puck::Property props[], size_t numProps, const char* syslogStr) :
-	bus(_pucks.at(0)->getBus()), pucks(_pucks), motorPucks(DOF), group(groupId, pucks)
-{
+MultiPuckProduct::MultiPuckProduct(size_t DOF,
+                                   const std::vector<Puck *> &_pucks,
+                                   int groupId,
+                                   const enum Puck::Property props[],
+                                   size_t numProps, const char *syslogStr)
+    : bus(_pucks.at(0)->getBus()), pucks(_pucks), motorPucks(DOF),
+      group(groupId, pucks) {
 	if (syslogStr != NULL) {
 		logMessage("%s") % syslogStr;
 	}
 
 	// Check number of Pucks
 	if (pucks.size() != DOF) {
-		(logMessage("MultiPuckProduct::MultiPuckProduct(): Wrong number of Pucks. "
-				"Expected a vector of %d Pucks, got %d.")
-				% DOF % pucks.size()).raise<std::invalid_argument>();
+		(logMessage(
+		     "MultiPuckProduct::MultiPuckProduct(): Wrong number of Pucks. "
+		     "Expected a vector of %d Pucks, got %d.") %
+		 DOF % pucks.size())
+		    .raise<std::invalid_argument>();
 	}
 
 	// Initialize MotorPucks
-	Puck::wake(pucks);  // Make sure Pucks are awake
+	Puck::wake(pucks); // Make sure Pucks are awake
 	for (size_t i = 0; i < DOF; ++i) {
 		motorPucks[i].setPuck(pucks[i]);
 	}
@@ -67,9 +71,10 @@ MultiPuckProduct::MultiPuckProduct(size_t DOF, const std::vector<Puck*>& _pucks,
 	// Verify properties
 	bool err = false;
 	for (size_t i = 0; i < numProps; ++i) {
-		if ( !group.verifyProperty(props[i]) ) {
+		if (!group.verifyProperty(props[i])) {
 			err = true;
-			logMessage("  Incompatible property: %s") % Puck::getPropertyStr(props[i]);
+			logMessage("  Incompatible property: %s") %
+			    Puck::getPropertyStr(props[i]);
 		}
 	}
 	if (err) {
@@ -77,13 +82,12 @@ MultiPuckProduct::MultiPuckProduct(size_t DOF, const std::vector<Puck*>& _pucks,
 		logMessage("    a) still be in Monitor");
 		logMessage("    b) have incompatible firmware versions");
 		logMessage("    c) have incompatible ROLEs");
-		logMessage("MultiPuckProduct::MultiPuckProduct(): Pucks have incompatible property lists. "
-				"Check /var/log/syslog for details.").raise<std::runtime_error>();
+		logMessage("MultiPuckProduct::MultiPuckProduct(): Pucks have "
+		           "incompatible property lists. "
+		           "Check /var/log/syslog for details.")
+		    .raise<std::runtime_error>();
 	}
 }
-MultiPuckProduct::~MultiPuckProduct()
-{
-}
+MultiPuckProduct::~MultiPuckProduct() {}
 
-
-}
+} // namespace barrett

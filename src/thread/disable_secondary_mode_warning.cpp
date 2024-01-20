@@ -27,7 +27,7 @@
  * @file disable_secondary_mode_warning.cpp
  * @date 12/14/2010
  * @author Dan Cody
- * 
+ *
  */
 
 #ifdef BARRETT_XENOMAI
@@ -39,9 +39,7 @@
 namespace barrett {
 namespace thread {
 
-
-DisableSecondaryModeWarning::DisableSecondaryModeWarning()
-{
+DisableSecondaryModeWarning::DisableSecondaryModeWarning() {
 #ifdef BARRETT_XENOMAI
 	int oldMode;
 	rt_task_set_mode(T_WARNSW, 0, &oldMode);
@@ -49,8 +47,7 @@ DisableSecondaryModeWarning::DisableSecondaryModeWarning()
 #endif
 }
 
-DisableSecondaryModeWarning::~DisableSecondaryModeWarning()
-{
+DisableSecondaryModeWarning::~DisableSecondaryModeWarning() {
 #ifdef BARRETT_XENOMAI
 	if (leaveWarnSwitchOn) {
 		rt_task_set_mode(0, T_WARNSW, NULL);
@@ -58,6 +55,5 @@ DisableSecondaryModeWarning::~DisableSecondaryModeWarning()
 #endif
 }
 
-
-}
-}
+} // namespace thread
+} // namespace barrett

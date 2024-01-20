@@ -7,29 +7,24 @@
 
 #include <math.h>
 
-#include <gtest/gtest.h>
-#include <barrett/math/matrix.h>
 #include <barrett/math/first_order_filter.h>
-
+#include <barrett/math/matrix.h>
+#include <gtest/gtest.h>
 
 namespace {
 using namespace barrett;
 
-
 const double T_s = 0.1;
 const double ERR = 1e-5;
 
-
 // TODO(dc): finish testing this!
 class FirstOrderFilterTest : public ::testing::Test {
-public:
-	FirstOrderFilterTest() :
-		f(T_s) {}
+  public:
+	FirstOrderFilterTest() : f(T_s) {}
 
-protected:
+  protected:
 	math::FirstOrderFilter<double> f;
 };
-
 
 TEST_F(FirstOrderFilterTest, DefaultCtor) {
 	math::FirstOrderFilter<double> f;
@@ -54,12 +49,12 @@ TEST_F(FirstOrderFilterTest, SetSamplePeriod) {
 
 	f.setSamplePeriod(10.0);
 	for (i = 1; i <= 10; ++i) {
-		ASSERT_NEAR(10 + i*10, f(1.0), ERR);
+		ASSERT_NEAR(10 + i * 10, f(1.0), ERR);
 	}
 
 	f.setSamplePeriod(0.002);
 	for (i = 1; i <= 10; ++i) {
-		ASSERT_NEAR(110 + i*0.002, f(1.0), ERR);
+		ASSERT_NEAR(110 + i * 0.002, f(1.0), ERR);
 	}
 }
 
@@ -68,13 +63,18 @@ TEST_F(FirstOrderFilterTest, SetLowPass) {
 
 	f.setLowPass(0.001, 0.25);
 	for (i = 1; i <= 300; ++i) {
-		ASSERT_NEAR(0.25*(1.0 - exp(-i*T_s * 0.001)), f(1.0), ERR);
+		ASSERT_NEAR(0.25 * (1.0 - exp(-i * T_s * 0.001)), f(1.0), ERR);
 	}
 	for (i = 1; i <= 300; ++i) {
-		ASSERT_NEAR(0.25*(1.0 - exp(-(i+300)*T_s * 0.001) - 16.0*(1.0 - exp(-i*T_s * 0.001))), f(-15.0), ERR);
+		ASSERT_NEAR(0.25 * (1.0 - exp(-(i + 300) * T_s * 0.001) -
+		                    16.0 * (1.0 - exp(-i * T_s * 0.001))),
+		            f(-15.0), ERR);
 	}
 	for (i = 1; i <= 300; ++i) {
-		ASSERT_NEAR(0.25*(1.0 - exp(-(i+600)*T_s * 0.001) - 16.0*(1.0 - exp(-(i+300)*T_s * 0.001)) + 15.0*(1.0 - exp(-i*T_s * 0.001))), f(0.0), ERR);
+		ASSERT_NEAR(0.25 * (1.0 - exp(-(i + 600) * T_s * 0.001) -
+		                    16.0 * (1.0 - exp(-(i + 300) * T_s * 0.001)) +
+		                    15.0 * (1.0 - exp(-i * T_s * 0.001))),
+		            f(0.0), ERR);
 	}
 }
 
@@ -83,13 +83,18 @@ TEST_F(FirstOrderFilterTest, SetHighPass) {
 
 	f.setHighPass(0.001, 0.5);
 	for (i = 1; i <= 300; ++i) {
-		ASSERT_NEAR(0.5*exp(-i*T_s * 0.001), f(1.0), ERR);
+		ASSERT_NEAR(0.5 * exp(-i * T_s * 0.001), f(1.0), ERR);
 	}
 	for (i = 1; i <= 300; ++i) {
-		ASSERT_NEAR(0.5*(exp(-(i+300)*T_s * 0.001) + 2.6 * exp(-i*T_s * 0.001)), f(3.6), ERR);
+		ASSERT_NEAR(
+		    0.5 * (exp(-(i + 300) * T_s * 0.001) + 2.6 * exp(-i * T_s * 0.001)),
+		    f(3.6), ERR);
 	}
 	for (i = 1; i <= 300; ++i) {
-		ASSERT_NEAR(0.5*(exp(-(i+600)*T_s * 0.001) + 2.6 * exp(-(i+300)*T_s * 0.001) - 13.6 * exp(-i*T_s * 0.001)), f(-10.0), ERR);
+		ASSERT_NEAR(0.5 * (exp(-(i + 600) * T_s * 0.001) +
+		                   2.6 * exp(-(i + 300) * T_s * 0.001) -
+		                   13.6 * exp(-i * T_s * 0.001)),
+		            f(-10.0), ERR);
 	}
 }
 
@@ -98,23 +103,22 @@ TEST_F(FirstOrderFilterTest, SetIntegrator) {
 
 	f.setIntegrator(1.0);
 	for (i = 1; i <= 10; ++i) {
-		ASSERT_NEAR(i*T_s, f(1.0), ERR);
+		ASSERT_NEAR(i * T_s, f(1.0), ERR);
 	}
 
 	f.setIntegrator(0.5);
 	for (i = 1; i <= 10; ++i) {
-		ASSERT_NEAR(10*T_s + i*0.5*T_s, f(1.0), ERR);
+		ASSERT_NEAR(10 * T_s + i * 0.5 * T_s, f(1.0), ERR);
 	}
 
 	f.setIntegrator(-200.0);
 	for (i = 1; i <= 10; ++i) {
-		ASSERT_NEAR(15*T_s - i*T_s*200.0, f(1.0), ERR);
+		ASSERT_NEAR(15 * T_s - i * T_s * 200.0, f(1.0), ERR);
 	}
 	for (i = 1; i <= 10; ++i) {
-		ASSERT_NEAR(-1985*T_s + i*T_s*200.0, f(-1.0), ERR);
+		ASSERT_NEAR(-1985 * T_s + i * T_s * 200.0, f(-1.0), ERR);
 	}
 }
-
 
 TEST_F(FirstOrderFilterTest, Matrix) {
 	typedef math::Vector<3>::type vector_t;
@@ -127,28 +131,29 @@ TEST_F(FirstOrderFilterTest, Matrix) {
 
 	f.setLowPass(omega, gain);
 	for (i = 1; i <= 300; ++i) {
-		expected = gain.array()*(1.0 + (-(-i*T_s * omega).array().exp()).array());
+		expected =
+		    gain.array() * (1.0 + (-(-i * T_s * omega).array().exp()).array());
 		actual = f(vector_t(1.0));
 		ASSERT_LT((expected - actual).cwiseAbs().maxCoeff(), ERR);
 	}
 	for (i = 1; i <= 300; ++i) {
-		expected = gain.array()  *  (
-				1.0 * (1.0 + (-(-(i+300)*T_s * omega).array().exp()).array()) +
-				-16.0 * (1.0 + (-(-i*T_s * omega).array().exp()).array())
-				);
+		expected =
+		    gain.array() *
+		    (1.0 * (1.0 + (-(-(i + 300) * T_s * omega).array().exp()).array()) +
+		     -16.0 * (1.0 + (-(-i * T_s * omega).array().exp()).array()));
 		actual = f(vector_t(-15.0));
 		ASSERT_LT((expected - actual).cwiseAbs().maxCoeff(), ERR);
 	}
 	for (i = 1; i <= 300; ++i) {
-		expected = gain.array()  *  (
-				1.0 * (1.0 + (-(-(i+600)*T_s * omega).array().exp()).array()) +
-				-16.0 * (1.0 + (-(-(i+300)*T_s * omega).array().exp()).array()) +
-				15.0 * (1.0 + (-(-i*T_s * omega).array().exp()).array())
-				);
+		expected =
+		    gain.array() *
+		    (1.0 * (1.0 + (-(-(i + 600) * T_s * omega).array().exp()).array()) +
+		     -16.0 *
+		         (1.0 + (-(-(i + 300) * T_s * omega).array().exp()).array()) +
+		     15.0 * (1.0 + (-(-i * T_s * omega).array().exp()).array()));
 		actual = f(vector_t(0.0));
 		ASSERT_LT((expected - actual).cwiseAbs().maxCoeff(), ERR);
 	}
 }
 
-
-}
+} // namespace

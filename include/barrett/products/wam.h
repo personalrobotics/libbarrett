@@ -27,15 +27,14 @@
  * @file wam.h
  * @date 11/02/2010
  * @author Dan Cody
- * 
- * This header just loads WAM definitions from Systems Folder to avoid duplication.
+ *
+ * This header just loads WAM definitions from Systems Folder to avoid
+ * duplication.
  */
 
 #ifndef BARRETT_PRODUCTS_WAM_H_
 #define BARRETT_PRODUCTS_WAM_H_
 
-
 #include <barrett/systems/wam.h>
-
 
 #endif /* BARRETT_PRODUCTS_WAM_H_ */

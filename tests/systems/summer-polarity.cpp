@@ -5,16 +5,14 @@
  *      Author: dc
  */
 
-#include <stdexcept>
 #include <bitset>
+#include <stdexcept>
 
-#include <gtest/gtest.h>
 #include <barrett/systems/summer.h>
-
+#include <gtest/gtest.h>
 
 namespace {
 using namespace barrett;
-
 
 TEST(SummerPolarityTest, DefaultCtor) {
 	{
@@ -75,11 +73,15 @@ TEST(SummerPolarityTest, StringCtor) {
 }
 
 TEST(SummerPolarityTest, StringCtorThrows) {
-	EXPECT_THROW(systems::Summer<double>::Polarity p("-+-"), std::invalid_argument);
-	EXPECT_THROW(systems::Summer<double>::Polarity p("-a"), std::invalid_argument);
-	EXPECT_THROW(systems::Summer<double>::Polarity p("-"), std::invalid_argument);
+	EXPECT_THROW(systems::Summer<double>::Polarity p("-+-"),
+	             std::invalid_argument);
+	EXPECT_THROW(systems::Summer<double>::Polarity p("-a"),
+	             std::invalid_argument);
+	EXPECT_THROW(systems::Summer<double>::Polarity p("-"),
+	             std::invalid_argument);
 
-	typedef systems::Summer<double, 5>::Polarity polarity_type;  // no commas allowed in a macro parameter...
+	typedef systems::Summer<double, 5>::Polarity
+	    polarity_type; // no commas allowed in a macro parameter...
 	EXPECT_THROW(polarity_type p("-++-+-"), std::invalid_argument);
 	EXPECT_THROW(polarity_type p("--+q+"), std::invalid_argument);
 	EXPECT_THROW(polarity_type p("-+++"), std::invalid_argument);
@@ -118,6 +120,4 @@ TEST(SummerPolarityTest, BitsetCtor) {
 	}
 }
 
-
-}
-
+} // namespace

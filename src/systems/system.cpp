@@ -27,38 +27,33 @@
  * @file system.cpp
  * @date 12/09/2009
  * @author Dan Cody
- * 
+ *
  */
-
 
 #include <barrett/systems/abstract/execution_manager.h>
 #include <barrett/systems/abstract/system.h>
 
-
 namespace barrett {
 namespace systems {
 
-
-void System::mandatoryCleanUp()
-{
+void System::mandatoryCleanUp() {
 	BARRETT_SCOPED_LOCK(getEmMutex());
 
 	if (hasDirectExecutionManager()) {
 		getExecutionManager()->stopManaging(*this);
 	}
 
-	while ( !outputs.empty() ) {
+	while (!outputs.empty()) {
 		outputs.back().mandatoryCleanUp();
 	}
-	while ( !inputs.empty() ) {
+	while (!inputs.empty()) {
 		inputs.back().mandatoryCleanUp();
 	}
 }
 
-void System::update(update_token_type updateToken)
-{
+void System::update(update_token_type updateToken) {
 	// Check if an update is needed
-	if (hasExecutionManager()  &&  updateToken != ut) {
+	if (hasExecutionManager() && updateToken != ut) {
 		ut = updateToken;
 	} else {
 		return;
@@ -71,28 +66,24 @@ void System::update(update_token_type updateToken)
 	}
 }
 
-bool System::inputsValid()
-{
+bool System::inputsValid() {
 	child_input_list_type::const_iterator i(inputs.begin()), iEnd(inputs.end());
 	for (; i != iEnd; ++i) {
-		if ( !i->valueDefined() ) {
+		if (!i->valueDefined()) {
 			return false;
 		}
 	}
 	return true;
 }
 
-void System::invalidateOutputs()
-{
+void System::invalidateOutputs() {
 	child_output_list_type::iterator i(outputs.begin()), iEnd(outputs.end());
 	for (; i != iEnd; ++i) {
 		i->setValueUndefined();
 	}
 }
 
-
-void System::setExecutionManager(ExecutionManager* newEm)
-{
+void System::setExecutionManager(ExecutionManager *newEm) {
 	if (newEm != NULL) {
 		if (hasExecutionManager()) {
 			assert(getExecutionManager() == newEm);
@@ -100,12 +91,14 @@ void System::setExecutionManager(ExecutionManager* newEm)
 			em = newEm;
 			onExecutionManagerChanged();
 
-			child_input_list_type::iterator i(inputs.begin()), iEnd(inputs.end());
+			child_input_list_type::iterator i(inputs.begin()),
+			    iEnd(inputs.end());
 			for (; i != iEnd; ++i) {
 				i->pushExecutionManager();
 			}
 
-			child_output_list_type::iterator o(outputs.begin()), oEnd(outputs.end());
+			child_output_list_type::iterator o(outputs.begin()),
+			    oEnd(outputs.end());
 			for (; o != oEnd; ++o) {
 				o->pushExecutionManager();
 			}
@@ -113,24 +106,23 @@ void System::setExecutionManager(ExecutionManager* newEm)
 	}
 }
 
-void System::unsetDirectExecutionManager()
-{
+void System::unsetDirectExecutionManager() {
 	emDirect = false;
 	unsetExecutionManager();
 }
-void System::unsetExecutionManager()
-{
+void System::unsetExecutionManager() {
 	if (hasDirectExecutionManager()) {
 		return;
 	}
 
 #ifndef NDEBUG
 	// This variable is only used in the assert() below.
-	ExecutionManager* oldEm = getExecutionManager();
+	ExecutionManager *oldEm = getExecutionManager();
 #endif
 
-	em = NULL;  // If there are no outputs, we can't collect an EM
-	child_output_list_type::const_iterator oc(outputs.begin()), ocEnd(outputs.end());
+	em = NULL; // If there are no outputs, we can't collect an EM
+	child_output_list_type::const_iterator oc(outputs.begin()),
+	    ocEnd(outputs.end());
 	for (; oc != ocEnd; ++oc) {
 		em = oc->collectExecutionManager();
 
@@ -154,54 +146,47 @@ void System::unsetExecutionManager()
 	}
 }
 
-
-System::AbstractInput::AbstractInput(System* parent) : parentSys(parent)
-{
+System::AbstractInput::AbstractInput(System *parent) : parentSys(parent) {
 	assert(parentSys != NULL);
 
 	BARRETT_SCOPED_LOCK(getEmMutex());
 	parentSys->inputs.push_back(*this);
 }
-System::AbstractInput::~AbstractInput()
-{
+System::AbstractInput::~AbstractInput() {
 	if (parentSys != NULL) {
 		mandatoryCleanUp();
 	}
 }
 
-void System::AbstractInput::mandatoryCleanUp()
-{
+void System::AbstractInput::mandatoryCleanUp() {
 	assert(parentSys != NULL);
 
 	BARRETT_SCOPED_LOCK(getEmMutex());
-	parentSys->inputs.erase(System::child_input_list_type::s_iterator_to(*this));
+	parentSys->inputs.erase(
+	    System::child_input_list_type::s_iterator_to(*this));
 	parentSys = NULL;
 }
 
-
-System::AbstractOutput::AbstractOutput(System* parent) : parentSys(parent)
-{
+System::AbstractOutput::AbstractOutput(System *parent) : parentSys(parent) {
 	assert(parentSys != NULL);
 
 	BARRETT_SCOPED_LOCK(getEmMutex());
 	parentSys->outputs.push_back(*this);
 }
-System::AbstractOutput::~AbstractOutput()
-{
+System::AbstractOutput::~AbstractOutput() {
 	if (parentSys != NULL) {
 		mandatoryCleanUp();
 	}
 }
 
-void System::AbstractOutput::mandatoryCleanUp()
-{
+void System::AbstractOutput::mandatoryCleanUp() {
 	assert(parentSys != NULL);
 
 	BARRETT_SCOPED_LOCK(getEmMutex());
-	parentSys->outputs.erase(System::child_output_list_type::s_iterator_to(*this));
+	parentSys->outputs.erase(
+	    System::child_output_list_type::s_iterator_to(*this));
 	parentSys = NULL;
 }
 
-
-}
-}
+} // namespace systems
+} // namespace barrett

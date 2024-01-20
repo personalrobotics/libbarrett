@@ -5,85 +5,68 @@
  *      Author: dc
  */
 
-
-#include <sstream>
-#include <stdexcept>
 #include <gsl/gsl_vector.h>
 #include <libconfig.h++>
+#include <sstream>
+#include <stdexcept>
 
-#include <gtest/gtest.h>
 #include <barrett/math/matrix.h>
 #include <barrett/units.h>
-
+#include <gtest/gtest.h>
 
 namespace {
 using namespace barrett;
 
-
-template<int R> struct LocalUnits {
-	typedef typename math::Vector<R, LocalUnits<R> >::type type;
+template <int R> struct LocalUnits {
+	typedef typename math::Vector<R, LocalUnits<R>>::type type;
 };
 
 const int DIM = 5;
 
-
 // tests for fixed sized vectors
-template<typename T>
-class FixedVectorTypedTest : public ::testing::Test {
-public:
-	FixedVectorTypedTest() :
-		a() {}
-protected:
+template <typename T> class FixedVectorTypedTest : public ::testing::Test {
+  public:
+	FixedVectorTypedTest() : a() {}
+
+  protected:
 	T a;
 };
 
-typedef ::testing::Types<
-			math::Vector<DIM>::type,
-			units::JointTorques<DIM>::type,
-			LocalUnits<DIM>::type
-		> FixedTypes;
+typedef ::testing::Types<math::Vector<DIM>::type,
+                         units::JointTorques<DIM>::type, LocalUnits<DIM>::type>
+    FixedTypes;
 TYPED_TEST_CASE(FixedVectorTypedTest, FixedTypes);
 
-
 // tests for dynamically sized vectors
-template<typename T>
-class DynamicVectorTypedTest : public ::testing::Test {
-public:
-	DynamicVectorTypedTest() :
-		a(DIM) {}
-protected:
+template <typename T> class DynamicVectorTypedTest : public ::testing::Test {
+  public:
+	DynamicVectorTypedTest() : a(DIM) {}
+
+  protected:
 	T a;
 };
 
-typedef ::testing::Types<
-			math::Vector<Eigen::Dynamic>::type,
-			units::JointTorques<Eigen::Dynamic>::type,
-			LocalUnits<Eigen::Dynamic>::type
-		> DynamicTypes;
+typedef ::testing::Types<math::Vector<Eigen::Dynamic>::type,
+                         units::JointTorques<Eigen::Dynamic>::type,
+                         LocalUnits<Eigen::Dynamic>::type>
+    DynamicTypes;
 TYPED_TEST_CASE(DynamicVectorTypedTest, DynamicTypes);
 
-
 // common tests
-template<typename T>
-class VectorTypedTest : public ::testing::Test {
-public:
-	VectorTypedTest() :
-		a(DIM) {}
-protected:
+template <typename T> class VectorTypedTest : public ::testing::Test {
+  public:
+	VectorTypedTest() : a(DIM) {}
+
+  protected:
 	T a;
 };
 
 typedef ::testing::Types<
-			math::Vector<DIM>::type,
-			units::JointTorques<DIM>::type,
-			LocalUnits<DIM>::type,
-			math::Vector<Eigen::Dynamic>::type,
-			units::JointTorques<Eigen::Dynamic>::type,
-			LocalUnits<Eigen::Dynamic>::type
-		> BothTypes;
+    math::Vector<DIM>::type, units::JointTorques<DIM>::type,
+    LocalUnits<DIM>::type, math::Vector<Eigen::Dynamic>::type,
+    units::JointTorques<Eigen::Dynamic>::type, LocalUnits<Eigen::Dynamic>::type>
+    BothTypes;
 TYPED_TEST_CASE(VectorTypedTest, BothTypes);
-
-
 
 // uses the actual default ctor
 TYPED_TEST(FixedVectorTypedTest, DefaultCtor) {
@@ -118,22 +101,22 @@ TYPED_TEST(VectorTypedTest, InitialValueCtor) {
 }
 
 TYPED_TEST(VectorTypedTest, GslVectorCtor) {
-	gsl_vector* gslVec = gsl_vector_calloc(this->a.size());
+	gsl_vector *gslVec = gsl_vector_calloc(this->a.size());
 	for (int i = 0; i < this->a.size(); ++i) {
-		gsl_vector_set(gslVec, i, i*0.1);
+		gsl_vector_set(gslVec, i, i * 0.1);
 	}
 
 	TypeParam a(gslVec);
 
 	for (int i = 0; i < a.size(); ++i) {
-		EXPECT_EQ(i*0.1, a[i]);
+		EXPECT_EQ(i * 0.1, a[i]);
 	}
 
 	gsl_vector_free(gslVec);
 }
 
 TYPED_TEST(FixedVectorTypedTest, GslVectorCtorThrows) {
-	gsl_vector* gslVec = gsl_vector_calloc(this->a.size() + 1);
+	gsl_vector *gslVec = gsl_vector_calloc(this->a.size() + 1);
 	EXPECT_THROW(TypeParam a(gslVec), std::logic_error);
 	gsl_vector_free(gslVec);
 
@@ -143,7 +126,7 @@ TYPED_TEST(FixedVectorTypedTest, GslVectorCtorThrows) {
 }
 
 TYPED_TEST(DynamicVectorTypedTest, GslVectorCtorResizes) {
-	gsl_vector* gslVec = gsl_vector_calloc(this->a.size() + 1);
+	gsl_vector *gslVec = gsl_vector_calloc(this->a.size() + 1);
 	EXPECT_NO_THROW(TypeParam a(gslVec));
 	EXPECT_EQ(gslVec->size, TypeParam(gslVec).size());
 	gsl_vector_free(gslVec);
@@ -168,8 +151,10 @@ TYPED_TEST(FixedVectorTypedTest, ConfigCtorThrows) {
 	libconfig::Config config;
 	config.readFile("test.config");
 
-	EXPECT_THROW(TypeParam(config.lookup("vector_test.four")), std::runtime_error);
-	EXPECT_THROW(TypeParam(config.lookup("vector_test.six")), std::runtime_error);
+	EXPECT_THROW(TypeParam(config.lookup("vector_test.four")),
+	             std::runtime_error);
+	EXPECT_THROW(TypeParam(config.lookup("vector_test.six")),
+	             std::runtime_error);
 }
 
 TYPED_TEST(DynamicVectorTypedTest, ConfigCtorResizes) {
@@ -197,7 +182,7 @@ TYPED_TEST(VectorTypedTest, CopyCtor) {
 }
 
 TYPED_TEST(VectorTypedTest, CopyToGslVector) {
-	gsl_vector* gslVec = gsl_vector_calloc(this->a.size());
+	gsl_vector *gslVec = gsl_vector_calloc(this->a.size());
 	this->a << 5, 42.8, 37, -12, 1.4;
 
 	this->a.copyTo(gslVec);
@@ -210,7 +195,7 @@ TYPED_TEST(VectorTypedTest, CopyToGslVector) {
 }
 
 TYPED_TEST(VectorTypedTest, CopyToGslVectorThrows) {
-	gsl_vector* gslVec = gsl_vector_calloc(this->a.size() + 1);
+	gsl_vector *gslVec = gsl_vector_calloc(this->a.size() + 1);
 	EXPECT_THROW(this->a.copyTo(gslVec), std::logic_error);
 	gsl_vector_free(gslVec);
 
@@ -220,22 +205,22 @@ TYPED_TEST(VectorTypedTest, CopyToGslVectorThrows) {
 }
 
 TYPED_TEST(VectorTypedTest, CopyFromGslVector) {
-	gsl_vector* gslVec = gsl_vector_calloc(this->a.size());
+	gsl_vector *gslVec = gsl_vector_calloc(this->a.size());
 	for (int i = 0; i < this->a.size(); ++i) {
-		gsl_vector_set(gslVec, i, i*0.1);
+		gsl_vector_set(gslVec, i, i * 0.1);
 	}
 
 	this->a.copyFrom(gslVec);
 
 	for (int i = 0; i < this->a.size(); ++i) {
-		EXPECT_EQ(i*0.1, this->a[i]);
+		EXPECT_EQ(i * 0.1, this->a[i]);
 	}
 
 	gsl_vector_free(gslVec);
 }
 
 TYPED_TEST(VectorTypedTest, CopyFromGslVectorThrows) {
-	gsl_vector* gslVec = gsl_vector_calloc(this->a.size() + 1);
+	gsl_vector *gslVec = gsl_vector_calloc(this->a.size() + 1);
 	EXPECT_THROW(this->a.copyFrom(gslVec), std::logic_error);
 	gsl_vector_free(gslVec);
 
@@ -259,12 +244,14 @@ TYPED_TEST(VectorTypedTest, CopyFromConfigThrows) {
 	libconfig::Config config;
 	config.readFile("test.config");
 
-	EXPECT_THROW(this->a.copyFrom(config.lookup("vector_test.four")), std::runtime_error);
-	EXPECT_THROW(this->a.copyFrom(config.lookup("vector_test.six")), std::runtime_error);
+	EXPECT_THROW(this->a.copyFrom(config.lookup("vector_test.four")),
+	             std::runtime_error);
+	EXPECT_THROW(this->a.copyFrom(config.lookup("vector_test.six")),
+	             std::runtime_error);
 }
 
 TYPED_TEST(VectorTypedTest, AsGslVector) {
-	gsl_vector* gslVec = this->a.asGslType();
+	gsl_vector *gslVec = this->a.asGslType();
 
 	EXPECT_EQ(this->a.size(), gslVec->size);
 	EXPECT_EQ(NULL, gslVec->block);
@@ -295,7 +282,7 @@ TYPED_TEST(VectorTypedTest, IsZero) {
 
 TYPED_TEST(VectorTypedTest, CopyFromTypeParam) {
 	this->a << 5, 42.8, 37, -12, 1.4;
-	TypeParam a_copy = this->a;  // uses copy constructor
+	TypeParam a_copy = this->a; // uses copy constructor
 
 	EXPECT_EQ(this->a, a_copy);
 
@@ -308,7 +295,7 @@ TYPED_TEST(VectorTypedTest, CopyFromTypeParam) {
 TYPED_TEST(VectorTypedTest, AssignFromTypeParam) {
 	this->a << 5, 42.8, 37, -12, 1.4;
 	TypeParam a_copy(DIM);
-	a_copy = this->a;  // uses assignment operator
+	a_copy = this->a; // uses assignment operator
 
 	EXPECT_EQ(this->a, a_copy);
 
@@ -321,7 +308,7 @@ TYPED_TEST(VectorTypedTest, AssignFromTypeParam) {
 TYPED_TEST(VectorTypedTest, CopyFromVector) {
 	math::Vector<DIM>::type vec;
 	vec << 5, 42.8, 37, -12, 1.4;
-	TypeParam vec_copy = vec;  // uses copy constructor
+	TypeParam vec_copy = vec; // uses copy constructor
 
 	EXPECT_EQ(vec, vec_copy);
 
@@ -335,7 +322,7 @@ TYPED_TEST(VectorTypedTest, AssignFromVector) {
 	math::Vector<DIM>::type vec;
 	vec << 5, 42.8, 37, -12, 1.4;
 	TypeParam vec_copy(DIM);
-	vec_copy = vec;  // uses assignment operator
+	vec_copy = vec; // uses assignment operator
 
 	EXPECT_EQ(vec, vec_copy);
 
@@ -348,7 +335,7 @@ TYPED_TEST(VectorTypedTest, AssignFromVector) {
 TYPED_TEST(VectorTypedTest, ExplicitAssignment) {
 	this->a << 5, 42.8, 37, -12, 1.4;
 
-	double expected[] = { 5, 42.8, 37, -12, 1.4 };
+	double expected[] = {5, 42.8, 37, -12, 1.4};
 	for (int i = 0; i < this->a.size(); ++i) {
 		EXPECT_EQ(expected[i], this->a[i]);
 	}
@@ -356,8 +343,8 @@ TYPED_TEST(VectorTypedTest, ExplicitAssignment) {
 
 TYPED_TEST(VectorTypedTest, AccessAndModifyMembersByIndex) {
 	for (int i = 0; i < this->a.size(); ++i) {
-		this->a[i] = i/10.0 - 1;
-		EXPECT_EQ(i/10.0 - 1, this->a[i]);
+		this->a[i] = i / 10.0 - 1;
+		EXPECT_EQ(i / 10.0 - 1, this->a[i]);
 	}
 }
 
@@ -410,9 +397,9 @@ TYPED_TEST(VectorTypedTest, VectorVectorTraitsArithmetic) {
 	expected << -1, -2, -3, -4, -5;
 	EXPECT_EQ(expected, result);
 
-//	result = ((a1/a2) + (a1*a2)) / (-a1);
-	result = T::div( T::add(T::div(a1,a2), T::mult(a1,a2)), T::neg(a1) );
-	expected << -5.2, -4.25, -10.0/3.0, -2.5, -2;
+	//	result = ((a1/a2) + (a1*a2)) / (-a1);
+	result = T::div(T::add(T::div(a1, a2), T::mult(a1, a2)), T::neg(a1));
+	expected << -5.2, -4.25, -10.0 / 3.0, -2.5, -2;
 	EXPECT_EQ(expected, result);
 }
 
@@ -423,7 +410,7 @@ TYPED_TEST(VectorTypedTest, VectorScalarTraitsArithmetic) {
 
 	a << 1, 2, 3, 4, 5;
 
-	result = T::add(a,5);
+	result = T::add(a, 5);
 	expected << 6, 7, 8, 9, 10;
 	EXPECT_EQ(expected, result);
 
@@ -452,12 +439,12 @@ TYPED_TEST(VectorTypedTest, VectorScalarTraitsArithmetic) {
 	EXPECT_TRUE(expected.isApprox(result));
 
 	result = T::div(5, a);
-	expected << 5, 2.5, 5.0/3.0, 1.25, 1;
+	expected << 5, 2.5, 5.0 / 3.0, 1.25, 1;
 	EXPECT_TRUE(expected.isApprox(result));
 
-//	result = (0.6*a + 8) / 0.6 - a;
+	//	result = (0.6*a + 8) / 0.6 - a;
 	result = T::sub(T::div(T::add(T::mult(0.6, a), 8), 0.6), a);
-	expected.setConstant(8.0/0.6);
+	expected.setConstant(8.0 / 0.6);
 	EXPECT_TRUE(expected.isApprox(result));
 }
 
@@ -468,5 +455,4 @@ TYPED_TEST(VectorTypedTest, OstreamOperator) {
 	EXPECT_EQ("[0, 0, 0, 0, 0]", ss.str());
 }
 
-
-}
+} // namespace

@@ -28,36 +28,37 @@
  * @file hand.cpp
  * @date 11/09/2010
  * @author Dan Cody
- * 
+ *
  */
 
-#include <stdexcept>
-#include <vector>
 #include <algorithm>
 #include <limits>
+#include <stdexcept>
+#include <vector>
 
 #include <boost/thread/locks.hpp>
 
-#include <barrett/os.h>
 #include <barrett/detail/stl_utils.h>
+#include <barrett/os.h>
 #include <barrett/products/abstract/multi_puck_product.h>
+#include <barrett/products/hand.h>
+#include <barrett/products/motor_puck.h>
 #include <barrett/products/puck.h>
 #include <barrett/products/puck_group.h>
-#include <barrett/products/motor_puck.h>
 #include <barrett/products/tactile_puck.h>
-#include <barrett/products/hand.h>
-
 
 namespace barrett {
 
-
-const enum Puck::Property Hand::props[] = { Puck::HOLD, Puck::CMD, Puck::MODE, Puck::P, Puck::T, Puck::SG };
+const enum Puck::Property Hand::props[] = {Puck::HOLD, Puck::CMD, Puck::MODE,
+                                           Puck::P,    Puck::T,   Puck::SG};
 
 /** Hand Constructor */
-Hand::Hand(const std::vector<Puck*>& _pucks) :
-	MultiPuckProduct(DOF, _pucks, PuckGroup::BGRP_HAND, props, sizeof(props)/sizeof(props[0]), "Hand::Hand()"),
-	hasFtt(false), hasTact(false), useSecondaryEncoders(true), encoderTmp(DOF), primaryEncoder(DOF, 0), secondaryEncoder(DOF, 0), ftt(DOF, 0), tactilePucks()
-{
+Hand::Hand(const std::vector<Puck *> &_pucks)
+    : MultiPuckProduct(DOF, _pucks, PuckGroup::BGRP_HAND, props,
+                       sizeof(props) / sizeof(props[0]), "Hand::Hand()"),
+      hasFtt(false), hasTact(false), useSecondaryEncoders(true),
+      encoderTmp(DOF), primaryEncoder(DOF, 0), secondaryEncoder(DOF, 0),
+      ftt(DOF, 0), tactilePucks() {
 	// Check for TACT and FingertipTorque options.
 	int numFtt = 0;
 	for (size_t i = 0; i < DOF; ++i) {
@@ -72,7 +73,8 @@ Hand::Hand(const std::vector<Puck*>& _pucks) :
 	for (size_t i = 0; i < DOF; ++i) {
 		if (pucks[i]->hasOption(Puck::RO_Tact)) {
 			try {
-				// The TactilePuck ctor might throw if there was an initialization error
+				// The TactilePuck ctor might throw if there was an
+				// initialization error
 				tactilePucks.push_back(new TactilePuck(pucks[i]));
 				hasTact = true;
 			} catch (std::runtime_error e) {
@@ -89,28 +91,25 @@ Hand::Hand(const std::vector<Puck*>& _pucks) :
 	// record HOLD values
 	group.getProperty(Puck::HOLD, holds);
 
-
 	// For the fingers
 	for (size_t i = 0; i < DOF - 1; ++i) {
 		j2pp[i] = motorPucks[i].getCountsPerRad() * J2_RATIO;
 		j2pt[i] = motorPucks[i].getIpnm() / J2_RATIO;
 	}
 	// For the spread
-	j2pp[SPREAD_INDEX] = motorPucks[SPREAD_INDEX].getCountsPerRad() * SPREAD_RATIO;
+	j2pp[SPREAD_INDEX] =
+	    motorPucks[SPREAD_INDEX].getCountsPerRad() * SPREAD_RATIO;
 	j2pt[SPREAD_INDEX] = motorPucks[SPREAD_INDEX].getIpnm() / SPREAD_RATIO;
 }
 /** Hand Destructor */
-Hand::~Hand()
-{
-	detail::purge(tactilePucks);
-}
+Hand::~Hand() { detail::purge(tactilePucks); }
 /** initialize Method */
-void Hand::initialize() const
-{
-	for (size_t i = 0; i < DOF-1; ++i) {
+void Hand::initialize() const {
+	for (size_t i = 0; i < DOF - 1; ++i) {
 		pucks[i]->setProperty(Puck::CMD, CMD_HI);
 	}
-	btsleep(1.0); // Pucks take at least 0.5 seconds to respond to CAN messages again after cmdHI
+	btsleep(1.0); // Pucks take at least 0.5 seconds to respond to CAN messages
+	              // again after cmdHI
 	waitUntilDoneMoving();
 
 	pucks[SPREAD_INDEX]->setProperty(Puck::CMD, CMD_HI);
@@ -118,29 +117,25 @@ void Hand::initialize() const
 	waitUntilDoneMoving();
 }
 /** doneMoving Method */
-bool Hand::doneMoving(unsigned int whichDigits, bool realtime) const
-{
+bool Hand::doneMoving(unsigned int whichDigits, bool realtime) const {
 	int modes[DOF];
 
 	// TODO(dc): Avoid asking for modes from the Pucks we don't care about.
 	group.getProperty(Puck::MODE, modes, realtime);
 
 	for (size_t i = 0; i < DOF; ++i) {
-		if (
-				digitsInclude(whichDigits, i)  &&
-				modes[i] != MotorPuck::MODE_IDLE  &&
-				(modes[i] != MotorPuck::MODE_PID  ||  holds[i] == 0)
-				)
-		{
+		if (digitsInclude(whichDigits, i) && modes[i] != MotorPuck::MODE_IDLE &&
+		    (modes[i] != MotorPuck::MODE_PID || holds[i] == 0)) {
 			return false;
 		}
 	}
 	return true;
 }
-/** waitUntilDoneMoving Method prevents any subsequent actions until finger movement is completed. */
-void Hand::waitUntilDoneMoving(unsigned int whichDigits, double period_s) const
-{
-	while ( !doneMoving(whichDigits) ) {
+/** waitUntilDoneMoving Method prevents any subsequent actions until finger
+ * movement is completed. */
+void Hand::waitUntilDoneMoving(unsigned int whichDigits,
+                               double period_s) const {
+	while (!doneMoving(whichDigits)) {
 		btsleep(period_s);
 	}
 }
@@ -155,17 +150,17 @@ void Hand::close(unsigned int whichDigits, bool blocking) const {
 	blockIf(blocking, whichDigits);
 }
 /** trapezoidalMove Method */
-void Hand::trapezoidalMove(const jp_type& jp, unsigned int whichDigits, bool blocking) const
-{
+void Hand::trapezoidalMove(const jp_type &jp, unsigned int whichDigits,
+                           bool blocking) const {
 	setProperty(whichDigits, Puck::E, (j2pp.array() * jp.array()).matrix());
 	setProperty(whichDigits, Puck::MODE, MotorPuck::MODE_TRAPEZOIDAL);
 	blockIf(blocking, whichDigits);
 }
 /** velocityMove Method */
-void Hand::velocityMove(const jv_type& jv, unsigned int whichDigits) const
-{
+void Hand::velocityMove(const jv_type &jv, unsigned int whichDigits) const {
 	// Convert to counts/millisecond
-	setProperty(whichDigits, Puck::V, (j2pp.array() * jv.array()).matrix() / 1000.0);
+	setProperty(whichDigits, Puck::V,
+	            (j2pp.array() * jv.array()).matrix() / 1000.0);
 	setProperty(whichDigits, Puck::MODE, MotorPuck::MODE_VELOCITY);
 }
 
@@ -174,8 +169,8 @@ void Hand::setPositionMode(unsigned int whichDigits) const {
 	setProperty(whichDigits, Puck::MODE, MotorPuck::MODE_PID);
 }
 /** setPositionCommand Method */
-void Hand::setPositionCommand(const jp_type& jp, unsigned int whichDigits) const
-{
+void Hand::setPositionCommand(const jp_type &jp,
+                              unsigned int whichDigits) const {
 	setProperty(whichDigits, Puck::P, (j2pp.array() * jp.array()).matrix());
 }
 /** setTorqueMode Method */
@@ -183,21 +178,20 @@ void Hand::setTorqueMode(unsigned int whichDigits) const {
 	setProperty(whichDigits, Puck::MODE, MotorPuck::MODE_TORQUE);
 }
 /** setTorqueCommand Method */
-void Hand::setTorqueCommand(const jt_type& jt, unsigned int whichDigits) const
-{
+void Hand::setTorqueCommand(const jt_type &jt, unsigned int whichDigits) const {
 	pt = (j2pt.array() * jt.array()).matrix();
 	if (whichDigits == WHOLE_HAND) {
-		MotorPuck::sendPackedTorques(pucks[0]->getBus(), group.getId(), Puck::T, pt.data(), DOF);
+		MotorPuck::sendPackedTorques(pucks[0]->getBus(), group.getId(), Puck::T,
+		                             pt.data(), DOF);
 	} else {
 		setProperty(whichDigits, Puck::T, pt);
 	}
 }
 /** update Method */
-void Hand::update(unsigned int sensors, bool realtime)
-{
+void Hand::update(unsigned int sensors, bool realtime) {
 	// Do we need to lock?
-	//boost::unique_lock<thread::Mutex> ul(bus.getMutex(), boost::defer_lock);
-	//if (realtime) {
+	// boost::unique_lock<thread::Mutex> ul(bus.getMutex(), boost::defer_lock);
+	// if (realtime) {
 	//	ul.lock();
 	//}
 
@@ -207,7 +201,9 @@ void Hand::update(unsigned int sensors, bool realtime)
 			BARRETT_SCOPED_LOCK(bus.getMutex());
 			group.sendGetPropertyRequest(group.getPropertyId(Puck::P));
 
-			group.receiveGetPropertyReply<MotorPuck::CombinedPositionParser<int> >(group.getPropertyId(Puck::P), encoderTmp.data(), realtime);
+			group.receiveGetPropertyReply<
+			    MotorPuck::CombinedPositionParser<int>>(
+			    group.getPropertyId(Puck::P), encoderTmp.data(), realtime);
 		}
 		boost::this_thread::yield();
 
@@ -216,35 +212,43 @@ void Hand::update(unsigned int sensors, bool realtime)
 			secondaryEncoder[i] = encoderTmp[i].get<1>();
 		}
 		// For the fingers
-		for (size_t i = 0; i < DOF-1; ++i) {
-			// If we got a reading from the secondary encoder and it's enabled...
-			if (useSecondaryEncoders  &&  secondaryEncoder[i] != std::numeric_limits<int>::max()) {
-				innerJp[i] = motorPucks[i].counts2rad(secondaryEncoder[i]) / J2_ENCODER_RATIO;
-				outerJp[i] = motorPucks[i].counts2rad(primaryEncoder[i]) * (1.0/J2_RATIO + 1.0/J3_RATIO) - innerJp[i];
+		for (size_t i = 0; i < DOF - 1; ++i) {
+			// If we got a reading from the secondary encoder and it's
+			// enabled...
+			if (useSecondaryEncoders &&
+			    secondaryEncoder[i] != std::numeric_limits<int>::max()) {
+				innerJp[i] = motorPucks[i].counts2rad(secondaryEncoder[i]) /
+				             J2_ENCODER_RATIO;
+				outerJp[i] = motorPucks[i].counts2rad(primaryEncoder[i]) *
+				                 (1.0 / J2_RATIO + 1.0 / J3_RATIO) -
+				             innerJp[i];
 			} else {
 				// These calculations are only valid before breakaway!
-				innerJp[i] = motorPucks[i].counts2rad(primaryEncoder[i]) / J2_RATIO;
+				innerJp[i] =
+				    motorPucks[i].counts2rad(primaryEncoder[i]) / J2_RATIO;
 				outerJp[i] = innerJp[i] * J2_RATIO / J3_RATIO;
 			}
 		}
 
 		// For the spread
-		innerJp[SPREAD_INDEX] = outerJp[SPREAD_INDEX] = motorPucks[SPREAD_INDEX].counts2rad(primaryEncoder[SPREAD_INDEX]) / SPREAD_RATIO;
+		innerJp[SPREAD_INDEX] = outerJp[SPREAD_INDEX] =
+		    motorPucks[SPREAD_INDEX].counts2rad(primaryEncoder[SPREAD_INDEX]) /
+		    SPREAD_RATIO;
 	}
-	
-	if (hasFingertipTorqueSensors()  &&  sensors & S_FINGERTIP_TORQUE) {
+
+	if (hasFingertipTorqueSensors() && sensors & S_FINGERTIP_TORQUE) {
 		{
 			BARRETT_SCOPED_LOCK(bus.getMutex());
 			group.sendGetPropertyRequest(group.getPropertyId(Puck::SG));
 
-			group.receiveGetPropertyReply<Puck::StandardParser>(group.getPropertyId(Puck::SG), ftt.data(), realtime);
+			group.receiveGetPropertyReply<Puck::StandardParser>(
+			    group.getPropertyId(Puck::SG), ftt.data(), realtime);
 		}
 		boost::this_thread::yield();
 	}
-	
-	
+
 	if (hasTactSensors()) {
-		if(sensors & S_TACT_FULL){
+		if (sensors & S_TACT_FULL) {
 			BARRETT_SCOPED_LOCK(bus.getMutex());
 			// This should be TactilePuck::requestFull()
 			group.setProperty(Puck::TACT, TactilePuck::FULL_FORMAT);
@@ -268,8 +272,8 @@ void Hand::update(unsigned int sensors, bool realtime)
 }
 
 /** */
-void Hand::setProperty(unsigned int whichDigits, enum Puck::Property prop, int value) const
-{
+void Hand::setProperty(unsigned int whichDigits, enum Puck::Property prop,
+                       int value) const {
 	if (whichDigits == WHOLE_HAND) {
 		group.setProperty(prop, value);
 	} else {
@@ -281,8 +285,8 @@ void Hand::setProperty(unsigned int whichDigits, enum Puck::Property prop, int v
 	}
 }
 /** setProperty Method */
-void Hand::setProperty(unsigned int whichDigits, enum Puck::Property prop, const v_type& values) const
-{
+void Hand::setProperty(unsigned int whichDigits, enum Puck::Property prop,
+                       const v_type &values) const {
 	for (size_t i = 0; i < DOF; ++i) {
 		if (digitsInclude(whichDigits, i)) {
 			pucks[i]->setProperty(prop, values[i]);
@@ -296,5 +300,4 @@ void Hand::blockIf(bool blocking, unsigned int whichDigits) const {
 	}
 }
 
-
-}
+} // namespace barrett

@@ -8,29 +8,24 @@
 #ifndef BARRETT_THREAD_DISABLE_SECONDARY_MODE_WARNING_H_
 #define BARRETT_THREAD_DISABLE_SECONDARY_MODE_WARNING_H_
 
-
 #include <barrett/detail/ca_macro.h>
 
-
 namespace barrett {
-namespace thread{
-
+namespace thread {
 
 class DisableSecondaryModeWarning {
-public:
+  public:
 	DisableSecondaryModeWarning();
 	~DisableSecondaryModeWarning();
 
-protected:
+  protected:
 	bool leaveWarnSwitchOn;
 
-private:
+  private:
 	DISALLOW_COPY_AND_ASSIGN(DisableSecondaryModeWarning);
 };
 
-
-}
-}
-
+} // namespace thread
+} // namespace barrett
 
 #endif /* BARRETT_THREAD_DISABLE_SECONDARY_MODE_WARNING_H_ */

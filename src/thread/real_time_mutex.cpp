@@ -28,7 +28,7 @@
  * @file real_time_mutex.cpp
  * @date 12/15/2009
  * @author Dan Cody
- *  
+ *
  */
 
 #include <iostream>
@@ -37,46 +37,38 @@
 #include <barrett/os.h>
 #include <barrett/thread/real_time_mutex.h>
 
-
 #ifdef BARRETT_XENOMAI
-	#include "real_time_mutex_impl-xenomai.cpp"
+#include "real_time_mutex_impl-xenomai.cpp"
 #else
-	#include <boost/thread/recursive_mutex.hpp>
+#include <boost/thread/recursive_mutex.hpp>
 
-	namespace barrett {
-	namespace thread {
-	namespace detail {
-		class mutex_impl : public boost::recursive_mutex {};
-	}
-	}
-	}
+namespace barrett {
+namespace thread {
+namespace detail {
+class mutex_impl : public boost::recursive_mutex {};
+} // namespace detail
+} // namespace thread
+} // namespace barrett
 #endif
-
 
 namespace barrett {
 namespace thread {
 
-
-RealTimeMutex::RealTimeMutex() :
-	mutex(NULL), lockCount(0)
-{
+RealTimeMutex::RealTimeMutex() : mutex(NULL), lockCount(0) {
 	mutex = new detail::mutex_impl;
 }
 
-RealTimeMutex::~RealTimeMutex()
-{
+RealTimeMutex::~RealTimeMutex() {
 	delete mutex;
 	mutex = NULL;
 }
 
-void RealTimeMutex::lock()
-{
+void RealTimeMutex::lock() {
 	mutex->lock();
 	++lockCount;
 }
 
-bool RealTimeMutex::try_lock()
-{
+bool RealTimeMutex::try_lock() {
 	if (mutex->try_lock()) {
 		++lockCount;
 		return true;
@@ -85,17 +77,18 @@ bool RealTimeMutex::try_lock()
 	}
 }
 
-void RealTimeMutex::unlock()
-{
+void RealTimeMutex::unlock() {
 	--lockCount;
 	mutex->unlock();
 }
 
-int RealTimeMutex::fullUnlock()
-{
+int RealTimeMutex::fullUnlock() {
 	int lc = lockCount;
 	if (lc <= 0) {
-		(logMessage("thread::RealTimeMutex::%s Bad lockCount value.  lockCount = %d") %__func__ %lc).raise<std::logic_error>();
+		(logMessage(
+		     "thread::RealTimeMutex::%s Bad lockCount value.  lockCount = %d") %
+		 __func__ % lc)
+		    .raise<std::logic_error>();
 	}
 
 	while (lockCount > 1) {
@@ -106,14 +99,12 @@ int RealTimeMutex::fullUnlock()
 	return lc;
 }
 
-void RealTimeMutex::relock(int lc)
-{
+void RealTimeMutex::relock(int lc) {
 	lock();
 	while (lockCount != lc) {
 		lock();
 	}
 }
 
-
-}
-}
+} // namespace thread
+} // namespace barrett

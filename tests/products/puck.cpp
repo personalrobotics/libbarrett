@@ -5,15 +5,12 @@
  *      Author: dc
  */
 
-
-#include <stdexcept>
-#include <gtest/gtest.h>
 #include <barrett/products/puck.h>
-
+#include <gtest/gtest.h>
+#include <stdexcept>
 
 namespace {
 using namespace barrett;
-
 
 TEST(PuckTest, GetPropertyStrTest) {
 	EXPECT_STREQ("A", Puck::getPropertyStr(Puck::A));
@@ -34,7 +31,8 @@ TEST(PuckTest, GetPropertyStrTest) {
 
 TEST(PuckTest, GetPropertyEnumTestNoThrow) {
 	for (int i = 0; i < Puck::NUM_PROPERTIES; ++i) {
-		EXPECT_EQ(i, Puck::getPropertyEnumNoThrow(Puck::getPropertyStr((enum Puck::Property) i)));
+		EXPECT_EQ(i, Puck::getPropertyEnumNoThrow(
+		                 Puck::getPropertyStr((enum Puck::Property)i)));
 	}
 
 	EXPECT_EQ(Puck::ZERO, Puck::getPropertyEnumNoThrow("ZERO"));
@@ -47,12 +45,14 @@ TEST(PuckTest, GetPropertyEnumTestNoThrow) {
 	EXPECT_EQ(-1, Puck::getPropertyEnumNoThrow("ZERO\n"));
 	EXPECT_EQ(-1, Puck::getPropertyEnumNoThrow(" ZERO"));
 	EXPECT_EQ(-1, Puck::getPropertyEnumNoThrow(""));
-	EXPECT_EQ(-1, Puck::getPropertyEnumNoThrow("omgthispropertynameisreallyreallylong"));
+	EXPECT_EQ(-1, Puck::getPropertyEnumNoThrow(
+	                  "omgthispropertynameisreallyreallylong"));
 }
 
 TEST(PuckTest, GetPropertyEnumTest) {
 	for (int i = 0; i < Puck::NUM_PROPERTIES; ++i) {
-		EXPECT_EQ(i, Puck::getPropertyEnum(Puck::getPropertyStr((enum Puck::Property) i)));
+		EXPECT_EQ(i, Puck::getPropertyEnum(
+		                 Puck::getPropertyStr((enum Puck::Property)i)));
 	}
 
 	EXPECT_EQ(Puck::ZERO, Puck::getPropertyEnum("ZERO"));
@@ -65,8 +65,8 @@ TEST(PuckTest, GetPropertyEnumTest) {
 	EXPECT_THROW(Puck::getPropertyEnum("ZERO\n"), std::invalid_argument);
 	EXPECT_THROW(Puck::getPropertyEnum(" ZERO"), std::invalid_argument);
 	EXPECT_THROW(Puck::getPropertyEnum(""), std::invalid_argument);
-	EXPECT_THROW(Puck::getPropertyEnum("omgthispropertynameisreallyreallylong"), std::invalid_argument);
+	EXPECT_THROW(Puck::getPropertyEnum("omgthispropertynameisreallyreallylong"),
+	             std::invalid_argument);
 }
 
-
-}
+} // namespace

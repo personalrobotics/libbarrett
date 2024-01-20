@@ -32,43 +32,40 @@
  *      Author: dc
  */
 
-#include <stdexcept>
 #include <limits>
+#include <stdexcept>
 
 #include <boost/tuple/tuple.hpp>
 
 #include <barrett/bus/abstract/communications_bus.h>
 #include <barrett/math/utils.h>
-#include <barrett/products/puck.h>
 #include <barrett/products/motor_puck.h>
-
+#include <barrett/products/puck.h>
 
 namespace barrett {
 
-
-void MotorPuck::setPuck(Puck* puck)
-{
+void MotorPuck::setPuck(Puck *puck) {
 	// Call super
 	SpecialPuck::setPuck(puck);
 
 	if (p != NULL) {
 		cts = p->getProperty(Puck::CTS);
-		rpc = 2*M_PI / cts;
-		cpr = cts / (2*M_PI);
+		rpc = 2 * M_PI / cts;
+		cpr = cts / (2 * M_PI);
 
 		ipnm = p->getProperty(Puck::IPNM);
 	}
 }
 
-
-void MotorPuck::sendPackedTorques(const bus::CommunicationsBus& bus, int groupId, int propId,
-		const double* pt, int numTorques)
-{
+void MotorPuck::sendPackedTorques(const bus::CommunicationsBus &bus,
+                                  int groupId, int propId, const double *pt,
+                                  int numTorques) {
 	unsigned char data[8];
 	int tmp0, tmp1;
 
-	if (numTorques < 0  ||  numTorques > 4) {
-		throw std::logic_error("MotorPuck::sendPackedTorques(): numTorques must be >= 0 and <= PUCKS_PER_TORQUE_GROUP.");
+	if (numTorques < 0 || numTorques > 4) {
+		throw std::logic_error("MotorPuck::sendPackedTorques(): numTorques "
+		                       "must be >= 0 and <= PUCKS_PER_TORQUE_GROUP.");
 		return;
 	}
 
@@ -78,23 +75,24 @@ void MotorPuck::sendPackedTorques(const bus::CommunicationsBus& bus, int groupId
 	data[0] = propId | Puck::SET_MASK;
 
 	tmp0 = (numTorques < 1) ? 0 : floor(math::saturate(pt[0], MAX_PUCK_TORQUE));
-	data[1] = static_cast<unsigned char>( ( tmp0 >> 6) & 0x00FF );
+	data[1] = static_cast<unsigned char>((tmp0 >> 6) & 0x00FF);
 
 	tmp1 = (numTorques < 2) ? 0 : floor(math::saturate(pt[1], MAX_PUCK_TORQUE));
-	data[2] = static_cast<unsigned char>( ((tmp0 << 2) & 0x00FC) | ((tmp1 >> 12) & 0x0003) );
-	data[3] = static_cast<unsigned char>( ( tmp1 >> 4) & 0x00FF );
+	data[2] = static_cast<unsigned char>(((tmp0 << 2) & 0x00FC) |
+	                                     ((tmp1 >> 12) & 0x0003));
+	data[3] = static_cast<unsigned char>((tmp1 >> 4) & 0x00FF);
 
 	tmp0 = (numTorques < 3) ? 0 : floor(math::saturate(pt[2], MAX_PUCK_TORQUE));
-	data[4] = static_cast<unsigned char>( ((tmp1 << 4) & 0x00F0) | ((tmp0 >> 10) & 0x000F) );
-	data[5] = static_cast<unsigned char>( ( tmp0 >> 2) & 0x00FF );
+	data[4] = static_cast<unsigned char>(((tmp1 << 4) & 0x00F0) |
+	                                     ((tmp0 >> 10) & 0x000F));
+	data[5] = static_cast<unsigned char>((tmp0 >> 2) & 0x00FF);
 
 	tmp1 = (numTorques < 4) ? 0 : floor(math::saturate(pt[3], MAX_PUCK_TORQUE));
-	data[6] = static_cast<unsigned char>( ((tmp0 << 6) & 0x00C0) | ((tmp1 >> 8) & 0x003F) );
+	data[6] = static_cast<unsigned char>(((tmp0 << 6) & 0x00C0) |
+	                                     ((tmp1 >> 8) & 0x003F));
 	data[7] = static_cast<unsigned char>(tmp1 & 0x00FF);
-
 
 	bus.send(Puck::nodeId2BusId(groupId), data, 8);
 }
 
-
-}
+} // namespace barrett

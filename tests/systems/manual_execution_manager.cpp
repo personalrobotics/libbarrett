@@ -5,27 +5,21 @@
  *      Author: dc
  */
 
-
-#include <gtest/gtest.h>
-#include <barrett/systems/manual_execution_manager.h>
 #include "./exposed_io_system.h"
-
+#include <barrett/systems/manual_execution_manager.h>
+#include <gtest/gtest.h>
 
 namespace {
 using namespace barrett;
 
-
 class ManualExecutionManagerTest : public ::testing::Test {
-public:
-	ManualExecutionManagerTest() {
-		mem.startManaging(eios);
-	}
+  public:
+	ManualExecutionManagerTest() { mem.startManaging(eios); }
 
-protected:
+  protected:
 	systems::ManualExecutionManager mem;
 	ExposedIOSystem<double> eios;
 };
-
 
 TEST_F(ManualExecutionManagerTest, DefaultCtor) {
 	EXPECT_LT(mem.getPeriod(), 0.0);
@@ -41,12 +35,14 @@ TEST_F(ManualExecutionManagerTest, PeriodCtor) {
 TEST_F(ManualExecutionManagerTest, ConfigCtor) {
 	libconfig::Config config;
 	config.readFile("test.config");
-	systems::ManualExecutionManager mem2(config.lookup("manual_execution_manager_test"));
+	systems::ManualExecutionManager mem2(
+	    config.lookup("manual_execution_manager_test"));
 	EXPECT_EQ(0.5386, mem2.getPeriod());
 }
 
 TEST_F(ManualExecutionManagerTest, Dtor) {
-	systems::ManualExecutionManager* localMem = new systems::ManualExecutionManager;
+	systems::ManualExecutionManager *localMem =
+	    new systems::ManualExecutionManager;
 
 	localMem->startManaging(eios);
 	EXPECT_TRUE(eios.hasExecutionManager());
@@ -195,7 +191,6 @@ TEST_F(ManualExecutionManagerTest, StopManagingIndirect) {
 	EXPECT_TRUE(eios3.hasDirectExecutionManager());
 	EXPECT_EQ(&mem, eios3.getExecutionManager());
 
-
 	mem.stopManaging(eios3);
 
 	EXPECT_FALSE(eios1.hasExecutionManager());
@@ -219,7 +214,6 @@ TEST_F(ManualExecutionManagerTest, StopDirectlyManaging) {
 	systems::connect(eios1.output, eios2.input);
 	systems::connect(eios2.output, eios3.input);
 
-
 	mem.startManaging(eios3);
 	mem.startManaging(eios2);
 
@@ -234,7 +228,6 @@ TEST_F(ManualExecutionManagerTest, StopDirectlyManaging) {
 	EXPECT_TRUE(eios3.hasExecutionManager());
 	EXPECT_TRUE(eios3.hasDirectExecutionManager());
 	EXPECT_EQ(&mem, eios3.getExecutionManager());
-
 
 	mem.stopManaging(eios2);
 
@@ -259,7 +252,6 @@ TEST_F(ManualExecutionManagerTest, StopManagingAtEndOfChain) {
 	systems::connect(eios1.output, eios2.input);
 	systems::connect(eios2.output, eios3.input);
 
-
 	mem.startManaging(eios3);
 	mem.startManaging(eios2);
 
@@ -274,7 +266,6 @@ TEST_F(ManualExecutionManagerTest, StopManagingAtEndOfChain) {
 	EXPECT_TRUE(eios3.hasExecutionManager());
 	EXPECT_TRUE(eios3.hasDirectExecutionManager());
 	EXPECT_EQ(&mem, eios3.getExecutionManager());
-
 
 	mem.stopManaging(eios3);
 
@@ -292,13 +283,14 @@ TEST_F(ManualExecutionManagerTest, StopManagingAtEndOfChain) {
 }
 
 TEST_F(ManualExecutionManagerTest, StopManagingWithNoOutputs) {
-	class NoOutputs : public systems::System, public systems::SingleInput<double> {
-	public:
+	class NoOutputs : public systems::System,
+	                  public systems::SingleInput<double> {
+	  public:
 		NoOutputs() : systems::SingleInput<double>(this) {}
-	protected:
+
+	  protected:
 		virtual void operate() {}
 	};
-
 
 	NoOutputs no;
 	mem.startManaging(no);
@@ -338,7 +330,6 @@ TEST_F(ManualExecutionManagerTest, UpdateTokensDontCollide) {
 	EXPECT_TRUE(eios.operateCalled);
 }
 
-
 // death tests
 typedef ManualExecutionManagerTest ManualExecutionManagerDeathTest;
 
@@ -359,5 +350,4 @@ TEST_F(ManualExecutionManagerDeathTest, StopManagingWhenUnmanaged) {
 	EXPECT_DEATH(mem.stopManaging(eios1), "");
 }
 
-
-}
+} // namespace

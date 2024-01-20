@@ -431,11 +431,14 @@ std::vector<int> AutoTension<DOF>::tensionJoint(std::vector<int> joint_list) {
 	motorSlackPulled = 1.0;
 	slackDifference = 1.0;
 
-	while (motorSlackPulled > slackThreshold[motor] || !diff_tens) // Check to see if we have met the slack thresholds
+	while (motorSlackPulled > slackThreshold[motor] ||
+	       !diff_tens) // Check to see if we have met the slack thresholds
 	{
-		motorSlackPulled = 1.0; // Large initial slack value for comparison against threshold
+		motorSlackPulled =
+		    1.0; // Large initial slack value for comparison against threshold
 		j1SlackPulled = 1.0;
-		if (std::find(joint_list.begin(), joint_list.end(), 1) != joint_list.end())
+		if (std::find(joint_list.begin(), joint_list.end(), 1) !=
+		    joint_list.end())
 			j1tens = true;
 		wam.moveTo(jpInitial[motor], true, 1.2, 0.75);
 		printf("\n**************************\n");
@@ -818,8 +821,9 @@ void mainThread(void *arg) {
 
 	// For clean stack traces
 	ProductManager pm;
-	if (pm.foundWam7Gimbals()){  //gimbals error message
-		printf("\nGimbals do not have autotensioners. Please re-run with a different outer link\n\n");
+	if (pm.foundWam7Gimbals()) { // gimbals error message
+		printf("\nGimbals do not have autotensioners. Please re-run with a "
+		       "different outer link\n\n");
 		return 0;
 	}
 	barrett::installExceptionHandler();

@@ -27,7 +27,6 @@
  * configuration files if your WAM is mounted in a different orientation.
  */
 
-
 #include <iostream>
 #include <string>
 
@@ -35,14 +34,12 @@
 //     http://eigen.tuxfamily.org/dox-2.0/
 #include <Eigen/Geometry>
 
-#include <barrett/systems.h>
 #include <barrett/products/product_manager.h>
+#include <barrett/systems.h>
 
 #include <barrett/standard_main_function.h>
 
-
 using namespace barrett;
-
 
 void printMenu() {
 	printf("Commands:\n");
@@ -54,8 +51,9 @@ void printMenu() {
 	printf("  q  Quit\n");
 }
 
-template<size_t DOF>
-int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) {
+template <size_t DOF>
+int wam_main(int argc, char **argv, ProductManager &pm,
+             systems::Wam<DOF> &wam) {
 	wam.gravityCompensate();
 	printMenu();
 

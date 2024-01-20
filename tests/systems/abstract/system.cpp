@@ -5,42 +5,38 @@
  *      Author: dc
  */
 
-#include <vector>
-#include <iostream>
-#include <gtest/gtest.h>
+#include "../exposed_io_system.h"
 #include <barrett/systems/abstract/system.h>
 #include <barrett/systems/helpers.h>
 #include <barrett/systems/manual_execution_manager.h>
-#include "../exposed_io_system.h"
-
+#include <gtest/gtest.h>
+#include <iostream>
+#include <vector>
 
 namespace {
 using namespace barrett;
 
-
 class SystemTest : public ::testing::Test {
-public:
-	SystemTest() {
-		mem.startManaging(in);
-	}
+  public:
+	SystemTest() { mem.startManaging(in); }
 
-protected:
+  protected:
 	systems::ManualExecutionManager mem;
 	ExposedIOSystem<double> out;
 	ExposedIOSystem<double> in;
 };
 
-
 TEST_F(SystemTest, GeneralIO) {
 	systems::connect(out.output, in.input);
-	EXPECT_FALSE(in.inputValueDefined()) << "input value not initially undefined";
+	EXPECT_FALSE(in.inputValueDefined())
+	    << "input value not initially undefined";
 
 	// set outputValue, then make sure value is defined and correct
 	checkConnected(mem, &out, in, 12.2);
 
 	out.setOutputValueUndefined();
 	EXPECT_FALSE(in.inputValueDefined())
-		<< "input value defined after call to outputValue.setUndefined()";
+	    << "input value defined after call to outputValue.setUndefined()";
 
 	// set outputValue, then make sure value is defined and correct
 	checkConnected(mem, &out, in, 145.0);
@@ -113,7 +109,6 @@ TEST_F(SystemTest, OutputDelegatePropagatesEmDirect) {
 	EXPECT_FALSE(d2.hasDirectExecutionManager());
 	EXPECT_EQ(NULL, d2.getExecutionManager());
 
-
 	in.delegateOutputValueTo(d1.output);
 
 	EXPECT_TRUE(in.hasExecutionManager());
@@ -127,7 +122,6 @@ TEST_F(SystemTest, OutputDelegatePropagatesEmDirect) {
 	EXPECT_FALSE(d2.hasExecutionManager());
 	EXPECT_FALSE(d2.hasDirectExecutionManager());
 	EXPECT_EQ(NULL, d2.getExecutionManager());
-
 
 	d1.delegateOutputValueTo(d2.output);
 
@@ -159,7 +153,6 @@ TEST_F(SystemTest, OutputDelegatePropagatesEmIndirect) {
 	EXPECT_FALSE(d2.hasExecutionManager());
 	EXPECT_FALSE(d2.hasDirectExecutionManager());
 	EXPECT_EQ(NULL, d2.getExecutionManager());
-
 
 	in.delegateOutputValueTo(d1.output);
 
@@ -193,7 +186,6 @@ TEST_F(SystemTest, OutputUndelegatePropagatesEm) {
 	EXPECT_FALSE(d2.hasDirectExecutionManager());
 	EXPECT_EQ(&mem, d2.getExecutionManager());
 
-
 	in.undelegate();
 
 	EXPECT_TRUE(in.hasExecutionManager());
@@ -208,7 +200,6 @@ TEST_F(SystemTest, OutputUndelegatePropagatesEm) {
 	EXPECT_FALSE(d2.hasDirectExecutionManager());
 	EXPECT_EQ(NULL, d2.getExecutionManager());
 }
-
 
 // death tests
 typedef SystemTest SystemDeathTest;
@@ -228,8 +219,7 @@ TEST_F(SystemDeathTest, InputGetValueDiesWhenNotManaged) {
 	systems::connect(out.output, in.input);
 	out.setOutputValue(12.3);
 
-	in.getInputValue();  // Shouldn't die
-
+	in.getInputValue(); // Shouldn't die
 
 	// Should die because in doesn't have an EM
 	mem.stopManaging(in);
@@ -247,5 +237,4 @@ TEST_F(SystemDeathTest, OutputDelegateMixedEm) {
 	EXPECT_DEATH(in.delegateOutputValueTo(out.output), "");
 }
 
-
-}
+} // namespace
