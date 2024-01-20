@@ -4,7 +4,7 @@
 # Import the Linux Version Number Variables
 . /etc/lsb-release
 
-if [ "$DISTRIB_RELEASE" = "20.04" ]; then
+if [ "$DISTRIB_RELEASE" = "22.04" ]; then
 	# Install CAN scripts
 	sudo cp reset_can.sh /bin
 	sudo cp 60-can.rules /etc/udev/rules.d
@@ -27,14 +27,7 @@ if [ "$DISTRIB_RELEASE" = "20.04" ]; then
 	# Workaround for the 'hwmatch' bug in grub2-efi
 	grep -qF GRUB_GFXPAYLOAD_LINUX /etc/default/grub || echo 'GRUB_GFXPAYLOAD_LINUX=keep' | sudo tee -a /etc/default/grub > /dev/null
 	sudo update-grub
-
-	# Download and Install patched Libconfig 1.4.5 (supporting C & C++ simultaneously)
-	cd ~/Downloads && wget http://web.barrett.com/support/WAM_Installer/libconfig-1.4.5-PATCHED.tar.gz
-	tar -xf libconfig-1.4.5-PATCHED.tar.gz
-	cd libconfig-1.4.5 && ./configure && make -j$(nproc)
-	sudo make install
-	sudo ldconfig
 else
-	echo "This script must run under Ubuntu 20.04"
+	echo "This script must run under Ubuntu 22.04"
 fi
 
