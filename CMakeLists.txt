@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0)
 
 project(libbarrett)
 set(libbarrett_VERSION_MAJOR 3)
@@ -22,8 +22,8 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules/")
 option(BUILD_SHARED_LIBS "Set to OFF to build static libraries" ON)
 option(OPTIMIZE_FOR_PROCESSOR "Set to ON to build binaries that are optimized for this specific computer and can't be copied to other machines" OFF)
 option(WITH_PYTHON "Set to ON to build Python bindings for libbarrett" ON)
-option(INSTALL_EXAMPLES "Set to ON to copy libbarrett example programs to the current user's home folder when the library is installed" ON)
-option(INSTALL_SANDBOX "Set to ON to copy libbarrett sandbox programs to the current user's home folder when the library is installed" ON)
+option(INSTALL_EXAMPLES "Set to ON to copy libbarrett example programs to the current user's home folder when the library is installed" OFF)
+option(INSTALL_SANDBOX "Set to ON to copy libbarrett sandbox programs to the current user's home folder when the library is installed" OFF)
 option(CONFIG_PACKAGE "Set to ON to set up CPACK variables necessary for packaging" OFF)
 option(CONFIG_DEBIAN "Set to ON to copy standard barrett-config.cmake, required for Debian packaging" OFF)
 
@@ -118,8 +118,8 @@ set(exported_link_dirs ${exported_link_dirs} ${Boost_LIBRARY_DIRS})
 
 ## Eigen3
 find_package(Eigen3 REQUIRED)
-include_directories(${Eigen_INCLUDE_DIRS})
-set(exported_include_dirs ${exported_include_dirs} ${Eigen_INCLUDE_DIRS})
+include_directories(${EIGEN_INCLUDE_DIRS})
+set(exported_include_dirs ${exported_include_dirs} ${EIGEN_INCLUDE_DIRS})
 
 
 ## curses
