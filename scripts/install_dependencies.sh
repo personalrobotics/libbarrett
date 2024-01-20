@@ -13,7 +13,7 @@ if [ "$DISTRIB_RELEASE" = "22.04" ]; then
 	# Install libbarrett dependencies
 	sudo apt update
 	sudo apt install -y linux-lowlatency
-	sudo apt install -y git cmake clang net-tools can-utils
+	sudo apt install -y git cmake build-essential net-tools can-utils
 	sudo apt install -y libgsl-dev libeigen3-dev libncurses-dev pkg-config 
 	sudo apt install -y libboost-system-dev libboost-thread-dev libboost-python-dev
 
