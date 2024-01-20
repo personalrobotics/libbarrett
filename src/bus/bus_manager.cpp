@@ -44,109 +44,110 @@ namespace bus {
 
 BusManager::BusManager(CommunicationsBus *_bus)
     : bus(_bus), deleteBus(false), messageBuffers() {
-	if (bus == NULL) {
-		bus = new CANSocket;
-		deleteBus = true;
-	}
+  if (bus == NULL) {
+    bus = new CANSocket;
+    deleteBus = true;
+  }
 }
 
 BusManager::BusManager(int port)
     : bus(NULL), deleteBus(true), messageBuffers() {
-	bus = new CANSocket(port);
+  bus = new CANSocket(port);
 }
 
 BusManager::~BusManager() {
-	if (deleteBus) {
-		delete bus;
-	}
+  if (deleteBus) {
+    delete bus;
+  }
 }
 
 int BusManager::receive(int expectedBusId, unsigned char *data, size_t &len,
                         bool blocking, bool realtime) const {
-	thread::Mutex &m = getMutex();
-	m.lock();
+  thread::Mutex &m = getMutex();
+  m.lock();
 
-	double start = highResolutionSystemTime();
+  double start = highResolutionSystemTime();
 
-	if (retrieveMessage(expectedBusId, data, len)) {
-		m.unlock();
-		return 0;
-	}
+  if (retrieveMessage(expectedBusId, data, len)) {
+    m.unlock();
+    return 0;
+  }
 
-	int ret;
-	while (true) {
-		ret = updateBuffers();
-		if (ret != 0) {
-			m.unlock();
-			return ret;
-		} else if (retrieveMessage(expectedBusId, data, len)) {
-			m.unlock();
-			return 0;
-		} else if (!blocking) {
-			m.unlock();
-			return 1;
-		}
+  int ret;
+  while (true) {
+    ret = updateBuffers();
+    if (ret != 0) {
+      m.unlock();
+      return ret;
+    } else if (retrieveMessage(expectedBusId, data, len)) {
+      m.unlock();
+      return 0;
+    } else if (!blocking) {
+      m.unlock();
+      return 1;
+    }
 
-		double now = highResolutionSystemTime();
-		if ((now - start) > CommunicationsBus::TIMEOUT) {
-			m.unlock();
-			logMessage("BusManager::receive(): timed out. Now: %lf, Start: %lf",
-			           true) %
-			    now % start;
-			return 2;
-		}
+    double now = highResolutionSystemTime();
+    if ((now - start) > CommunicationsBus::TIMEOUT) {
+      m.unlock();
+      logMessage("BusManager::receive(): timed out. Now: %lf, Start: %lf",
+                 true) %
+          now % start;
+      return 2;
+    }
 
-		// if (!realtime) {
-		//	int lc = m.fullUnlock();
-		//	btsleepRT(0.0001);			// Yield this thread, give CAN thread
-		// time to process data 	m.relock(lc);
-		// }
-	}
+    // if (!realtime) {
+    //	int lc = m.fullUnlock();
+    //	btsleepRT(0.0001);			// Yield this thread, give CAN
+    //thread
+    // time to process data 	m.relock(lc);
+    // }
+  }
 }
 
 int BusManager::updateBuffers() const {
-	BARRETT_SCOPED_LOCK(getMutex());
+  BARRETT_SCOPED_LOCK(getMutex());
 
-	int busId;
-	unsigned char data[CommunicationsBus::MAX_MESSAGE_LEN];
-	size_t len;
-	int ret;
+  int busId;
+  unsigned char data[CommunicationsBus::MAX_MESSAGE_LEN];
+  size_t len;
+  int ret;
 
-	// empty the bus' receive buffer
-	while (true) {
-		ret = receiveRaw(busId, data, len, false); // non-blocking read
-		if (ret == 0) { // successfully received a message
-			if (busId != 1344)
-				storeMessage(busId, data,
-				             len); // disregard safetyboard broadcast message
-		} else if (ret == 1) {     // would block
-			return 0;
-		} else { // error
-			return ret;
-		}
-	}
+  // empty the bus' receive buffer
+  while (true) {
+    ret = receiveRaw(busId, data, len, false); // non-blocking read
+    if (ret == 0) { // successfully received a message
+      if (busId != 1344)
+        storeMessage(busId, data,
+                     len); // disregard safetyboard broadcast message
+    } else if (ret == 1) { // would block
+      return 0;
+    } else { // error
+      return ret;
+    }
+  }
 }
 
 void BusManager::storeMessage(int busId, const unsigned char *data,
                               size_t len) const {
-	if (messageBuffers[busId].full()) {
-		(logMessage("BusManager::%s: Buffer overflow. ID = %d", true) %
-		 __func__ % busId)
-		    .raise<std::runtime_error>();
-	}
-	messageBuffers[busId].push_back(Message(data, len));
+  if (messageBuffers[busId].full()) {
+    (logMessage("BusManager::%s: Buffer overflow. ID = %d", true) % __func__ %
+     busId)
+        .raise<std::runtime_error>();
+  }
+  messageBuffers[busId].push_back(Message(data, len));
 }
 
 bool BusManager::retrieveMessage(int busId, unsigned char *data,
                                  size_t &len) const {
-	if (messageBuffers[busId].empty()) {
-		return false;
-	}
+  if (messageBuffers[busId].empty()) {
+    return false;
+  }
 
-	messageBuffers[busId].front().copyTo(data, len);
-	messageBuffers[busId].pop_front();
+  messageBuffers[busId].front().copyTo(data, len);
+  messageBuffers[busId].pop_front();
 
-	return true;
+  return true;
 }
 
 } // namespace bus

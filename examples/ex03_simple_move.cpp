@@ -43,109 +43,109 @@ using namespace barrett;
 // barrett::units type.
 template <int R, int C, typename Units>
 bool parseDoubles(math::Matrix<R, C, Units> *dest, const std::string &str) {
-	const char *cur = str.c_str();
-	const char *next = cur;
+  const char *cur = str.c_str();
+  const char *next = cur;
 
-	for (int i = 0; i < dest->size(); ++i) {
-		(*dest)[i] = strtod(cur, (char **)&next);
-		if (cur == next) {
-			return false;
-		} else {
-			cur = next;
-		}
-	}
+  for (int i = 0; i < dest->size(); ++i) {
+    (*dest)[i] = strtod(cur, (char **)&next);
+    if (cur == next) {
+      return false;
+    } else {
+      cur = next;
+    }
+  }
 
-	// Make sure there are no extra numbers in the string.
-	double ignore = strtod(cur, (char **)&next);
-	(void)ignore; // Prevent unused variable warnings
+  // Make sure there are no extra numbers in the string.
+  double ignore = strtod(cur, (char **)&next);
+  (void)ignore; // Prevent unused variable warnings
 
-	if (cur != next) {
-		return false;
-	}
+  if (cur != next) {
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
 template <size_t DOF, int R, int C, typename Units>
 void moveToStr(systems::Wam<DOF> &wam, math::Matrix<R, C, Units> *dest,
                const std::string &description, const std::string &str) {
-	if (parseDoubles(dest, str)) {
-		std::cout << "Moving to " << description << ": " << *dest << std::endl;
-		wam.moveTo(*dest);
-	} else {
-		printf("ERROR: Please enter exactly %ld numbers separated by "
-		       "whitespace.\n",
-		       dest->size());
-	}
+  if (parseDoubles(dest, str)) {
+    std::cout << "Moving to " << description << ": " << *dest << std::endl;
+    wam.moveTo(*dest);
+  } else {
+    printf("ERROR: Please enter exactly %ld numbers separated by "
+           "whitespace.\n",
+           dest->size());
+  }
 }
 
 void printMenu() {
-	printf("Commands:\n");
-	printf("  j  Enter a joint position destination\n");
-	printf("  p  Enter a tool position destination\n");
-	printf("  h  Move to the home position\n");
-	printf("  i  Idle (release position/orientation constraints)\n");
-	printf("  q  Quit\n");
+  printf("Commands:\n");
+  printf("  j  Enter a joint position destination\n");
+  printf("  p  Enter a tool position destination\n");
+  printf("  h  Move to the home position\n");
+  printf("  i  Idle (release position/orientation constraints)\n");
+  printf("  q  Quit\n");
 }
 
 template <size_t DOF>
 int wam_main(int argc, char **argv, ProductManager &pm,
              systems::Wam<DOF> &wam) {
-	// The macro below makes a number of typedefs that allow convenient access
-	// to commonly used barrett::units. For example, the typedefs establish
-	// "jp_type" as a synonym for "units::JointPositions<DOF>::type". This macro
-	// (along with a few others) is defined in barrett/units.h.
-	BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
+  // The macro below makes a number of typedefs that allow convenient access
+  // to commonly used barrett::units. For example, the typedefs establish
+  // "jp_type" as a synonym for "units::JointPositions<DOF>::type". This macro
+  // (along with a few others) is defined in barrett/units.h.
+  BARRETT_UNITS_TEMPLATE_TYPEDEFS(DOF);
 
-	// These vectors are fixed sized, stack allocated, and zero-initialized.
-	jp_type jp; // jp is a DOFx1 column vector of joint positions
-	cp_type cp; // cp is a 3x1 vector representing a Cartesian position
+  // These vectors are fixed sized, stack allocated, and zero-initialized.
+  jp_type jp; // jp is a DOFx1 column vector of joint positions
+  cp_type cp; // cp is a 3x1 vector representing a Cartesian position
 
-	wam.gravityCompensate();
-	printMenu();
+  wam.gravityCompensate();
+  printMenu();
 
-	std::string line;
-	bool going = true;
-	while (going) {
-		printf(">>> ");
-		std::getline(std::cin, line);
+  std::string line;
+  bool going = true;
+  while (going) {
+    printf(">>> ");
+    std::getline(std::cin, line);
 
-		switch (line[0]) {
-		case 'j':
-			moveToStr(wam, &jp, "joint positions", line.substr(1));
-			break;
+    switch (line[0]) {
+    case 'j':
+      moveToStr(wam, &jp, "joint positions", line.substr(1));
+      break;
 
-		case 'p':
-			moveToStr(wam, &cp, "tool position", line.substr(1));
-			break;
+    case 'p':
+      moveToStr(wam, &cp, "tool position", line.substr(1));
+      break;
 
-		case 'h':
-			std::cout << "Moving to home position: " << wam.getHomePosition()
-			          << std::endl;
-			wam.moveHome();
-			break;
+    case 'h':
+      std::cout << "Moving to home position: " << wam.getHomePosition()
+                << std::endl;
+      wam.moveHome();
+      break;
 
-		case 'i':
-			printf("WAM idled.\n");
-			wam.idle();
-			break;
+    case 'i':
+      printf("WAM idled.\n");
+      wam.idle();
+      break;
 
-		case 'q':
-		case 'x':
-			printf("Quitting.\n");
-			going = false;
-			break;
+    case 'q':
+    case 'x':
+      printf("Quitting.\n");
+      going = false;
+      break;
 
-		default:
-			if (line.size() != 0) {
-				printf("Unrecognized option.\n");
-				printMenu();
-			}
-			break;
-		}
-	}
+    default:
+      if (line.size() != 0) {
+        printf("Unrecognized option.\n");
+        printMenu();
+      }
+      break;
+    }
+  }
 
-	wam.idle();
-	pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
-	return 0;
+  wam.idle();
+  pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
+  return 0;
 }

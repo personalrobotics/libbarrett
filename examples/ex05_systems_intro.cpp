@@ -58,89 +58,89 @@ using namespace barrett;
 //    result = c[0] + c[1]*x + c[2]*x^2 + ... + c[n]*x^n
 // for a given input value, x, and vector of coefficients, c.
 class PolynomialEvaluator : public systems::System {
-	// IO
-	// Marked as "public" because Inputs and Output are (except in special
-	// cases) part of a System's public interface.
-  public:
-	Input<double> input;
+  // IO
+  // Marked as "public" because Inputs and Output are (except in special
+  // cases) part of a System's public interface.
+public:
+  Input<double> input;
 
-  public:
-	Output<double> output;
+public:
+  Output<double> output;
 
-	// Marked as "protected" because this object lets us change the value of an
-	// Output, which should only be allowed from within this System.
-  protected:
-	Output<double>::Value *outputValue;
+  // Marked as "protected" because this object lets us change the value of an
+  // Output, which should only be allowed from within this System.
+protected:
+  Output<double>::Value *outputValue;
 
-  public:
-	// Every System has a human readable name. It's good practice to provide an
-	// appropriate default. Notice that outputValue is associated with output
-	// via output's constructor.
-	explicit PolynomialEvaluator(
-	    const std::vector<double> &coefficients,
-	    const std::string &sysName = "PolynomialEvaluator")
-	    : systems::System(sysName), input(this), output(this, &outputValue),
-	      coeff(coefficients) {}
+public:
+  // Every System has a human readable name. It's good practice to provide an
+  // appropriate default. Notice that outputValue is associated with output
+  // via output's constructor.
+  explicit PolynomialEvaluator(
+      const std::vector<double> &coefficients,
+      const std::string &sysName = "PolynomialEvaluator")
+      : systems::System(sysName), input(this), output(this, &outputValue),
+        coeff(coefficients) {}
 
-	// Every System is required to call System::mandatoryCleanUp() in its
-	// destructor, preferably as early as possible. It's common for libbarrett
-	// to be used in a multi-threaded environment. This function cleans up all
-	// of libbarrett's references to this System so that the library won't try
-	// to interact with it from Thread A while it's in the process of being
-	// destroyed in Thread B. If you forget this, you may occasionally see your
-	// program crash with the message: "Pure virtual function called".
-	virtual ~PolynomialEvaluator() { mandatoryCleanUp(); }
+  // Every System is required to call System::mandatoryCleanUp() in its
+  // destructor, preferably as early as possible. It's common for libbarrett
+  // to be used in a multi-threaded environment. This function cleans up all
+  // of libbarrett's references to this System so that the library won't try
+  // to interact with it from Thread A while it's in the process of being
+  // destroyed in Thread B. If you forget this, you may occasionally see your
+  // program crash with the message: "Pure virtual function called".
+  virtual ~PolynomialEvaluator() { mandatoryCleanUp(); }
 
-  protected:
-	double result;
+protected:
+  double result;
 
-	// Implement System::operate(). The operate() function must be declared with
-	// the "protected" access specifier.
-	virtual void operate() {
-		const double &x = input.getValue(); // Pull data from the input
-		result = 0.0;
+  // Implement System::operate(). The operate() function must be declared with
+  // the "protected" access specifier.
+  virtual void operate() {
+    const double &x = input.getValue(); // Pull data from the input
+    result = 0.0;
 
-		// Operate on the input value and state
-		for (int i = coeff.size() - 1; i >= 0; --i) {
-			result = coeff[i] + x * result;
-		}
+    // Operate on the input value and state
+    for (int i = coeff.size() - 1; i >= 0; --i) {
+      result = coeff[i] + x * result;
+    }
 
-		outputValue->setData(&result); // Push data into the output
-	}
+    outputValue->setData(&result); // Push data into the output
+  }
 
-	std::vector<double> coeff;
+  std::vector<double> coeff;
 };
 
 int main() {
-	// Make vector of coefficients
-	double coeffArray[] = {1.0, 2.0, 3.0};
-	std::vector<double> coeff(coeffArray,
-	                          coeffArray + sizeof(coeffArray) / sizeof(double));
+  // Make vector of coefficients
+  double coeffArray[] = {1.0, 2.0, 3.0};
+  std::vector<double> coeff(coeffArray,
+                            coeffArray + sizeof(coeffArray) / sizeof(double));
 
-	// Create execution manager
-	systems::ManualExecutionManager mem;
+  // Create execution manager
+  systems::ManualExecutionManager mem;
 
-	// Instantiate Systems
-	systems::ExposedOutput<double> eoSys;
-	PolynomialEvaluator peSys(coeff);
-	systems::PrintToStream<double> printSys(&mem, "Result: ");
+  // Instantiate Systems
+  systems::ExposedOutput<double> eoSys;
+  PolynomialEvaluator peSys(coeff);
+  systems::PrintToStream<double> printSys(&mem, "Result: ");
 
-	// Make connections between Systems
-	systems::connect(eoSys.output, peSys.input);
-	systems::connect(peSys.output, printSys.input);
+  // Make connections between Systems
+  systems::connect(eoSys.output, peSys.input);
+  systems::connect(peSys.output, printSys.input);
 
-	// Push data into peSys' input and run an execution cycle,
-	// causing peSys::operate() to be called
-	eoSys.setValue(-1.0);
-	mem.runExecutionCycle();
-	eoSys.setValue(-0.5);
-	mem.runExecutionCycle();
-	eoSys.setValue(0.0);
-	mem.runExecutionCycle();
-	eoSys.setValue(0.5);
-	mem.runExecutionCycle();
-	eoSys.setValue(1.0);
-	mem.runExecutionCycle();
+  // Push data into peSys' input and run an execution cycle,
+  // causing peSys::operate() to be called
+  eoSys.setValue(-1.0);
+  mem.runExecutionCycle();
+  eoSys.setValue(-0.5);
+  mem.runExecutionCycle();
+  eoSys.setValue(0.0);
+  mem.runExecutionCycle();
+  eoSys.setValue(0.5);
+  mem.runExecutionCycle();
+  eoSys.setValue(1.0);
+  mem.runExecutionCycle();
 
-	return 0;
+  return 0;
 }

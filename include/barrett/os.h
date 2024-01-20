@@ -47,21 +47,21 @@ void btsleep(double duration_s, bool realtime);
 double highResolutionSystemTime();
 
 struct periodic_info {
-	int timer_fd;
-	unsigned long long wakeups_missed;
+  int timer_fd;
+  unsigned long long wakeups_missed;
 };
 
 class PeriodicLoopTimer {
-  public:
-	explicit PeriodicLoopTimer(double period_, int threadPriority = 10);
+public:
+  explicit PeriodicLoopTimer(double period_, int threadPriority = 10);
 
-	unsigned long wait();
+  unsigned long wait();
 
-  protected:
-	bool firstRun;
-	double period;
-	double releasePoint;
-	periodic_info info;
+protected:
+  bool firstRun;
+  double period;
+  double releasePoint;
+  periodic_info info;
 };
 
 /** logMessage function returns an object that can be used in the same way as a

@@ -20,10 +20,10 @@ typedef units::JointTorques<3>::type jt_type;
 
 // we just want this to compile
 TEST(IOConversionTest, Ctor) {
-	ExposedIOSystem<jt_type> eios;
-	systems::Conversion<jt_type> *conversion =
-	    systems::makeIOConversion(eios.input, eios.output);
-	delete conversion;
+  ExposedIOSystem<jt_type> eios;
+  systems::Conversion<jt_type> *conversion =
+      systems::makeIOConversion(eios.input, eios.output);
+  delete conversion;
 }
 
 } // namespace

@@ -41,17 +41,17 @@ namespace thread {
 
 DisableSecondaryModeWarning::DisableSecondaryModeWarning() {
 #ifdef BARRETT_XENOMAI
-	int oldMode;
-	rt_task_set_mode(T_WARNSW, 0, &oldMode);
-	leaveWarnSwitchOn = oldMode & T_WARNSW;
+  int oldMode;
+  rt_task_set_mode(T_WARNSW, 0, &oldMode);
+  leaveWarnSwitchOn = oldMode & T_WARNSW;
 #endif
 }
 
 DisableSecondaryModeWarning::~DisableSecondaryModeWarning() {
 #ifdef BARRETT_XENOMAI
-	if (leaveWarnSwitchOn) {
-		rt_task_set_mode(0, T_WARNSW, NULL);
-	}
+  if (leaveWarnSwitchOn) {
+    rt_task_set_mode(0, T_WARNSW, NULL);
+  }
 #endif
 }
 

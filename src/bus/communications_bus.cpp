@@ -42,24 +42,24 @@ namespace bus {
 int CommunicationsBus::receive(int expectedBusId, unsigned char *data,
                                size_t &len, bool blocking,
                                bool realtime) const {
-	int actualBusId;
-	int ret = receiveRaw(actualBusId, data, len, blocking);
+  int actualBusId;
+  int ret = receiveRaw(actualBusId, data, len, blocking);
 
-	// Test to see if libbarrett ever uses this function - nope.
-	// logMessage("CommunicationsBus::receive()");
+  // Test to see if libbarrett ever uses this function - nope.
+  // logMessage("CommunicationsBus::receive()");
 
-	if (ret != 0) {
-		return ret;
-	}
+  if (ret != 0) {
+    return ret;
+  }
 
-	if (actualBusId != expectedBusId) {
-		(logMessage("CommunicationsBus::%s: Received unexpected message from "
-		            "busId=%d while expecting a message from busId=%d.") %
-		 __func__ % actualBusId % expectedBusId)
-		    .raise<std::runtime_error>();
-	}
+  if (actualBusId != expectedBusId) {
+    (logMessage("CommunicationsBus::%s: Received unexpected message from "
+                "busId=%d while expecting a message from busId=%d.") %
+     __func__ % actualBusId % expectedBusId)
+        .raise<std::runtime_error>();
+  }
 
-	return 0;
+  return 0;
 }
 
 } // namespace bus

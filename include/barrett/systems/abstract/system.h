@@ -46,305 +46,305 @@ namespace systems {
 class ExecutionManager;
 
 #define DECLARE_HELPER_FRIENDS                                                 \
-	template <typename T2>                                                     \
-	friend void connect(System::Output<T2> &output, System::Input<T2> &input); \
-	template <typename T2> friend void disconnect(System::Input<T2> &input);   \
-	template <typename T2> friend void disconnect(System::Output<T2> &output)
+  template <typename T2>                                                       \
+  friend void connect(System::Output<T2> &output, System::Input<T2> &input);   \
+  template <typename T2> friend void disconnect(System::Input<T2> &input);     \
+  template <typename T2> friend void disconnect(System::Output<T2> &output)
 
 class System {
-  private:
-	typedef uint_fast32_t update_token_type;
+private:
+  typedef uint_fast32_t update_token_type;
 
+public:
+  // Forward decls
+  class AbstractInput;
+  template <typename T> class Input;
+  class AbstractOutput;
+  template <typename T> class Output;
+
+  explicit System(const std::string &sysName = "System")
+      : name(sysName), em(NULL), emDirect(false), ut(UT_NULL) {}
+  virtual ~System() { mandatoryCleanUp(); }
+
+  void setName(const std::string &newName) { name = newName; }
+  const std::string &getName() const { return name; }
+
+  bool hasExecutionManager() const { return getExecutionManager() != NULL; }
+  bool hasDirectExecutionManager() const { return emDirect; }
+  ExecutionManager *getExecutionManager() const { return em; }
+  thread::Mutex &getEmMutex() const;
+
+protected:
+  void mandatoryCleanUp();
+
+  void update(update_token_type updateToken);
+
+  virtual bool inputsValid() /* const */;
+  virtual void operate() = 0;
+  virtual void invalidateOutputs();
+
+  // If you redefine this method, make sure to call
+  // MyBaseClass::onExecutionManagerChanged() in the new version.
+  virtual void onExecutionManagerChanged() {}
+
+  std::string name;
+  ExecutionManager *em;
+  bool emDirect;
+
+public:
+  class AbstractInput {
   public:
-	// Forward decls
-	class AbstractInput;
-	template <typename T> class Input;
-	class AbstractOutput;
-	template <typename T> class Output;
+    AbstractInput(System *parent);
+    virtual ~AbstractInput();
 
-	explicit System(const std::string &sysName = "System")
-	    : name(sysName), em(NULL), emDirect(false), ut(UT_NULL) {}
-	virtual ~System() { mandatoryCleanUp(); }
+    virtual bool valueDefined() const = 0;
 
-	void setName(const std::string &newName) { name = newName; }
-	const std::string &getName() const { return name; }
-
-	bool hasExecutionManager() const { return getExecutionManager() != NULL; }
-	bool hasDirectExecutionManager() const { return emDirect; }
-	ExecutionManager *getExecutionManager() const { return em; }
-	thread::Mutex &getEmMutex() const;
+    thread::Mutex &getEmMutex() const;
 
   protected:
-	void mandatoryCleanUp();
+    virtual void mandatoryCleanUp();
 
-	void update(update_token_type updateToken);
-
-	virtual bool inputsValid() /* const */;
-	virtual void operate() = 0;
-	virtual void invalidateOutputs();
-
-	// If you redefine this method, make sure to call
-	// MyBaseClass::onExecutionManagerChanged() in the new version.
-	virtual void onExecutionManagerChanged() {}
-
-	std::string name;
-	ExecutionManager *em;
-	bool emDirect;
-
-  public:
-	class AbstractInput {
-	  public:
-		AbstractInput(System *parent);
-		virtual ~AbstractInput();
-
-		virtual bool valueDefined() const = 0;
-
-		thread::Mutex &getEmMutex() const;
-
-	  protected:
-		virtual void mandatoryCleanUp();
-
-		System *parentSys;
-
-	  private:
-		virtual void pushExecutionManager() = 0;
-		virtual void unsetExecutionManager() = 0;
-
-		typedef boost::intrusive::list_member_hook<> child_hook_type;
-		child_hook_type childHook;
-
-		friend class System;
-
-		DISALLOW_COPY_AND_ASSIGN(AbstractInput);
-	};
-
-	class AbstractOutput {
-	  public:
-		AbstractOutput(System *parent);
-		virtual ~AbstractOutput();
-
-		thread::Mutex &getEmMutex() const;
-
-	  protected:
-		virtual void mandatoryCleanUp();
-
-		System *parentSys;
-
-	  private:
-		virtual void setValueUndefined() = 0;
-
-		virtual ExecutionManager *collectExecutionManager() const = 0;
-		virtual void pushExecutionManager() = 0;
-		virtual void unsetExecutionManager() = 0;
-
-		typedef boost::intrusive::list_member_hook<> child_hook_type;
-		child_hook_type childHook;
-
-		friend class System;
-
-		DISALLOW_COPY_AND_ASSIGN(AbstractOutput);
-	};
+    System *parentSys;
 
   private:
-	static const update_token_type UT_NULL = 0;
-	update_token_type ut;
+    virtual void pushExecutionManager() = 0;
+    virtual void unsetExecutionManager() = 0;
 
-	void setExecutionManager(ExecutionManager *newEm);
-	void unsetDirectExecutionManager();
-	void unsetExecutionManager();
+    typedef boost::intrusive::list_member_hook<> child_hook_type;
+    child_hook_type childHook;
 
-	typedef boost::intrusive::list_member_hook<> managed_hook_type;
-	managed_hook_type managedHook;
+    friend class System;
 
-	struct StopManagingDisposer {
-		void operator()(System *sys) { sys->unsetDirectExecutionManager(); }
-	};
+    DISALLOW_COPY_AND_ASSIGN(AbstractInput);
+  };
 
-	typedef boost::intrusive::list<
-	    AbstractInput, boost::intrusive::member_hook<
-	                       AbstractInput, AbstractInput::child_hook_type,
-	                       &AbstractInput::childHook>>
-	    child_input_list_type;
-	child_input_list_type inputs;
+  class AbstractOutput {
+  public:
+    AbstractOutput(System *parent);
+    virtual ~AbstractOutput();
 
-	typedef boost::intrusive::list<
-	    AbstractOutput, boost::intrusive::member_hook<
-	                        AbstractOutput, AbstractOutput::child_hook_type,
-	                        &AbstractOutput::childHook>>
-	    child_output_list_type;
-	child_output_list_type outputs;
+    thread::Mutex &getEmMutex() const;
 
-	friend class ExecutionManager;
-	DECLARE_HELPER_FRIENDS;
+  protected:
+    virtual void mandatoryCleanUp();
 
-	DISALLOW_COPY_AND_ASSIGN(System);
+    System *parentSys;
+
+  private:
+    virtual void setValueUndefined() = 0;
+
+    virtual ExecutionManager *collectExecutionManager() const = 0;
+    virtual void pushExecutionManager() = 0;
+    virtual void unsetExecutionManager() = 0;
+
+    typedef boost::intrusive::list_member_hook<> child_hook_type;
+    child_hook_type childHook;
+
+    friend class System;
+
+    DISALLOW_COPY_AND_ASSIGN(AbstractOutput);
+  };
+
+private:
+  static const update_token_type UT_NULL = 0;
+  update_token_type ut;
+
+  void setExecutionManager(ExecutionManager *newEm);
+  void unsetDirectExecutionManager();
+  void unsetExecutionManager();
+
+  typedef boost::intrusive::list_member_hook<> managed_hook_type;
+  managed_hook_type managedHook;
+
+  struct StopManagingDisposer {
+    void operator()(System *sys) { sys->unsetDirectExecutionManager(); }
+  };
+
+  typedef boost::intrusive::list<
+      AbstractInput, boost::intrusive::member_hook<
+                         AbstractInput, AbstractInput::child_hook_type,
+                         &AbstractInput::childHook>>
+      child_input_list_type;
+  child_input_list_type inputs;
+
+  typedef boost::intrusive::list<
+      AbstractOutput, boost::intrusive::member_hook<
+                          AbstractOutput, AbstractOutput::child_hook_type,
+                          &AbstractOutput::childHook>>
+      child_output_list_type;
+  child_output_list_type outputs;
+
+  friend class ExecutionManager;
+  DECLARE_HELPER_FRIENDS;
+
+  DISALLOW_COPY_AND_ASSIGN(System);
 };
 
 template <typename T> class System::Input : public System::AbstractInput {
-  public:
-	Input(System *parent) : AbstractInput(parent), output(NULL) {}
-	virtual ~Input();
+public:
+  Input(System *parent) : AbstractInput(parent), output(NULL) {}
+  virtual ~Input();
 
-	bool isConnected() const { return output != NULL; }
-	virtual bool valueDefined() const {
-		assert(parentSys != NULL);
-		return parentSys->hasExecutionManager() && isConnected() &&
-		       output->getValueObject()->updateData(parentSys->ut);
-	}
+  bool isConnected() const { return output != NULL; }
+  virtual bool valueDefined() const {
+    assert(parentSys != NULL);
+    return parentSys->hasExecutionManager() && isConnected() &&
+           output->getValueObject()->updateData(parentSys->ut);
+  }
 
-	const T &getValue() const {
-		assert(valueDefined());
+  const T &getValue() const {
+    assert(valueDefined());
 
-		// valueDefined() calls Output<T>::Value::updateData() for us. Make
-		// sure it gets called even if NDEBUG is defined.
+    // valueDefined() calls Output<T>::Value::updateData() for us. Make
+    // sure it gets called even if NDEBUG is defined.
 #ifdef NDEBUG
-		output->getValueObject()->updateData(parentSys->ut);
+    output->getValueObject()->updateData(parentSys->ut);
 #endif
 
-		return *(output->getValueObject()->getData());
-	}
+    return *(output->getValueObject()->getData());
+  }
 
-  protected:
-	virtual void mandatoryCleanUp();
+protected:
+  virtual void mandatoryCleanUp();
 
-	Output<T> *output;
+  Output<T> *output;
 
-  private:
-	virtual void pushExecutionManager();
-	virtual void unsetExecutionManager();
+private:
+  virtual void pushExecutionManager();
+  virtual void unsetExecutionManager();
 
-	typedef boost::intrusive::list_member_hook<> connected_hook_type;
-	connected_hook_type connectedHook;
+  typedef boost::intrusive::list_member_hook<> connected_hook_type;
+  connected_hook_type connectedHook;
 
-	struct DisconnectDisposer {
-		void operator()(Input<T> *input) { input->output = NULL; }
-	};
+  struct DisconnectDisposer {
+    void operator()(Input<T> *input) { input->output = NULL; }
+  };
 
-	friend class Output<T>;
-	DECLARE_HELPER_FRIENDS;
+  friend class Output<T>;
+  DECLARE_HELPER_FRIENDS;
 
-	DISALLOW_COPY_AND_ASSIGN(Input);
+  DISALLOW_COPY_AND_ASSIGN(Input);
 };
 
 namespace detail {
 template <typename T> struct IntrusiveDelegateFunctor {
-	// Required types
-	typedef boost::intrusive::list_member_hook<> hook_type;
-	typedef hook_type *hook_ptr;
-	typedef const hook_type *const_hook_ptr;
-	typedef System::Output<T> value_type;
-	typedef value_type *pointer;
-	typedef const value_type *const_pointer;
+  // Required types
+  typedef boost::intrusive::list_member_hook<> hook_type;
+  typedef hook_type *hook_ptr;
+  typedef const hook_type *const_hook_ptr;
+  typedef System::Output<T> value_type;
+  typedef value_type *pointer;
+  typedef const value_type *const_pointer;
 
-	// Required static functions
-	static hook_ptr to_hook_ptr(value_type &value);
-	static const_hook_ptr to_hook_ptr(const value_type &value);
-	static pointer to_value_ptr(hook_ptr n);
-	static const_pointer to_value_ptr(const_hook_ptr n);
+  // Required static functions
+  static hook_ptr to_hook_ptr(value_type &value);
+  static const_hook_ptr to_hook_ptr(const value_type &value);
+  static pointer to_value_ptr(hook_ptr n);
+  static const_pointer to_value_ptr(const_hook_ptr n);
 };
 } // namespace detail
 
 template <typename T> class System::Output : public System::AbstractOutput {
-  public:
-	class Value;
+public:
+  class Value;
 
-	Output(System *parent, Value **valueHandle)
-	    : AbstractOutput(parent), value(this) {
-		*valueHandle = &value;
-	}
-	virtual ~Output();
+  Output(System *parent, Value **valueHandle)
+      : AbstractOutput(parent), value(this) {
+    *valueHandle = &value;
+  }
+  virtual ~Output();
 
-	// TODO(dc): How should isConnected() treat delegation?
-	bool isConnected() const {
-		return !inputs.empty() || !value.delegators.empty();
-	}
+  // TODO(dc): How should isConnected() treat delegation?
+  bool isConnected() const {
+    return !inputs.empty() || !value.delegators.empty();
+  }
 
-  protected:
-	virtual void mandatoryCleanUp();
+protected:
+  virtual void mandatoryCleanUp();
 
-	Value *getValueObject() {
-		// TODO(dc): check for cyclic delegation?
-		Value *v = &value;
-		while (v->delegate != NULL) {
-			v = v->delegate;
-		}
+  Value *getValueObject() {
+    // TODO(dc): check for cyclic delegation?
+    Value *v = &value;
+    while (v->delegate != NULL) {
+      v = v->delegate;
+    }
 
-		return v;
-	}
+    return v;
+  }
 
-	Value value;
+  Value value;
 
-  private:
-	virtual void setValueUndefined() { value.setUndefined(); }
+private:
+  virtual void setValueUndefined() { value.setUndefined(); }
 
-	virtual ExecutionManager *collectExecutionManager() const;
-	virtual void pushExecutionManager();
-	virtual void unsetExecutionManager();
+  virtual ExecutionManager *collectExecutionManager() const;
+  virtual void pushExecutionManager();
+  virtual void unsetExecutionManager();
 
-	typename detail::IntrusiveDelegateFunctor<T>::hook_type delegateHook;
+  typename detail::IntrusiveDelegateFunctor<T>::hook_type delegateHook;
 
-	typedef boost::intrusive::list<
-	    Input<T>, boost::intrusive::member_hook<
-	                  Input<T>, typename Input<T>::connected_hook_type,
-	                  &Input<T>::connectedHook>>
-	    connected_input_list_type;
-	connected_input_list_type inputs;
+  typedef boost::intrusive::list<
+      Input<T>, boost::intrusive::member_hook<
+                    Input<T>, typename Input<T>::connected_hook_type,
+                    &Input<T>::connectedHook>>
+      connected_input_list_type;
+  connected_input_list_type inputs;
 
-	friend class Input<T>;
-	friend class detail::IntrusiveDelegateFunctor<T>;
-	DECLARE_HELPER_FRIENDS;
+  friend class Input<T>;
+  friend class detail::IntrusiveDelegateFunctor<T>;
+  DECLARE_HELPER_FRIENDS;
 
-	DISALLOW_COPY_AND_ASSIGN(Output);
+  DISALLOW_COPY_AND_ASSIGN(Output);
 };
 
 template <typename T> class System::Output<T>::Value {
-  public:
-	void setData(const T *newData) { data = newData; }
-	void setUndefined() { data = NULL; }
+public:
+  void setData(const T *newData) { data = newData; }
+  void setUndefined() { data = NULL; }
 
-	bool isDefined() const { return data != NULL; }
-	const T *getData() const { return data; }
+  bool isDefined() const { return data != NULL; }
+  const T *getData() const { return data; }
 
-	void delegateTo(Output<T> &delegateOutput);
-	void undelegate();
+  void delegateTo(Output<T> &delegateOutput);
+  void undelegate();
 
-  protected:
-	Output<T> &parentOutput;
-	Value *delegate;
-	bool defined;
-	const T *data;
+protected:
+  Output<T> &parentOutput;
+  Value *delegate;
+  bool defined;
+  const T *data;
 
-  private:
-	explicit Value(Output<T> *parent)
-	    : parentOutput(*parent), delegate(NULL), data(NULL) {}
+private:
+  explicit Value(Output<T> *parent)
+      : parentOutput(*parent), delegate(NULL), data(NULL) {}
 
-	bool updateData(update_token_type updateToken) {
-		assert(parentOutput.parentSys !=
-		       NULL); // TODO(dc): Is this assertion helpful?
+  bool updateData(update_token_type updateToken) {
+    assert(parentOutput.parentSys !=
+           NULL); // TODO(dc): Is this assertion helpful?
 
-		parentOutput.parentSys->update(updateToken);
-		return isDefined();
-	}
+    parentOutput.parentSys->update(updateToken);
+    return isDefined();
+  }
 
-	typedef boost::intrusive::list<
-	    Output<T>, boost::intrusive::function_hook<
-	                   typename detail::IntrusiveDelegateFunctor<T>>>
-	    delegate_output_list_type;
-	delegate_output_list_type delegators;
+  typedef boost::intrusive::list<
+      Output<T>, boost::intrusive::function_hook<
+                     typename detail::IntrusiveDelegateFunctor<T>>>
+      delegate_output_list_type;
+  delegate_output_list_type delegators;
 
-	struct UndelegateDisposer {
-		void operator()(Output<T> *output) {
-			// No need to update the ExecutionManager, this Disposer is only
-			// used in ~Output()
-			// output->unsetExecutionManager();
-			output->value.delegate = NULL;
-		}
-	};
+  struct UndelegateDisposer {
+    void operator()(Output<T> *output) {
+      // No need to update the ExecutionManager, this Disposer is only
+      // used in ~Output()
+      // output->unsetExecutionManager();
+      output->value.delegate = NULL;
+    }
+  };
 
-	friend class Input<T>;
-	friend class Output<T>;
+  friend class Input<T>;
+  friend class Output<T>;
 
-	DISALLOW_COPY_AND_ASSIGN(Value);
+  DISALLOW_COPY_AND_ASSIGN(Value);
 };
 
 #undef DECLARE_HELPER_FRIENDS

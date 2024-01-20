@@ -363,141 +363,141 @@ const int PL_Unknown[Puck::NUM_PROPERTIES] = {
 
 int Puck::getPropertyIdNoThrow(enum Property prop, enum PuckType pt,
                                int fwVers) {
-	if (prop < 0 || prop >= NUM_PROPERTIES) {
-		return -1;
-	}
-	switch (pt) {
+  if (prop < 0 || prop >= NUM_PROPERTIES) {
+    return -1;
+  }
+  switch (pt) {
 
-	case PT_Monitor:
-		return PL_Monitor[0][prop];
-		break;
-	case PT_Safety:
-		if (fwVers >= 45) {
-			if (fwVers >= 50) {
-				if (fwVers >= 51) {
-					if (fwVers >= 61) {
-						return PL_Safety[8][prop];
-					} else {
-						return PL_Safety[7][prop];
-					}
-				} else {
-					return PL_Safety[6][prop];
-				}
-			} else {
-				if (fwVers >= 47) {
-					return PL_Safety[5][prop];
-				} else {
-					return PL_Safety[4][prop];
-				}
-			}
-		} else {
-			if (fwVers >= 36) {
-				if (fwVers >= 44) {
-					return PL_Safety[3][prop];
-				} else {
-					return PL_Safety[2][prop];
-				}
-			} else {
-				if (fwVers >= 33) {
-					return PL_Safety[1][prop];
-				} else {
-					return PL_Safety[0][prop];
-				}
-			}
-		}
-		break;
-	case PT_Motor:
-		if (fwVers >= 64) {
-			if (fwVers >= 125) {
-				if (fwVers >= 145) {
-					if (fwVers >= 168) {
-						if (fwVers >= 175) {
-							return PL_Motor[20][prop];
-						} else {
-							return PL_Motor[19][prop];
-						}
-					} else {
-						return PL_Motor[18][prop];
-					}
-				} else {
-					if (fwVers >= 132) {
-						if (fwVers >= 142) {
-							return PL_Motor[17][prop];
-						} else {
-							return PL_Motor[16][prop];
-						}
-					} else {
-						return PL_Motor[15][prop];
-					}
-				}
-			} else {
-				if (fwVers >= 68) {
-					if (fwVers >= 114) {
-						if (fwVers >= 119) {
-							return PL_Motor[14][prop];
-						} else {
-							return PL_Motor[13][prop];
-						}
-					} else {
-						return PL_Motor[12][prop];
-					}
-				} else {
-					if (fwVers >= 65) {
-						return PL_Motor[11][prop];
-					} else {
-						return PL_Motor[10][prop];
-					}
-				}
-			}
-		} else {
-			if (fwVers >= 47) {
-				if (fwVers >= 51) {
-					if (fwVers >= 61) {
-						if (fwVers >= 63) {
-							return PL_Motor[9][prop];
-						} else {
-							return PL_Motor[8][prop];
-						}
-					} else {
-						return PL_Motor[7][prop];
-					}
-				} else {
-					if (fwVers >= 50) {
-						return PL_Motor[6][prop];
-					} else {
-						return PL_Motor[5][prop];
-					}
-				}
-			} else {
-				if (fwVers >= 36) {
-					if (fwVers >= 44) {
-						if (fwVers >= 45) {
-							return PL_Motor[4][prop];
-						} else {
-							return PL_Motor[3][prop];
-						}
-					} else {
-						return PL_Motor[2][prop];
-					}
-				} else {
-					if (fwVers >= 33) {
-						return PL_Motor[1][prop];
-					} else {
-						return PL_Motor[0][prop];
-					}
-				}
-			}
-		}
-		break;
-	case PT_ForceTorque:
-		return PL_ForceTorque[0][prop];
-		break;
-	case PT_Unknown:
-		return PL_Unknown[prop];
+  case PT_Monitor:
+    return PL_Monitor[0][prop];
+    break;
+  case PT_Safety:
+    if (fwVers >= 45) {
+      if (fwVers >= 50) {
+        if (fwVers >= 51) {
+          if (fwVers >= 61) {
+            return PL_Safety[8][prop];
+          } else {
+            return PL_Safety[7][prop];
+          }
+        } else {
+          return PL_Safety[6][prop];
+        }
+      } else {
+        if (fwVers >= 47) {
+          return PL_Safety[5][prop];
+        } else {
+          return PL_Safety[4][prop];
+        }
+      }
+    } else {
+      if (fwVers >= 36) {
+        if (fwVers >= 44) {
+          return PL_Safety[3][prop];
+        } else {
+          return PL_Safety[2][prop];
+        }
+      } else {
+        if (fwVers >= 33) {
+          return PL_Safety[1][prop];
+        } else {
+          return PL_Safety[0][prop];
+        }
+      }
+    }
+    break;
+  case PT_Motor:
+    if (fwVers >= 64) {
+      if (fwVers >= 125) {
+        if (fwVers >= 145) {
+          if (fwVers >= 168) {
+            if (fwVers >= 175) {
+              return PL_Motor[20][prop];
+            } else {
+              return PL_Motor[19][prop];
+            }
+          } else {
+            return PL_Motor[18][prop];
+          }
+        } else {
+          if (fwVers >= 132) {
+            if (fwVers >= 142) {
+              return PL_Motor[17][prop];
+            } else {
+              return PL_Motor[16][prop];
+            }
+          } else {
+            return PL_Motor[15][prop];
+          }
+        }
+      } else {
+        if (fwVers >= 68) {
+          if (fwVers >= 114) {
+            if (fwVers >= 119) {
+              return PL_Motor[14][prop];
+            } else {
+              return PL_Motor[13][prop];
+            }
+          } else {
+            return PL_Motor[12][prop];
+          }
+        } else {
+          if (fwVers >= 65) {
+            return PL_Motor[11][prop];
+          } else {
+            return PL_Motor[10][prop];
+          }
+        }
+      }
+    } else {
+      if (fwVers >= 47) {
+        if (fwVers >= 51) {
+          if (fwVers >= 61) {
+            if (fwVers >= 63) {
+              return PL_Motor[9][prop];
+            } else {
+              return PL_Motor[8][prop];
+            }
+          } else {
+            return PL_Motor[7][prop];
+          }
+        } else {
+          if (fwVers >= 50) {
+            return PL_Motor[6][prop];
+          } else {
+            return PL_Motor[5][prop];
+          }
+        }
+      } else {
+        if (fwVers >= 36) {
+          if (fwVers >= 44) {
+            if (fwVers >= 45) {
+              return PL_Motor[4][prop];
+            } else {
+              return PL_Motor[3][prop];
+            }
+          } else {
+            return PL_Motor[2][prop];
+          }
+        } else {
+          if (fwVers >= 33) {
+            return PL_Motor[1][prop];
+          } else {
+            return PL_Motor[0][prop];
+          }
+        }
+      }
+    }
+    break;
+  case PT_ForceTorque:
+    return PL_ForceTorque[0][prop];
+    break;
+  case PT_Unknown:
+    return PL_Unknown[prop];
 
-		break;
-	}
-	return -1;
+    break;
+  }
+  return -1;
 }
 
 const char propertyStrs[Puck::NUM_PROPERTIES][8] = {
@@ -527,44 +527,43 @@ const char propertyStrs[Puck::NUM_PROPERTIES][8] = {
     "X2",      "X3",     "X4",     "X5",     "X6",      "X7",      "ZERO"};
 
 const char *Puck::getPropertyStr(enum Property prop) {
-	if (prop < 0 || prop >= NUM_PROPERTIES) {
-		const int np = NUM_PROPERTIES;
-		(logMessage("Puck::%s(): Property out of range: %d is not in the range "
-		            "[0,%d)") %
-		 __func__ % prop % np)
-		    .raise<std::invalid_argument>();
-	}
-	return propertyStrs[prop];
+  if (prop < 0 || prop >= NUM_PROPERTIES) {
+    const int np = NUM_PROPERTIES;
+    (logMessage("Puck::%s(): Property out of range: %d is not in the range "
+                "[0,%d)") %
+     __func__ % prop % np)
+        .raise<std::invalid_argument>();
+  }
+  return propertyStrs[prop];
 }
 
 enum Puck::Property Puck::getPropertyEnumNoThrow(const char *str) {
-	const int N = strlen(str);
-	char *uStr = new char[N + 1];
-	for (int i = 0; i < N; ++i) {
-		uStr[i] = toupper(str[i]);
-	}
-	uStr[N] = '\0';
+  const int N = strlen(str);
+  char *uStr = new char[N + 1];
+  for (int i = 0; i < N; ++i) {
+    uStr[i] = toupper(str[i]);
+  }
+  uStr[N] = '\0';
 
-	for (int i = 0; i < NUM_PROPERTIES; ++i) {
-		if (strcmp(uStr, propertyStrs[i]) == 0) {
-			delete[] uStr;
-			return (enum Property)i;
-		}
-	}
+  for (int i = 0; i < NUM_PROPERTIES; ++i) {
+    if (strcmp(uStr, propertyStrs[i]) == 0) {
+      delete[] uStr;
+      return (enum Property)i;
+    }
+  }
 
-	delete[] uStr;
-	return (enum Property) - 1;
+  delete[] uStr;
+  return (enum Property) - 1;
 }
 
 enum Puck::Property Puck::getPropertyEnum(const char *str) {
-	enum Property prop = getPropertyEnumNoThrow(str);
-	if (prop == (enum Property) - 1) {
-		(logMessage(
-		     "Puck::%s(): There is no property corresponding to \"%s\"") %
-		 __func__ % str)
-		    .raise<std::invalid_argument>();
-	}
-	return prop;
+  enum Property prop = getPropertyEnumNoThrow(str);
+  if (prop == (enum Property) - 1) {
+    (logMessage("Puck::%s(): There is no property corresponding to \"%s\"") %
+     __func__ % str)
+        .raise<std::invalid_argument>();
+  }
+  return prop;
 }
 
 } // namespace barrett

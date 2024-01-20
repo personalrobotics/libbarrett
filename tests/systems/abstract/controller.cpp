@@ -17,12 +17,12 @@ using namespace barrett;
 // TODO(dc): actually test this
 
 class ControllerTest : public ::testing::Test {
-  public:
-	ControllerTest() : controllerImpl(), controller(controllerImpl) {}
+public:
+  ControllerTest() : controllerImpl(), controller(controllerImpl) {}
 
-  protected:
-	ControllerImpl<double> controllerImpl;
-	systems::Controller<double> &controller;
+protected:
+  ControllerImpl<double> controllerImpl;
+  systems::Controller<double> &controller;
 };
 
 } // namespace

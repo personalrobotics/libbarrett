@@ -30,62 +30,62 @@ using namespace barrett;
 template <typename T, size_t N>
 void testSummer(systems::Summer<T, N> &summer, const std::vector<T> &inputs,
                 T expected) {
-	std::vector<systems::Constant<T> *> constants(N, NULL);
+  std::vector<systems::Constant<T> *> constants(N, NULL);
 
-	for (size_t i = 0; i < N; ++i) {
-		constants[i] = new systems::Constant<T>(inputs[i]);
-		systems::connect(constants[i]->output, summer.getInput(i));
-	}
+  for (size_t i = 0; i < N; ++i) {
+    constants[i] = new systems::Constant<T>(inputs[i]);
+    systems::connect(constants[i]->output, summer.getInput(i));
+  }
 
-	systems::ManualExecutionManager mem;
-	ExposedIOSystem<T> eios;
-	mem.startManaging(eios);
-	systems::connect(summer.output, eios.input);
+  systems::ManualExecutionManager mem;
+  ExposedIOSystem<T> eios;
+  mem.startManaging(eios);
+  systems::connect(summer.output, eios.input);
 
-	mem.runExecutionCycle();
-	EXPECT_EQ(expected, eios.getInputValue());
+  mem.runExecutionCycle();
+  EXPECT_EQ(expected, eios.getInputValue());
 
-	detail::purge(constants);
+  detail::purge(constants);
 }
 
 TEST(SummerTest, Double2) {
-	const size_t N = 2;
+  const size_t N = 2;
 
-	{
-		systems::Summer<double, N> s;
-		std::vector<double> inputs(N, 1.0);
-		testSummer(s, inputs, N * 1.0);
-	}
-	{
-		systems::Summer<double, N> s(std::string("--"));
-		std::vector<double> inputs(N, 1.0);
-		testSummer(s, inputs, N * -1.0);
-	}
-	{
-		systems::Summer<double, N> s("+-");
-		std::vector<double> inputs(N, 1.0);
-		testSummer(s, inputs, 0.0);
-	}
+  {
+    systems::Summer<double, N> s;
+    std::vector<double> inputs(N, 1.0);
+    testSummer(s, inputs, N * 1.0);
+  }
+  {
+    systems::Summer<double, N> s(std::string("--"));
+    std::vector<double> inputs(N, 1.0);
+    testSummer(s, inputs, N * -1.0);
+  }
+  {
+    systems::Summer<double, N> s("+-");
+    std::vector<double> inputs(N, 1.0);
+    testSummer(s, inputs, 0.0);
+  }
 }
 
 TEST(SummerTest, Double6) {
-	const size_t N = 6;
+  const size_t N = 6;
 
-	{
-		systems::Summer<double, N> s;
-		std::vector<double> inputs(N, 1.0);
-		testSummer(s, inputs, N * 1.0);
-	}
-	{
-		systems::Summer<double, N> s(std::string("------"));
-		std::vector<double> inputs(N, 1.0);
-		testSummer(s, inputs, N * -1.0);
-	}
-	{
-		systems::Summer<double, N> s("+--++-");
-		std::vector<double> inputs(N, 1.0);
-		testSummer(s, inputs, 0.0);
-	}
+  {
+    systems::Summer<double, N> s;
+    std::vector<double> inputs(N, 1.0);
+    testSummer(s, inputs, N * 1.0);
+  }
+  {
+    systems::Summer<double, N> s(std::string("------"));
+    std::vector<double> inputs(N, 1.0);
+    testSummer(s, inputs, N * -1.0);
+  }
+  {
+    systems::Summer<double, N> s("+--++-");
+    std::vector<double> inputs(N, 1.0);
+    testSummer(s, inputs, 0.0);
+  }
 }
 
 } // namespace

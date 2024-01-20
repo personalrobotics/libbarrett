@@ -22,25 +22,25 @@ const size_t DOF = 7;
 BARRETT_UNITS_TYPEDEFS(DOF);
 
 class KinematicsTest : public ::testing::Test {
-  public:
-	KinematicsTest() : kin(NULL) {
-		libconfig::Config config;
-		config.readFile("test.config");
-		kin = new math::Kinematics<DOF>(config.lookup("wam.kinematics"));
-	}
+public:
+  KinematicsTest() : kin(NULL) {
+    libconfig::Config config;
+    config.readFile("test.config");
+    kin = new math::Kinematics<DOF>(config.lookup("wam.kinematics"));
+  }
 
-	~KinematicsTest() {
-		delete kin;
-		kin = NULL;
-	}
+  ~KinematicsTest() {
+    delete kin;
+    kin = NULL;
+  }
 
-  protected:
-	math::Kinematics<DOF> *kin;
+protected:
+  math::Kinematics<DOF> *kin;
 };
 
 TEST_F(KinematicsTest, Ctor) {
-	ASSERT_TRUE(kin->impl != NULL);
-	EXPECT_EQ(DOF, kin->impl->dof);
+  ASSERT_TRUE(kin->impl != NULL);
+  EXPECT_EQ(DOF, kin->impl->dof);
 }
 
 // TEST_F(KinematicsTest, Eval) {

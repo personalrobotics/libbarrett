@@ -40,96 +40,96 @@
 namespace barrett {
 
 class TactilePuck : public SpecialPuck {
-  public:
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-	static const size_t NUM_SENSORS = 24;
-	typedef math::Vector<NUM_SENSORS>::type v_type;
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+  static const size_t NUM_SENSORS = 24;
+  typedef math::Vector<NUM_SENSORS>::type v_type;
 
-  protected:
-	enum TactState { NONE, TOP10_FORMAT, FULL_FORMAT, TARE };
+protected:
+  enum TactState { NONE, TOP10_FORMAT, FULL_FORMAT, TARE };
 
-  public:
-	/**
-	 *
-	 */
-	TactilePuck(Puck *puck = NULL) : SpecialPuck() { setPuck(puck); }
-	~TactilePuck() {}
-	/**
-	 *
-	 */
-	void setPuck(Puck *puck);
-	/**
-	 *
-	 */
-	void tare() { p->setProperty(Puck::TACT, TARE); }
-	/**
-	 *
-	 */
-	void updateFull(bool realtime = false) {
-		requestFull();
-		receiveFull(realtime);
-	}
-	/**
-	 *
-	 */
-	void updateTop10(bool realtime = false) {
-		requestTop10();
-		receiveTop10(realtime);
-	}
-	/**
-	 *
-	 */
-	const v_type &getTactileData() const { return tactile; }
-	// const v_type& getTop10Data() const { return top10; }
-	/**
-	 *
-	 */
-	void requestFull();
-	void requestTop10();
-	/**
-	 *
-	 */
-	void receiveFull(bool realtime = false);
-	void receiveTop10(bool realtime = false);
-	/**
-	 *
-	 */
-	struct FullTactParser {
-		static int busId(int id, int propId) {
-			return Puck::encodeBusId(id, PuckGroup::FGRP_TACT_FULL);
-		}
+public:
+  /**
+   *
+   */
+  TactilePuck(Puck *puck = NULL) : SpecialPuck() { setPuck(puck); }
+  ~TactilePuck() {}
+  /**
+   *
+   */
+  void setPuck(Puck *puck);
+  /**
+   *
+   */
+  void tare() { p->setProperty(Puck::TACT, TARE); }
+  /**
+   *
+   */
+  void updateFull(bool realtime = false) {
+    requestFull();
+    receiveFull(realtime);
+  }
+  /**
+   *
+   */
+  void updateTop10(bool realtime = false) {
+    requestTop10();
+    receiveTop10(realtime);
+  }
+  /**
+   *
+   */
+  const v_type &getTactileData() const { return tactile; }
+  // const v_type& getTop10Data() const { return top10; }
+  /**
+   *
+   */
+  void requestFull();
+  void requestTop10();
+  /**
+   *
+   */
+  void receiveFull(bool realtime = false);
+  void receiveTop10(bool realtime = false);
+  /**
+   *
+   */
+  struct FullTactParser {
+    static int busId(int id, int propId) {
+      return Puck::encodeBusId(id, PuckGroup::FGRP_TACT_FULL);
+    }
 
-		typedef v_type result_type;
-		static int parse(int id, int propId, result_type *result,
-		                 const unsigned char *data, size_t len);
-	};
-	/**
-	 *
-	 */
-	struct Top10TactParser {
-		static int busId(int id, int propId) {
-			return Puck::encodeBusId(id, PuckGroup::FGRP_TACT_TOP10);
-		}
+    typedef v_type result_type;
+    static int parse(int id, int propId, result_type *result,
+                     const unsigned char *data, size_t len);
+  };
+  /**
+   *
+   */
+  struct Top10TactParser {
+    static int busId(int id, int propId) {
+      return Puck::encodeBusId(id, PuckGroup::FGRP_TACT_TOP10);
+    }
 
-		typedef v_type result_type;
-		static int parse(int id, int propId, result_type *result,
-		                 const unsigned char *data, size_t len);
-	};
+    typedef v_type result_type;
+    static int parse(int id, int propId, result_type *result,
+                     const unsigned char *data, size_t len);
+  };
 
-  protected:
-	const bus::CommunicationsBus *bus;
-	int id;
-	int propId;
+protected:
+  const bus::CommunicationsBus *bus;
+  int id;
+  int propId;
 
-	enum TactState tact;
-	v_type tactile;
-	// v_type top10;
+  enum TactState tact;
+  v_type tactile;
+  // v_type top10;
 
-	static const size_t NUM_FULL_MESSAGES = 5;
-	static const size_t NUM_SENSORS_PER_FULL_MESSAGE = 5;
-	static constexpr double FULL_SCALE_FACTOR = 256.0;
+  static const size_t NUM_FULL_MESSAGES = 5;
+  static const size_t NUM_SENSORS_PER_FULL_MESSAGE = 5;
+  static constexpr double FULL_SCALE_FACTOR = 256.0;
 
-	friend class Hand;
+  friend class Hand;
 };
 
 } // namespace barrett

@@ -12,8 +12,8 @@ namespace {
 using namespace barrett;
 
 TEST(SingleIOTest, DefaultCtor) {
-	ExposedIOSystem<double> eios;
-	checkDisconnected(eios);
+  ExposedIOSystem<double> eios;
+  checkDisconnected(eios);
 }
 
 } // namespace

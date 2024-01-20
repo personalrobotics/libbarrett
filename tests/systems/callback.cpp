@@ -23,84 +23,84 @@ double f1(const double &x) { return 10.0 * x; }
 double f2(double x) { return 20.0 * x; }
 
 class Functor1 {
-  public:
-	Functor1() {}
+public:
+  Functor1() {}
 
-	double operator()(const double &x) { return 30.0 * x; }
+  double operator()(const double &x) { return 30.0 * x; }
 
-  private:
-	DISALLOW_COPY_AND_ASSIGN(Functor1);
+private:
+  DISALLOW_COPY_AND_ASSIGN(Functor1);
 };
 
 class Functor2 {
-  public:
-	Functor2() {}
+public:
+  Functor2() {}
 
-	double operator()(double x) { return 40.0 * x; }
+  double operator()(double x) { return 40.0 * x; }
 
-  private:
-	DISALLOW_COPY_AND_ASSIGN(Functor2);
+private:
+  DISALLOW_COPY_AND_ASSIGN(Functor2);
 };
 
 class CallbackTest : public ::testing::Test {
-  public:
-	CallbackTest() { mem.startManaging(eios); }
+public:
+  CallbackTest() { mem.startManaging(eios); }
 
-  protected:
-	systems::ManualExecutionManager mem;
-	ExposedIOSystem<double> eios;
+protected:
+  systems::ManualExecutionManager mem;
+  ExposedIOSystem<double> eios;
 };
 
 TEST_F(CallbackTest, ExactFunctionPointer) {
-	double (*fPtr)(const double &) = f1;
+  double (*fPtr)(const double &) = f1;
 
-	systems::Callback<double> cbs(fPtr);
+  systems::Callback<double> cbs(fPtr);
 
-	systems::connect(cbs.output, eios.input);
-	systems::connect(eios.output, cbs.input);
+  systems::connect(cbs.output, eios.input);
+  systems::connect(eios.output, cbs.input);
 
-	eios.setOutputValue(5.0);
-	mem.runExecutionCycle();
-	EXPECT_EQ(f1(5.0), eios.getInputValue());
+  eios.setOutputValue(5.0);
+  mem.runExecutionCycle();
+  EXPECT_EQ(f1(5.0), eios.getInputValue());
 }
 
 TEST_F(CallbackTest, EquivalentFunctionPointer) {
-	double (*fPtr)(double) = f2;
+  double (*fPtr)(double) = f2;
 
-	systems::Callback<double> cbs(fPtr);
+  systems::Callback<double> cbs(fPtr);
 
-	systems::connect(cbs.output, eios.input);
-	systems::connect(eios.output, cbs.input);
+  systems::connect(cbs.output, eios.input);
+  systems::connect(eios.output, cbs.input);
 
-	eios.setOutputValue(5.0);
-	mem.runExecutionCycle();
-	EXPECT_EQ(f2(5.0), eios.getInputValue());
+  eios.setOutputValue(5.0);
+  mem.runExecutionCycle();
+  EXPECT_EQ(f2(5.0), eios.getInputValue());
 }
 
 TEST_F(CallbackTest, ExactFunctor) {
-	Functor1 fObj;
+  Functor1 fObj;
 
-	systems::Callback<double> cbs(boost::ref(fObj));
+  systems::Callback<double> cbs(boost::ref(fObj));
 
-	systems::connect(cbs.output, eios.input);
-	systems::connect(eios.output, cbs.input);
+  systems::connect(cbs.output, eios.input);
+  systems::connect(eios.output, cbs.input);
 
-	eios.setOutputValue(5.0);
-	mem.runExecutionCycle();
-	EXPECT_EQ(fObj(5.0), eios.getInputValue());
+  eios.setOutputValue(5.0);
+  mem.runExecutionCycle();
+  EXPECT_EQ(fObj(5.0), eios.getInputValue());
 }
 
 TEST_F(CallbackTest, EquivalentFunctor) {
-	Functor2 fObj;
+  Functor2 fObj;
 
-	systems::Callback<double> cbs(boost::ref(fObj));
+  systems::Callback<double> cbs(boost::ref(fObj));
 
-	systems::connect(cbs.output, eios.input);
-	systems::connect(eios.output, cbs.input);
+  systems::connect(cbs.output, eios.input);
+  systems::connect(eios.output, cbs.input);
 
-	eios.setOutputValue(5.0);
-	mem.runExecutionCycle();
-	EXPECT_EQ(fObj(5.0), eios.getInputValue());
+  eios.setOutputValue(5.0);
+  mem.runExecutionCycle();
+  EXPECT_EQ(fObj(5.0), eios.getInputValue());
 }
 
 } // namespace

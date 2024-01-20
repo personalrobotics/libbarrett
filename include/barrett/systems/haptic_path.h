@@ -48,88 +48,88 @@ namespace barrett {
 namespace systems {
 
 class HapticPath : public HapticObject {
-	BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
+  BARRETT_UNITS_FIXED_SIZE_TYPEDEFS;
 
-	static constexpr double COARSE_STEP = 0.01;
-	static constexpr double FINE_STEP = 0.0001;
+  static constexpr double COARSE_STEP = 0.01;
+  static constexpr double FINE_STEP = 0.0001;
 
-  public:
-	System::Output<cp_type> tangentDirectionOutput;
+public:
+  System::Output<cp_type> tangentDirectionOutput;
 
-  protected:
-	System::Output<cp_type>::Value *tangentDirectionOutputValue;
+protected:
+  System::Output<cp_type>::Value *tangentDirectionOutputValue;
 
-  public:
-	HapticPath(
-	    const std::vector<cp_type, Eigen::aligned_allocator<cp_type>> &path,
-	    const std::string &sysName = "HapticPath")
-	    : HapticObject(sysName),
-	      tangentDirectionOutput(this, &tangentDirectionOutputValue),
-	      nearestIndex(0), spline(NULL) {
-		// Sample the path
-		cp_type prev = path[0];
-		for (size_t i = 0; i < path.size(); ++i) {
-			if ((path[i] - prev).norm() > COARSE_STEP) {
-				coarsePath.push_back(path[i]);
-				prev = path[i];
-			}
-		}
-		spline = new math::Spline<cp_type>(coarsePath);
-	}
+public:
+  HapticPath(
+      const std::vector<cp_type, Eigen::aligned_allocator<cp_type>> &path,
+      const std::string &sysName = "HapticPath")
+      : HapticObject(sysName),
+        tangentDirectionOutput(this, &tangentDirectionOutputValue),
+        nearestIndex(0), spline(NULL) {
+    // Sample the path
+    cp_type prev = path[0];
+    for (size_t i = 0; i < path.size(); ++i) {
+      if ((path[i] - prev).norm() > COARSE_STEP) {
+        coarsePath.push_back(path[i]);
+        prev = path[i];
+      }
+    }
+    spline = new math::Spline<cp_type>(coarsePath);
+  }
 
-	virtual ~HapticPath() {
-		mandatoryCleanUp();
-		delete spline;
-	}
+  virtual ~HapticPath() {
+    mandatoryCleanUp();
+    delete spline;
+  }
 
-  protected:
-	virtual void operate() {
-		const cp_type &cp = input.getValue();
+protected:
+  virtual void operate() {
+    const cp_type &cp = input.getValue();
 
-		// Coarse search
-		minDist = (coarsePath[nearestIndex] - cp).norm();
-		for (size_t i = 0; i < coarsePath.size(); ++i) {
-			double dist = (coarsePath[i] - cp).norm();
-			if (dist < minDist) {
-				minDist = dist;
-				nearestIndex = i;
-			}
-		}
+    // Coarse search
+    minDist = (coarsePath[nearestIndex] - cp).norm();
+    for (size_t i = 0; i < coarsePath.size(); ++i) {
+      double dist = (coarsePath[i] - cp).norm();
+      if (dist < minDist) {
+        minDist = dist;
+        nearestIndex = i;
+      }
+    }
 
-		// Fine search
-		// TODO(dc): Can we do this without relying on Spline's implementation?
-		double sNearest = spline->getImplementation()->ss[nearestIndex];
-		double sLow = sNearest - COARSE_STEP;
-		double sHigh = sNearest + COARSE_STEP;
-		for (double s = sLow; s <= sHigh; s += FINE_STEP) {
-			double dist = (spline->eval(s) - cp).norm();
-			if (dist < minDist) {
-				minDist = dist;
-				sNearest = s;
-			}
-		}
+    // Fine search
+    // TODO(dc): Can we do this without relying on Spline's implementation?
+    double sNearest = spline->getImplementation()->ss[nearestIndex];
+    double sLow = sNearest - COARSE_STEP;
+    double sHigh = sNearest + COARSE_STEP;
+    for (double s = sLow; s <= sHigh; s += FINE_STEP) {
+      double dist = (spline->eval(s) - cp).norm();
+      if (dist < minDist) {
+        minDist = dist;
+        sNearest = s;
+      }
+    }
 
-		dir = (spline->eval(sNearest) - cp).normalized();
-		tangentDir = spline->evalDerivative(sNearest).normalized();
+    dir = (spline->eval(sNearest) - cp).normalized();
+    tangentDir = spline->evalDerivative(sNearest).normalized();
 
-		depthOutputValue->setData(&minDist);
-		directionOutputValue->setData(&dir);
-		tangentDirectionOutputValue->setData(&tangentDir);
-	}
+    depthOutputValue->setData(&minDist);
+    directionOutputValue->setData(&dir);
+    tangentDirectionOutputValue->setData(&tangentDir);
+  }
 
-	double minDist;
-	size_t nearestIndex;
-	cf_type dir;
-	cp_type tangentDir;
+  double minDist;
+  size_t nearestIndex;
+  cf_type dir;
+  cp_type tangentDir;
 
-	std::vector<cp_type, Eigen::aligned_allocator<cp_type>> coarsePath;
-	math::Spline<cp_type> *spline;
+  std::vector<cp_type, Eigen::aligned_allocator<cp_type>> coarsePath;
+  math::Spline<cp_type> *spline;
 
-  private:
-	DISALLOW_COPY_AND_ASSIGN(HapticPath);
+private:
+  DISALLOW_COPY_AND_ASSIGN(HapticPath);
 
-  public:
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 } // namespace systems

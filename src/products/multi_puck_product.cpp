@@ -49,44 +49,43 @@ MultiPuckProduct::MultiPuckProduct(size_t DOF,
                                    size_t numProps, const char *syslogStr)
     : bus(_pucks.at(0)->getBus()), pucks(_pucks), motorPucks(DOF),
       group(groupId, pucks) {
-	if (syslogStr != NULL) {
-		logMessage("%s") % syslogStr;
-	}
+  if (syslogStr != NULL) {
+    logMessage("%s") % syslogStr;
+  }
 
-	// Check number of Pucks
-	if (pucks.size() != DOF) {
-		(logMessage(
-		     "MultiPuckProduct::MultiPuckProduct(): Wrong number of Pucks. "
-		     "Expected a vector of %d Pucks, got %d.") %
-		 DOF % pucks.size())
-		    .raise<std::invalid_argument>();
-	}
+  // Check number of Pucks
+  if (pucks.size() != DOF) {
+    (logMessage("MultiPuckProduct::MultiPuckProduct(): Wrong number of Pucks. "
+                "Expected a vector of %d Pucks, got %d.") %
+     DOF % pucks.size())
+        .raise<std::invalid_argument>();
+  }
 
-	// Initialize MotorPucks
-	Puck::wake(pucks); // Make sure Pucks are awake
-	for (size_t i = 0; i < DOF; ++i) {
-		motorPucks[i].setPuck(pucks[i]);
-	}
+  // Initialize MotorPucks
+  Puck::wake(pucks); // Make sure Pucks are awake
+  for (size_t i = 0; i < DOF; ++i) {
+    motorPucks[i].setPuck(pucks[i]);
+  }
 
-	// Verify properties
-	bool err = false;
-	for (size_t i = 0; i < numProps; ++i) {
-		if (!group.verifyProperty(props[i])) {
-			err = true;
-			logMessage("  Incompatible property: %s") %
-			    Puck::getPropertyStr(props[i]);
-		}
-	}
-	if (err) {
-		logMessage("  Some Pucks might...");
-		logMessage("    a) still be in Monitor");
-		logMessage("    b) have incompatible firmware versions");
-		logMessage("    c) have incompatible ROLEs");
-		logMessage("MultiPuckProduct::MultiPuckProduct(): Pucks have "
-		           "incompatible property lists. "
-		           "Check /var/log/syslog for details.")
-		    .raise<std::runtime_error>();
-	}
+  // Verify properties
+  bool err = false;
+  for (size_t i = 0; i < numProps; ++i) {
+    if (!group.verifyProperty(props[i])) {
+      err = true;
+      logMessage("  Incompatible property: %s") %
+          Puck::getPropertyStr(props[i]);
+    }
+  }
+  if (err) {
+    logMessage("  Some Pucks might...");
+    logMessage("    a) still be in Monitor");
+    logMessage("    b) have incompatible firmware versions");
+    logMessage("    c) have incompatible ROLEs");
+    logMessage("MultiPuckProduct::MultiPuckProduct(): Pucks have "
+               "incompatible property lists. "
+               "Check /var/log/syslog for details.")
+        .raise<std::runtime_error>();
+  }
 }
 MultiPuckProduct::~MultiPuckProduct() {}
 

@@ -34,6 +34,6 @@ void pythonProductsProductManagerInterface();
 void pythonProductsPuckInterface();
 
 void pythonProductsInterface() {
-	pythonProductsProductManagerInterface();
-	pythonProductsPuckInterface();
+  pythonProductsProductManagerInterface();
+  pythonProductsPuckInterface();
 }

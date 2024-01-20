@@ -42,20 +42,20 @@ TrapezoidalVelocityProfile::TrapezoidalVelocityProfile(double velocity,
                                                        double pathLength)
     : v(velocity), a(acceleration), v_0(initialVelocity), l(pathLength),
       impl(NULL) {
-	bt_profile_create(&impl, v, a, v_0, l);
+  bt_profile_create(&impl, v, a, v_0, l);
 }
 
 TrapezoidalVelocityProfile::~TrapezoidalVelocityProfile() {
-	bt_profile_destroy(impl);
-	impl = NULL;
+  bt_profile_destroy(impl);
+  impl = NULL;
 }
 
 double TrapezoidalVelocityProfile::finalT() const { return impl->time_end; }
 
 double TrapezoidalVelocityProfile::eval(double t) const {
-	double x;
-	bt_profile_get(impl, &x, t);
-	return x;
+  double x;
+  bt_profile_get(impl, &x, t);
+  return x;
 }
 
 } // namespace math

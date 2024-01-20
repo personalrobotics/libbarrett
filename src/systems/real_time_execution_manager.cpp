@@ -59,143 +59,143 @@ RealTimeExecutionManager::RealTimeExecutionManager(double period_s,
                                                    int rt_priority)
     : ExecutionManager(period_s), thread(), priority(rt_priority),
       running(false), error(false), errorStr(), errorCallback() {
-	init();
+  init();
 }
 
 RealTimeExecutionManager::RealTimeExecutionManager(
     const libconfig::Setting &setting)
     : ExecutionManager(setting), thread(), priority(), running(false),
       error(false), errorStr(), errorCallback() {
-	priority = setting["thread_priority"];
-	init();
+  priority = setting["thread_priority"];
+  init();
 }
 
 RealTimeExecutionManager::~RealTimeExecutionManager() {
-	if (isRunning()) {
-		stop();
-	}
+  if (isRunning()) {
+    stop();
+  }
 }
 
 void RealTimeExecutionManager::start() {
-	BARRETT_SCOPED_LOCK(getMutex());
+  BARRETT_SCOPED_LOCK(getMutex());
 
-	if (getError()) {
-		throw std::logic_error("systems::RealTimeExecutionManager::start(): "
-		                       "Cannot start while in an error state. Call "
-		                       "RealTimeExecutionManager::clearError() first.");
-	}
+  if (getError()) {
+    throw std::logic_error("systems::RealTimeExecutionManager::start(): "
+                           "Cannot start while in an error state. Call "
+                           "RealTimeExecutionManager::clearError() first.");
+  }
 
-	if (!isRunning()) {
-		thread::DisableSecondaryModeWarning dsmw;
+  if (!isRunning()) {
+    thread::DisableSecondaryModeWarning dsmw;
 
-		boost::thread tmpThread(
-		    &RealTimeExecutionManager::executionLoopEntryPoint, this);
-		thread.swap(tmpThread);
+    boost::thread tmpThread(&RealTimeExecutionManager::executionLoopEntryPoint,
+                            this);
+    thread.swap(tmpThread);
 
-		// block until the thread starts reporting its new state
-		while (!isRunning()) {
-			btsleep(period / 10.0);
-		}
-	}
-	// TODO(dc): else, throw an exception?
+    // block until the thread starts reporting its new state
+    while (!isRunning()) {
+      btsleep(period / 10.0);
+    }
+  }
+  // TODO(dc): else, throw an exception?
 }
 
 void RealTimeExecutionManager::stop() {
-	thread.interrupt();
-	thread.join();
-	assert(!isRunning());
+  thread.interrupt();
+  thread.join();
+  assert(!isRunning());
 }
 
 void RealTimeExecutionManager::clearError() {
-	BARRETT_SCOPED_LOCK(getMutex());
+  BARRETT_SCOPED_LOCK(getMutex());
 
-	error = false;
-	errorStr = "";
-	stop();
+  error = false;
+  errorStr = "";
+  stop();
 }
 
 void RealTimeExecutionManager::setErrorCallback(callback_type callback) {
-	BARRETT_SCOPED_LOCK(getMutex());
+  BARRETT_SCOPED_LOCK(getMutex());
 
-	errorCallback = callback;
+  errorCallback = callback;
 }
 
 void RealTimeExecutionManager::clearErrorCallback() {
-	setErrorCallback(callback_type());
+  setErrorCallback(callback_type());
 }
 
 void RealTimeExecutionManager::executionLoopEntryPoint() {
-	uint32_t period_us = period * 1e6;
-	double start;
-	uint32_t duration;
-	uint32_t min = std::numeric_limits<unsigned int>::max();
-	uint32_t max = 0;
-	uint64_t sum = 0;
-	uint64_t sumSq = 0;
-	uint32_t loopCount = 0;
-	uint32_t overruns = 0;
-	uint32_t missedReleasePoints = 0;
+  uint32_t period_us = period * 1e6;
+  double start;
+  uint32_t duration;
+  uint32_t min = std::numeric_limits<unsigned int>::max();
+  uint32_t max = 0;
+  uint64_t sum = 0;
+  uint64_t sumSq = 0;
+  uint32_t loopCount = 0;
+  uint32_t overruns = 0;
+  uint32_t missedReleasePoints = 0;
 
-	PeriodicLoopTimer loopTimer(period, priority);
-	running = true;
-	try {
-		while (true) {
-			// Explicit interruption point
-			boost::this_thread::interruption_point();
+  PeriodicLoopTimer loopTimer(period, priority);
+  running = true;
+  try {
+    while (true) {
+      // Explicit interruption point
+      boost::this_thread::interruption_point();
 
-			missedReleasePoints += loopTimer.wait();
-			start = highResolutionSystemTime();
+      missedReleasePoints += loopTimer.wait();
+      start = highResolutionSystemTime();
 
-			runExecutionCycle();
+      runExecutionCycle();
 
-			duration = (highResolutionSystemTime() - start) * 1e6;
-			if (duration < min) {
-				min = duration;
-			}
-			if (duration > max) {
-				max = duration;
-			}
-			sum += duration;
-			sumSq += duration * duration;
-			++loopCount;
-			if (duration > period_us) {
-				++overruns;
-			}
-		}
-	} catch (const boost::thread_interrupted &e) {
-		// Interruption requested, probably by stop(). Do nothing.
-	} catch (const ExecutionManagerException &e) {
-		BARRETT_SCOPED_LOCK(getMutex());
+      duration = (highResolutionSystemTime() - start) * 1e6;
+      if (duration < min) {
+        min = duration;
+      }
+      if (duration > max) {
+        max = duration;
+      }
+      sum += duration;
+      sumSq += duration * duration;
+      ++loopCount;
+      if (duration > period_us) {
+        ++overruns;
+      }
+    }
+  } catch (const boost::thread_interrupted &e) {
+    // Interruption requested, probably by stop(). Do nothing.
+  } catch (const ExecutionManagerException &e) {
+    BARRETT_SCOPED_LOCK(getMutex());
 
-		error = true;
-		errorStr = e.what();
+    error = true;
+    errorStr = e.what();
 
-		if (errorCallback) {
-			errorCallback(this, e);
-		}
-	}
-	running = false;
+    if (errorCallback) {
+      errorCallback(this, e);
+    }
+  }
+  running = false;
 
-	double mean = (double)sum / loopCount;
-	double stdev = std::sqrt(((double)sumSq / loopCount) - mean * mean);
+  double mean = (double)sum / loopCount;
+  double stdev = std::sqrt(((double)sumSq / loopCount) - mean * mean);
 
-	logMessage("RealTimeExecutionManager control-loop stats (microseconds):");
-	logMessage("  target period = %u") % period_us;
-	logMessage("  min = %u") % min;
-	logMessage("  ave = %.3f") % mean;
-	logMessage("  max = %u") % max;
-	logMessage("  stdev = %.3f") % stdev;
-	logMessage("  num total cycles = %u") % loopCount;
-	logMessage("  num missed release points = %u") % missedReleasePoints;
-	logMessage("  num overruns = %u") % overruns;
+  logMessage("RealTimeExecutionManager control-loop stats (microseconds):");
+  logMessage("  target period = %u") % period_us;
+  logMessage("  min = %u") % min;
+  logMessage("  ave = %.3f") % mean;
+  logMessage("  max = %u") % max;
+  logMessage("  stdev = %.3f") % stdev;
+  logMessage("  num total cycles = %u") % loopCount;
+  logMessage("  num missed release points = %u") % missedReleasePoints;
+  logMessage("  num overruns = %u") % overruns;
 }
 
 void RealTimeExecutionManager::init() {
-	// install a more appropriate mutex
-	delete mutex;
-	mutex = new thread::RealTimeMutex; // ~ExecutionManager() will delete this
+  // install a more appropriate mutex
+  delete mutex;
+  mutex = new thread::RealTimeMutex; // ~ExecutionManager() will delete this
 
-	// errorCallback = boost::bind(std::terminate);
+  // errorCallback = boost::bind(std::terminate);
 }
 
 } // namespace systems

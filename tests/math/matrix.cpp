@@ -17,7 +17,7 @@ namespace {
 using namespace barrett;
 
 template <int R, int C> struct LocalUnits {
-	typedef typename math::Matrix<R, C, LocalUnits<R, C>>::type type;
+  typedef typename math::Matrix<R, C, LocalUnits<R, C>>::type type;
 };
 
 const int ROWS = 3;
@@ -25,11 +25,11 @@ const int COLS = 2;
 
 // tests for fixed sized matrices
 template <typename T> class FixedMatrixTypedTest : public ::testing::Test {
-  public:
-	FixedMatrixTypedTest() : a() {}
+public:
+  FixedMatrixTypedTest() : a() {}
 
-  protected:
-	T a;
+protected:
+  T a;
 };
 
 typedef ::testing::Types<math::Matrix<ROWS, COLS>, LocalUnits<ROWS, COLS>::type>
@@ -38,11 +38,11 @@ TYPED_TEST_CASE(FixedMatrixTypedTest, FixedTypes);
 
 // tests for dynamically sized matrices
 template <typename T> class DynamicMatrixTypedTest : public ::testing::Test {
-  public:
-	DynamicMatrixTypedTest() : a(ROWS, COLS) {}
+public:
+  DynamicMatrixTypedTest() : a(ROWS, COLS) {}
 
-  protected:
-	T a;
+protected:
+  T a;
 };
 
 typedef ::testing::Types<math::Matrix<Eigen::Dynamic, Eigen::Dynamic>,
@@ -52,11 +52,11 @@ TYPED_TEST_CASE(DynamicMatrixTypedTest, DynamicTypes);
 
 // common tests
 template <typename T> class MatrixTypedTest : public ::testing::Test {
-  public:
-	MatrixTypedTest() : a(ROWS, COLS) {}
+public:
+  MatrixTypedTest() : a(ROWS, COLS) {}
 
-  protected:
-	T a;
+protected:
+  T a;
 };
 
 typedef ::testing::Types<math::Matrix<ROWS, COLS>, LocalUnits<ROWS, COLS>::type,
@@ -67,407 +67,407 @@ TYPED_TEST_CASE(MatrixTypedTest, BothTypes);
 
 // uses the actual default ctor
 TYPED_TEST(FixedMatrixTypedTest, DefaultCtor) {
-	for (int i = 0; i < this->a.rows(); ++i) {
-		for (int j = 0; j < this->a.cols(); ++j) {
-			EXPECT_EQ(0.0, this->a(i, j));
-		}
-	}
+  for (int i = 0; i < this->a.rows(); ++i) {
+    for (int j = 0; j < this->a.cols(); ++j) {
+      EXPECT_EQ(0.0, this->a(i, j));
+    }
+  }
 }
 
 // uses the closest thing to a default ctor that a dynamic vector has
 // both types of vectors should be able to be constructed this way
 TYPED_TEST(MatrixTypedTest, DefaultCtor) {
-	for (int i = 0; i < this->a.rows(); ++i) {
-		for (int j = 0; j < this->a.cols(); ++j) {
-			EXPECT_EQ(0.0, this->a(i, j));
-		}
-	}
+  for (int i = 0; i < this->a.rows(); ++i) {
+    for (int j = 0; j < this->a.cols(); ++j) {
+      EXPECT_EQ(0.0, this->a(i, j));
+    }
+  }
 }
 
 TYPED_TEST(FixedMatrixTypedTest, InitialValueCtor) {
-	TypeParam a(-487.9);
+  TypeParam a(-487.9);
 
-	for (int i = 0; i < a.rows(); ++i) {
-		for (int j = 0; j < a.cols(); ++j) {
-			EXPECT_EQ(-487.9, a(i, j));
-		}
-	}
+  for (int i = 0; i < a.rows(); ++i) {
+    for (int j = 0; j < a.cols(); ++j) {
+      EXPECT_EQ(-487.9, a(i, j));
+    }
+  }
 }
 
 // both types of vectors should be able to be constructed this way
 TYPED_TEST(MatrixTypedTest, InitialValueCtor) {
-	TypeParam a(ROWS, COLS, -487.9);
+  TypeParam a(ROWS, COLS, -487.9);
 
-	for (int i = 0; i < a.rows(); ++i) {
-		for (int j = 0; j < a.cols(); ++j) {
-			EXPECT_EQ(-487.9, a(i, j));
-		}
-	}
+  for (int i = 0; i < a.rows(); ++i) {
+    for (int j = 0; j < a.cols(); ++j) {
+      EXPECT_EQ(-487.9, a(i, j));
+    }
+  }
 }
 
 TYPED_TEST(MatrixTypedTest, GslMatrixCtor) {
-	gsl_matrix *gslMat = gsl_matrix_calloc(this->a.rows(), this->a.cols());
-	for (int i = 0; i < this->a.rows(); ++i) {
-		for (int j = 0; j < this->a.cols(); ++j) {
-			gsl_matrix_set(gslMat, i, j, i * 0.1 + i - j);
-		}
-	}
+  gsl_matrix *gslMat = gsl_matrix_calloc(this->a.rows(), this->a.cols());
+  for (int i = 0; i < this->a.rows(); ++i) {
+    for (int j = 0; j < this->a.cols(); ++j) {
+      gsl_matrix_set(gslMat, i, j, i * 0.1 + i - j);
+    }
+  }
 
-	TypeParam a(gslMat);
+  TypeParam a(gslMat);
 
-	for (int i = 0; i < a.rows(); ++i) {
-		for (int j = 0; j < a.cols(); ++j) {
-			EXPECT_EQ(i * 0.1 + i - j, a(i, j));
-		}
-	}
+  for (int i = 0; i < a.rows(); ++i) {
+    for (int j = 0; j < a.cols(); ++j) {
+      EXPECT_EQ(i * 0.1 + i - j, a(i, j));
+    }
+  }
 
-	gsl_matrix_free(gslMat);
+  gsl_matrix_free(gslMat);
 }
 
 TYPED_TEST(FixedMatrixTypedTest, GslMatrixCtorThrows) {
-	gsl_matrix *gslMat;
+  gsl_matrix *gslMat;
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 1);
-	EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 1);
+  EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 0);
-	EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 0);
+  EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() - 1);
-	EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() - 1);
+  EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() + 1);
-	EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() + 1);
+  EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() - 1);
-	EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() - 1);
+  EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 1);
-	EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 1);
+  EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 0);
-	EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 0);
+  EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() - 1);
-	EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() - 1);
+  EXPECT_THROW(TypeParam a(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 }
 
 TYPED_TEST(DynamicMatrixTypedTest, GslMatrixCtorResizes) {
-	gsl_matrix *gslMat;
+  gsl_matrix *gslMat;
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 1);
-	EXPECT_NO_THROW(TypeParam a(gslMat));
-	EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
-	EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 1);
+  EXPECT_NO_THROW(TypeParam a(gslMat));
+  EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
+  EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 0);
-	EXPECT_NO_THROW(TypeParam a(gslMat));
-	EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
-	EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 0);
+  EXPECT_NO_THROW(TypeParam a(gslMat));
+  EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
+  EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() - 1);
-	EXPECT_NO_THROW(TypeParam a(gslMat));
-	EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
-	EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() - 1);
+  EXPECT_NO_THROW(TypeParam a(gslMat));
+  EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
+  EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() + 1);
-	EXPECT_NO_THROW(TypeParam a(gslMat));
-	EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
-	EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() + 1);
+  EXPECT_NO_THROW(TypeParam a(gslMat));
+  EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
+  EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() - 1);
-	EXPECT_NO_THROW(TypeParam a(gslMat));
-	EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
-	EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() - 1);
+  EXPECT_NO_THROW(TypeParam a(gslMat));
+  EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
+  EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 1);
-	EXPECT_NO_THROW(TypeParam a(gslMat));
-	EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
-	EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 1);
+  EXPECT_NO_THROW(TypeParam a(gslMat));
+  EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
+  EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 0);
-	EXPECT_NO_THROW(TypeParam a(gslMat));
-	EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
-	EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 0);
+  EXPECT_NO_THROW(TypeParam a(gslMat));
+  EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
+  EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() - 1);
-	EXPECT_NO_THROW(TypeParam a(gslMat));
-	EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
-	EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() - 1);
+  EXPECT_NO_THROW(TypeParam a(gslMat));
+  EXPECT_EQ(gslMat->size1, TypeParam(gslMat).rows());
+  EXPECT_EQ(gslMat->size2, TypeParam(gslMat).cols());
+  gsl_matrix_free(gslMat);
 }
 
 TYPED_TEST(MatrixTypedTest, ConfigCtor) {
-	this->a << -20, -.5, 0, 38.2, 2.3e4, 209;
+  this->a << -20, -.5, 0, 38.2, 2.3e4, 209;
 
-	libconfig::Config config;
-	config.readFile("test.config");
-	TypeParam b(config.lookup("matrix_test.three_two"));
+  libconfig::Config config;
+  config.readFile("test.config");
+  TypeParam b(config.lookup("matrix_test.three_two"));
 
-	EXPECT_EQ(this->a, b);
+  EXPECT_EQ(this->a, b);
 }
 
 TYPED_TEST(FixedMatrixTypedTest, ConfigCtorThrows) {
-	libconfig::Config config;
-	config.readFile("test.config");
+  libconfig::Config config;
+  config.readFile("test.config");
 
-	EXPECT_THROW(TypeParam(config.lookup("matrix_test.two_one")),
-	             std::runtime_error);
-	EXPECT_THROW(TypeParam(config.lookup("matrix_test.two_two")),
-	             std::runtime_error);
-	EXPECT_THROW(TypeParam(config.lookup("matrix_test.two_three")),
-	             std::runtime_error);
+  EXPECT_THROW(TypeParam(config.lookup("matrix_test.two_one")),
+               std::runtime_error);
+  EXPECT_THROW(TypeParam(config.lookup("matrix_test.two_two")),
+               std::runtime_error);
+  EXPECT_THROW(TypeParam(config.lookup("matrix_test.two_three")),
+               std::runtime_error);
 
-	EXPECT_THROW(TypeParam(config.lookup("matrix_test.three_one")),
-	             std::runtime_error);
-	EXPECT_THROW(TypeParam(config.lookup("matrix_test.three_three")),
-	             std::runtime_error);
+  EXPECT_THROW(TypeParam(config.lookup("matrix_test.three_one")),
+               std::runtime_error);
+  EXPECT_THROW(TypeParam(config.lookup("matrix_test.three_three")),
+               std::runtime_error);
 
-	EXPECT_THROW(TypeParam(config.lookup("matrix_test.four_one")),
-	             std::runtime_error);
-	EXPECT_THROW(TypeParam(config.lookup("matrix_test.four_two")),
-	             std::runtime_error);
-	EXPECT_THROW(TypeParam(config.lookup("matrix_test.four_three")),
-	             std::runtime_error);
+  EXPECT_THROW(TypeParam(config.lookup("matrix_test.four_one")),
+               std::runtime_error);
+  EXPECT_THROW(TypeParam(config.lookup("matrix_test.four_two")),
+               std::runtime_error);
+  EXPECT_THROW(TypeParam(config.lookup("matrix_test.four_three")),
+               std::runtime_error);
 }
 
 TYPED_TEST(DynamicMatrixTypedTest, ConfigCtorResizes) {
-	libconfig::Config config;
-	config.readFile("test.config");
-	libconfig::Setting *setting;
+  libconfig::Config config;
+  config.readFile("test.config");
+  libconfig::Setting *setting;
 
-	setting = &config.lookup("matrix_test.two_one");
-	EXPECT_NO_THROW(TypeParam(*setting));
-	EXPECT_EQ(2, TypeParam(*setting).rows());
-	EXPECT_EQ(1, TypeParam(*setting).cols());
+  setting = &config.lookup("matrix_test.two_one");
+  EXPECT_NO_THROW(TypeParam(*setting));
+  EXPECT_EQ(2, TypeParam(*setting).rows());
+  EXPECT_EQ(1, TypeParam(*setting).cols());
 
-	setting = &config.lookup("matrix_test.two_one");
-	EXPECT_NO_THROW(TypeParam(*setting));
-	EXPECT_EQ(2, TypeParam(*setting).rows());
-	EXPECT_EQ(1, TypeParam(*setting).cols());
+  setting = &config.lookup("matrix_test.two_one");
+  EXPECT_NO_THROW(TypeParam(*setting));
+  EXPECT_EQ(2, TypeParam(*setting).rows());
+  EXPECT_EQ(1, TypeParam(*setting).cols());
 
-	setting = &config.lookup("matrix_test.two_one");
-	EXPECT_NO_THROW(TypeParam(*setting));
-	EXPECT_EQ(2, TypeParam(*setting).rows());
-	EXPECT_EQ(1, TypeParam(*setting).cols());
+  setting = &config.lookup("matrix_test.two_one");
+  EXPECT_NO_THROW(TypeParam(*setting));
+  EXPECT_EQ(2, TypeParam(*setting).rows());
+  EXPECT_EQ(1, TypeParam(*setting).cols());
 
-	setting = &config.lookup("matrix_test.three_two");
-	EXPECT_NO_THROW(TypeParam(*setting));
-	EXPECT_EQ(3, TypeParam(*setting).rows());
-	EXPECT_EQ(2, TypeParam(*setting).cols());
+  setting = &config.lookup("matrix_test.three_two");
+  EXPECT_NO_THROW(TypeParam(*setting));
+  EXPECT_EQ(3, TypeParam(*setting).rows());
+  EXPECT_EQ(2, TypeParam(*setting).cols());
 
-	setting = &config.lookup("matrix_test.three_two");
-	EXPECT_NO_THROW(TypeParam(*setting));
-	EXPECT_EQ(3, TypeParam(*setting).rows());
-	EXPECT_EQ(2, TypeParam(*setting).cols());
+  setting = &config.lookup("matrix_test.three_two");
+  EXPECT_NO_THROW(TypeParam(*setting));
+  EXPECT_EQ(3, TypeParam(*setting).rows());
+  EXPECT_EQ(2, TypeParam(*setting).cols());
 
-	setting = &config.lookup("matrix_test.four_three");
-	EXPECT_NO_THROW(TypeParam(*setting));
-	EXPECT_EQ(4, TypeParam(*setting).rows());
-	EXPECT_EQ(3, TypeParam(*setting).cols());
+  setting = &config.lookup("matrix_test.four_three");
+  EXPECT_NO_THROW(TypeParam(*setting));
+  EXPECT_EQ(4, TypeParam(*setting).rows());
+  EXPECT_EQ(3, TypeParam(*setting).cols());
 
-	setting = &config.lookup("matrix_test.four_three");
-	EXPECT_NO_THROW(TypeParam(*setting));
-	EXPECT_EQ(4, TypeParam(*setting).rows());
-	EXPECT_EQ(3, TypeParam(*setting).cols());
+  setting = &config.lookup("matrix_test.four_three");
+  EXPECT_NO_THROW(TypeParam(*setting));
+  EXPECT_EQ(4, TypeParam(*setting).rows());
+  EXPECT_EQ(3, TypeParam(*setting).cols());
 
-	setting = &config.lookup("matrix_test.four_three");
-	EXPECT_NO_THROW(TypeParam(*setting));
-	EXPECT_EQ(4, TypeParam(*setting).rows());
-	EXPECT_EQ(3, TypeParam(*setting).cols());
+  setting = &config.lookup("matrix_test.four_three");
+  EXPECT_NO_THROW(TypeParam(*setting));
+  EXPECT_EQ(4, TypeParam(*setting).rows());
+  EXPECT_EQ(3, TypeParam(*setting).cols());
 }
 
 TYPED_TEST(MatrixTypedTest, CopyCtor) {
-	TypeParam a(ROWS, COLS, -487.9);
-	TypeParam b(a);
+  TypeParam a(ROWS, COLS, -487.9);
+  TypeParam b(a);
 
-	a.setConstant(2.0);
+  a.setConstant(2.0);
 
-	for (int i = 0; i < a.rows(); ++i) {
-		for (int j = 0; j < a.cols(); ++j) {
-			EXPECT_EQ(2.0, a(i, j));
-			EXPECT_EQ(-487.9, b(i, j));
-			EXPECT_EQ(b(i, j), gsl_matrix_get(b.asGslType(), i, j));
-		}
-	}
+  for (int i = 0; i < a.rows(); ++i) {
+    for (int j = 0; j < a.cols(); ++j) {
+      EXPECT_EQ(2.0, a(i, j));
+      EXPECT_EQ(-487.9, b(i, j));
+      EXPECT_EQ(b(i, j), gsl_matrix_get(b.asGslType(), i, j));
+    }
+  }
 }
 
 TYPED_TEST(MatrixTypedTest, CopyToGslMatrix) {
-	gsl_matrix *gslMat = gsl_matrix_calloc(this->a.rows(), this->a.cols());
-	this->a << 5, 42.8, 37, -12, 1.4, -3e-3;
+  gsl_matrix *gslMat = gsl_matrix_calloc(this->a.rows(), this->a.cols());
+  this->a << 5, 42.8, 37, -12, 1.4, -3e-3;
 
-	this->a.copyTo(gslMat);
+  this->a.copyTo(gslMat);
 
-	for (int i = 0; i < this->a.rows(); ++i) {
-		for (int j = 0; j < this->a.cols(); ++j) {
-			EXPECT_EQ(this->a(i, j), gsl_matrix_get(gslMat, i, j));
-		}
-	}
+  for (int i = 0; i < this->a.rows(); ++i) {
+    for (int j = 0; j < this->a.cols(); ++j) {
+      EXPECT_EQ(this->a(i, j), gsl_matrix_get(gslMat, i, j));
+    }
+  }
 
-	gsl_matrix_free(gslMat);
+  gsl_matrix_free(gslMat);
 }
 
 TYPED_TEST(MatrixTypedTest, CopyToGslMatrixThrows) {
-	gsl_matrix *gslMat;
+  gsl_matrix *gslMat;
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 1);
-	EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 1);
+  EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 0);
-	EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 0);
+  EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() - 1);
-	EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() - 1);
+  EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() + 1);
-	EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() + 1);
+  EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() - 1);
-	EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() - 1);
+  EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 1);
-	EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 1);
+  EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 0);
-	EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 0);
+  EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() - 1);
-	EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() - 1);
+  EXPECT_THROW(this->a.copyTo(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 }
 
 TYPED_TEST(MatrixTypedTest, CopyFromGslMatrix) {
-	gsl_matrix *gslMat = gsl_matrix_calloc(this->a.rows(), this->a.cols());
-	for (int i = 0; i < this->a.rows(); ++i) {
-		for (int j = 0; j < this->a.cols(); ++j) {
-			gsl_matrix_set(gslMat, i, j, i * 0.1 + i - j);
-		}
-	}
+  gsl_matrix *gslMat = gsl_matrix_calloc(this->a.rows(), this->a.cols());
+  for (int i = 0; i < this->a.rows(); ++i) {
+    for (int j = 0; j < this->a.cols(); ++j) {
+      gsl_matrix_set(gslMat, i, j, i * 0.1 + i - j);
+    }
+  }
 
-	this->a.copyFrom(gslMat);
+  this->a.copyFrom(gslMat);
 
-	for (int i = 0; i < this->a.rows(); ++i) {
-		for (int j = 0; j < this->a.cols(); ++j) {
-			EXPECT_EQ(i * 0.1 + i - j, this->a(i, j));
-		}
-	}
+  for (int i = 0; i < this->a.rows(); ++i) {
+    for (int j = 0; j < this->a.cols(); ++j) {
+      EXPECT_EQ(i * 0.1 + i - j, this->a(i, j));
+    }
+  }
 
-	gsl_matrix_free(gslMat);
+  gsl_matrix_free(gslMat);
 }
 
 TYPED_TEST(MatrixTypedTest, CopyFromGslMatrixThrows) {
-	gsl_matrix *gslMat;
+  gsl_matrix *gslMat;
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 1);
-	EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 1);
+  EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 0);
-	EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() + 0);
+  EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() - 1);
-	EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 1, this->a.cols() - 1);
+  EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() + 1);
-	EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() + 1);
+  EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() - 1);
-	EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() + 0, this->a.cols() - 1);
+  EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 1);
-	EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 1);
+  EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 0);
-	EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() + 0);
+  EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 
-	gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() - 1);
-	EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
-	gsl_matrix_free(gslMat);
+  gslMat = gsl_matrix_calloc(this->a.rows() - 1, this->a.cols() - 1);
+  EXPECT_THROW(this->a.copyFrom(gslMat), std::logic_error);
+  gsl_matrix_free(gslMat);
 }
 
 TYPED_TEST(MatrixTypedTest, CopyFromConfig) {
-	this->a << -20, -.5, 0, 38.2, 2.3e4, 209;
+  this->a << -20, -.5, 0, 38.2, 2.3e4, 209;
 
-	libconfig::Config config;
-	config.readFile("test.config");
-	TypeParam b(ROWS, COLS);
-	b.copyFrom(config.lookup("matrix_test.three_two"));
+  libconfig::Config config;
+  config.readFile("test.config");
+  TypeParam b(ROWS, COLS);
+  b.copyFrom(config.lookup("matrix_test.three_two"));
 
-	EXPECT_EQ(this->a, b);
+  EXPECT_EQ(this->a, b);
 }
 
 TYPED_TEST(MatrixTypedTest, CopyFromConfigThrows) {
-	libconfig::Config config;
-	config.readFile("test.config");
+  libconfig::Config config;
+  config.readFile("test.config");
 
-	EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.two_one")),
-	             std::runtime_error);
-	EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.two_two")),
-	             std::runtime_error);
-	EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.two_three")),
-	             std::runtime_error);
+  EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.two_one")),
+               std::runtime_error);
+  EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.two_two")),
+               std::runtime_error);
+  EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.two_three")),
+               std::runtime_error);
 
-	EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.three_one")),
-	             std::runtime_error);
-	EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.three_three")),
-	             std::runtime_error);
+  EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.three_one")),
+               std::runtime_error);
+  EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.three_three")),
+               std::runtime_error);
 
-	EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.four_one")),
-	             std::runtime_error);
-	EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.four_two")),
-	             std::runtime_error);
-	EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.four_three")),
-	             std::runtime_error);
+  EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.four_one")),
+               std::runtime_error);
+  EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.four_two")),
+               std::runtime_error);
+  EXPECT_THROW(this->a.copyFrom(config.lookup("matrix_test.four_three")),
+               std::runtime_error);
 }
 
 TYPED_TEST(MatrixTypedTest, AsGslMatrix) {
-	gsl_matrix *gslMat = this->a.asGslType();
+  gsl_matrix *gslMat = this->a.asGslType();
 
-	EXPECT_EQ(this->a.rows(), gslMat->size1);
-	EXPECT_EQ(this->a.cols(), gslMat->size2);
-	EXPECT_EQ(NULL, gslMat->block);
-	EXPECT_EQ(0, gslMat->owner);
+  EXPECT_EQ(this->a.rows(), gslMat->size1);
+  EXPECT_EQ(this->a.cols(), gslMat->size2);
+  EXPECT_EQ(NULL, gslMat->block);
+  EXPECT_EQ(0, gslMat->owner);
 
-	this->a << 5, 42.8, 37, -12, 1.4, -3e-3;
-	for (int i = 0; i < this->a.rows(); ++i) {
-		for (int j = 0; j < this->a.cols(); ++j) {
-			EXPECT_EQ(this->a(i, j), gsl_matrix_get(gslMat, i, j));
-		}
-	}
+  this->a << 5, 42.8, 37, -12, 1.4, -3e-3;
+  for (int i = 0; i < this->a.rows(); ++i) {
+    for (int j = 0; j < this->a.cols(); ++j) {
+      EXPECT_EQ(this->a(i, j), gsl_matrix_get(gslMat, i, j));
+    }
+  }
 
-	gsl_matrix_set(gslMat, 2, 1, 8.9);
-	EXPECT_EQ(8.9, this->a(2, 1));
+  gsl_matrix_set(gslMat, 2, 1, 8.9);
+  EXPECT_EQ(8.9, this->a(2, 1));
 
-	this->a(1, 0) = -3.2;
-	EXPECT_EQ(-3.2, gsl_matrix_get(gslMat, 1, 0));
+  this->a(1, 0) = -3.2;
+  EXPECT_EQ(-3.2, gsl_matrix_get(gslMat, 1, 0));
 }
 
 /*

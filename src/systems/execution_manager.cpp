@@ -40,48 +40,48 @@ namespace barrett {
 namespace systems {
 
 ExecutionManager::~ExecutionManager() {
-	{
-		BARRETT_SCOPED_LOCK(getMutex());
-		managedSystems.clear_and_dispose(System::StopManagingDisposer());
-	}
+  {
+    BARRETT_SCOPED_LOCK(getMutex());
+    managedSystems.clear_and_dispose(System::StopManagingDisposer());
+  }
 
-	delete mutex;
+  delete mutex;
 }
 
 void ExecutionManager::startManaging(System &sys) {
-	BARRETT_SCOPED_LOCK(getMutex());
+  BARRETT_SCOPED_LOCK(getMutex());
 
-	if (sys.hasDirectExecutionManager()) {
-		sys.getExecutionManager()->stopManaging(sys);
-	}
+  if (sys.hasDirectExecutionManager()) {
+    sys.getExecutionManager()->stopManaging(sys);
+  }
 
-	sys.setExecutionManager(this);
-	sys.emDirect = true;
-	managedSystems.push_back(sys);
+  sys.setExecutionManager(this);
+  sys.emDirect = true;
+  managedSystems.push_back(sys);
 }
 
 // this ExecutionManager must be currently managing sys
 void ExecutionManager::stopManaging(System &sys) {
-	BARRETT_SCOPED_LOCK(getMutex());
+  BARRETT_SCOPED_LOCK(getMutex());
 
-	assert(sys.hasDirectExecutionManager());
-	assert(sys.getExecutionManager() == this);
+  assert(sys.hasDirectExecutionManager());
+  assert(sys.getExecutionManager() == this);
 
-	managedSystems.erase(
-	    ExecutionManager::managed_system_list_type::s_iterator_to(sys));
-	sys.unsetDirectExecutionManager();
+  managedSystems.erase(
+      ExecutionManager::managed_system_list_type::s_iterator_to(sys));
+  sys.unsetDirectExecutionManager();
 }
 
 void ExecutionManager::runExecutionCycle() {
-	BARRETT_SCOPED_LOCK(getMutex());
+  BARRETT_SCOPED_LOCK(getMutex());
 
-	++ut;
+  ++ut;
 
-	managed_system_list_type::iterator i(managedSystems.begin()),
-	    iEnd(managedSystems.end());
-	for (; i != iEnd; ++i) {
-		i->update(ut);
-	}
+  managed_system_list_type::iterator i(managedSystems.begin()),
+      iEnd(managedSystems.end());
+  for (; i != iEnd; ++i) {
+    i->update(ut);
+  }
 }
 
 } // namespace systems

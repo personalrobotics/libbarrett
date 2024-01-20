@@ -49,10 +49,10 @@ template <size_t DOF>
 int wam_main(int argc, char **argv, ProductManager &pm,
              systems::Wam<DOF> &wam) {
 
-	// The WAM is now Shift-activated and applying zero torque with a loop-rate
-	// of 500Hz.
+  // The WAM is now Shift-activated and applying zero torque with a loop-rate
+  // of 500Hz.
 
-	// Wait for the user to press Shift-idle
-	pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
-	return 0;
+  // Wait for the user to press Shift-idle
+  pm.getSafetyModule()->waitForMode(SafetyModule::IDLE);
+  return 0;
 }

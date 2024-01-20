@@ -62,72 +62,71 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(
     ProductManager_getExecutionManager_overloads, getExecutionManager, 0, 2)
 
 void pythonProductsProductManagerInterface() {
-	class_<ProductManager, boost::noncopyable>("ProductManager")
-	    .def(init<const char *>())
-	    .def(init<const char *,
-	              bus::CommunicationsBus *>()[with_custodian_and_ward<1, 3>()])
+  class_<ProductManager, boost::noncopyable>("ProductManager")
+      .def(init<const char *>())
+      .def(init<const char *,
+                bus::CommunicationsBus *>()[with_custodian_and_ward<1, 3>()])
 
-	    .def_readonly("DEFAULT_CONFIG_FILE", DEFAULT_CONFIG_FILE)
+      .def_readonly("DEFAULT_CONFIG_FILE", DEFAULT_CONFIG_FILE)
 
-	    .def("enumerate", &ProductManager::enumerate)
-	    .def("cleanUpAfterEstop", &ProductManager::cleanUpAfterEstop)
-	    .def("wakeAllPucks", &ProductManager::wakeAllPucks)
+      .def("enumerate", &ProductManager::enumerate)
+      .def("cleanUpAfterEstop", &ProductManager::cleanUpAfterEstop)
+      .def("wakeAllPucks", &ProductManager::wakeAllPucks)
 
-	    .def("foundSafetyModule", &ProductManager::foundSafetyModule)
-	    .def("getSafetyModule", &ProductManager::getSafetyModule,
-	         return_internal_reference<>())
+      .def("foundSafetyModule", &ProductManager::foundSafetyModule)
+      .def("getSafetyModule", &ProductManager::getSafetyModule,
+           return_internal_reference<>())
 
-	    //		.def("getWamPucks", &ProductManager::getWamPucks)  // TODO(dc):
-	    // Need return_internal_reference<>()?
-	    .def("foundWam", &ProductManager::foundWam)
-	    .def("foundWam4", &ProductManager::foundWam4)
-	    .def("foundWam7", &ProductManager::foundWam7)
-	    .def("foundWam7Wrist", &ProductManager::foundWam7Wrist)
-	    .def("foundWam7Gimbals", &ProductManager::foundWam7Gimbals)
+      //		.def("getWamPucks", &ProductManager::getWamPucks)  //
+      //TODO(dc):
+      // Need return_internal_reference<>()?
+      .def("foundWam", &ProductManager::foundWam)
+      .def("foundWam4", &ProductManager::foundWam4)
+      .def("foundWam7", &ProductManager::foundWam7)
+      .def("foundWam7Wrist", &ProductManager::foundWam7Wrist)
+      .def("foundWam7Gimbals", &ProductManager::foundWam7Gimbals)
 
-	    .def("waitForWam", &ProductManager::waitForWam,
-	         ProductManager_waitForWam_overloads())
-	    .def("getWamDefaultConfigPath",
-	         &ProductManager::getWamDefaultConfigPath)
-	    .def("getWam4", &ProductManager::getWam4,
-	         ProductManager_getWam4_overloads()[return_internal_reference<>()])
-	    .def("getWam7", &ProductManager::getWam7,
-	         ProductManager_getWam7_overloads()[return_internal_reference<>()])
+      .def("waitForWam", &ProductManager::waitForWam,
+           ProductManager_waitForWam_overloads())
+      .def("getWamDefaultConfigPath", &ProductManager::getWamDefaultConfigPath)
+      .def("getWam4", &ProductManager::getWam4,
+           ProductManager_getWam4_overloads()[return_internal_reference<>()])
+      .def("getWam7", &ProductManager::getWam7,
+           ProductManager_getWam7_overloads()[return_internal_reference<>()])
 
-	    .def("getExecutionManager", &ProductManager::getExecutionManager,
-	         ProductManager_getExecutionManager_overloads()
-	             [return_internal_reference<>()])
-	    .def("startExecutionManager", &ProductManager::startExecutionManager)
+      .def("getExecutionManager", &ProductManager::getExecutionManager,
+           ProductManager_getExecutionManager_overloads()
+               [return_internal_reference<>()])
+      .def("startExecutionManager", &ProductManager::startExecutionManager)
 
-	    .def("foundForceTorqueSensor", &ProductManager::foundForceTorqueSensor)
-	    .def("getForceTorqueSensor", &ProductManager::getForceTorqueSensor,
-	         return_internal_reference<>())
+      .def("foundForceTorqueSensor", &ProductManager::foundForceTorqueSensor)
+      .def("getForceTorqueSensor", &ProductManager::getForceTorqueSensor,
+           return_internal_reference<>())
 
-	    //		.def("getHandPucks", &ProductManager::getHandPucks)
-	    .def("foundHand", &ProductManager::foundHand)
-	    .def("getHand", &ProductManager::getHand, return_internal_reference<>())
+      //		.def("getHandPucks", &ProductManager::getHandPucks)
+      .def("foundHand", &ProductManager::foundHand)
+      .def("getHand", &ProductManager::getHand, return_internal_reference<>())
 
-	    .def("foundGimbalsHandController",
-	         &ProductManager::foundGimbalsHandController)
-	    .def("getGimbalsHandController",
-	         &ProductManager::getGimbalsHandController,
-	         return_internal_reference<>())
+      .def("foundGimbalsHandController",
+           &ProductManager::foundGimbalsHandController)
+      .def("getGimbalsHandController",
+           &ProductManager::getGimbalsHandController,
+           return_internal_reference<>())
 
-	    //		.def("getPucks", &ProductManager::getPucks,
-	    // return_internal_reference<>())
-	    .def("getPuck", &ProductManager::getPuck, return_internal_reference<>())
-	    //		.def("deletePuck", &ProductManager::deletePuck)
+      //		.def("getPucks", &ProductManager::getPucks,
+      // return_internal_reference<>())
+      .def("getPuck", &ProductManager::getPuck, return_internal_reference<>())
+      //		.def("deletePuck", &ProductManager::deletePuck)
 
-	    .def("getConfig", &ProductManager::getConfig,
-	         return_internal_reference<>())
-	    .def("getBus", &ProductManager::getBus, return_internal_reference<>())
-	    .def("getMutex", &ProductManager::getMutex,
-	         return_internal_reference<>())
+      .def("getConfig", &ProductManager::getConfig,
+           return_internal_reference<>())
+      .def("getBus", &ProductManager::getBus, return_internal_reference<>())
+      .def("getMutex", &ProductManager::getMutex, return_internal_reference<>())
 
-	    .def_readonly("MAX_WAM_DOF", MAX_WAM_DOF)
-	    .def_readonly("DEFAULT_LOOP_PERIOD", DEFAULT_LOOP_PERIOD)
-	    .def_readonly("SAFETY_MODULE_ID", SAFETY_MODULE_ID)
-	    .def_readonly("FIRST_WAM_ID", FIRST_WAM_ID)
-	    .def_readonly("FIRST_HAND_ID", FIRST_HAND_ID)
-	    .def_readonly("FORCE_TORQUE_SENSOR_ID", FORCE_TORQUE_SENSOR_ID);
+      .def_readonly("MAX_WAM_DOF", MAX_WAM_DOF)
+      .def_readonly("DEFAULT_LOOP_PERIOD", DEFAULT_LOOP_PERIOD)
+      .def_readonly("SAFETY_MODULE_ID", SAFETY_MODULE_ID)
+      .def_readonly("FIRST_WAM_ID", FIRST_WAM_ID)
+      .def_readonly("FIRST_HAND_ID", FIRST_HAND_ID)
+      .def_readonly("FORCE_TORQUE_SENSOR_ID", FORCE_TORQUE_SENSOR_ID);
 }

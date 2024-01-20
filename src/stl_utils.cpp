@@ -37,8 +37,8 @@ namespace barrett {
 namespace detail {
 
 void waitForEnter() {
-	static std::string line;
-	std::getline(std::cin, line);
+  static std::string line;
+  std::getline(std::cin, line);
 }
 
 } // namespace detail

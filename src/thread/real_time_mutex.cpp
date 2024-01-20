@@ -55,55 +55,55 @@ namespace barrett {
 namespace thread {
 
 RealTimeMutex::RealTimeMutex() : mutex(NULL), lockCount(0) {
-	mutex = new detail::mutex_impl;
+  mutex = new detail::mutex_impl;
 }
 
 RealTimeMutex::~RealTimeMutex() {
-	delete mutex;
-	mutex = NULL;
+  delete mutex;
+  mutex = NULL;
 }
 
 void RealTimeMutex::lock() {
-	mutex->lock();
-	++lockCount;
+  mutex->lock();
+  ++lockCount;
 }
 
 bool RealTimeMutex::try_lock() {
-	if (mutex->try_lock()) {
-		++lockCount;
-		return true;
-	} else {
-		return false;
-	}
+  if (mutex->try_lock()) {
+    ++lockCount;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 void RealTimeMutex::unlock() {
-	--lockCount;
-	mutex->unlock();
+  --lockCount;
+  mutex->unlock();
 }
 
 int RealTimeMutex::fullUnlock() {
-	int lc = lockCount;
-	if (lc <= 0) {
-		(logMessage(
-		     "thread::RealTimeMutex::%s Bad lockCount value.  lockCount = %d") %
-		 __func__ % lc)
-		    .raise<std::logic_error>();
-	}
+  int lc = lockCount;
+  if (lc <= 0) {
+    (logMessage(
+         "thread::RealTimeMutex::%s Bad lockCount value.  lockCount = %d") %
+     __func__ % lc)
+        .raise<std::logic_error>();
+  }
 
-	while (lockCount > 1) {
-		unlock();
-	}
-	unlock();
+  while (lockCount > 1) {
+    unlock();
+  }
+  unlock();
 
-	return lc;
+  return lc;
 }
 
 void RealTimeMutex::relock(int lc) {
-	lock();
-	while (lockCount != lc) {
-		lock();
-	}
+  lock();
+  while (lockCount != lc) {
+    lock();
+  }
 }
 
 } // namespace thread
