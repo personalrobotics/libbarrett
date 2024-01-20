@@ -36,7 +36,8 @@
 #include <fstream>
 #include <string>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
 

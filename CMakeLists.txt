@@ -100,6 +100,10 @@ endif()
 message(STATUS "Boost components: ${boost_components}")
 find_package(Boost REQUIRED ${boost_components})
 
+# Ignore Boost internal deprecation
+add_definitions("-DBOOST_ALLOW_DEPRECATED_HEADERS")
+add_definitions("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
+
 ## Translate cmake's new "Boost::blah" library naming format to a normal "libboost_blah" name that can be passed to the linker.
 ## TODO(bz): Hunt down anyone who makes stupid changes like this and make them suffer.
 set(boost_libraries "")
@@ -118,8 +122,8 @@ set(exported_link_dirs ${exported_link_dirs} ${Boost_LIBRARY_DIRS})
 
 ## Eigen3
 find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN_INCLUDE_DIRS})
-set(exported_include_dirs ${exported_include_dirs} ${EIGEN_INCLUDE_DIRS})
+include_directories(${EIGEN3_INCLUDE_DIRS})
+set(exported_include_dirs ${exported_include_dirs} ${EIGEN3_INCLUDE_DIRS})
 
 
 ## curses

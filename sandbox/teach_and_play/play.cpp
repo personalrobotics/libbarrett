@@ -8,7 +8,8 @@
 #include <string>
 #include <boost/tuple/tuple.hpp>
 #include <boost/ref.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
 #include <boost/thread.hpp>
 //#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>

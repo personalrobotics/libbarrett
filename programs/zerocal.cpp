@@ -278,7 +278,7 @@ public:
 
 			// Adjust the offset
 			default:
-				mvprintw(line++,left, "Use arrow keys to adjust the Joint %d offset.", j+1);
+				mvprintw(line++,left, "Use arrow keys to adjust the Joint %ld offset.", j+1);
 				sa.off();
 				line++;
 				mvprintw(line++,left, "                 ");

@@ -32,7 +32,8 @@
 #include <unistd.h>  // usleep
 
 #include <boost/ref.hpp>
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
 #include <boost/thread.hpp>
 
 #define EIGEN_USE_NEW_STDVECTOR

@@ -11,7 +11,8 @@
 #include <unistd.h>
 #include <native/timer.h>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
+using namespace boost::placeholders;
 #include <boost/thread.hpp>
 
 #include <barrett/units.h>
