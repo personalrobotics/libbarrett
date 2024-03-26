@@ -28,15 +28,9 @@ We recommend the following CAN hardware:
  - PCAN-USB
  - PCAN-ISA 
 
-NOTE: These cards are supported by the SocketCAN driver built into Linux, however, we have found that the SocketCAN txbuffer can occasionally fail to send CAN frames without reporting an error, and this causes the WAM to E-Stop itself unexpectedly. This can happen a few seconds, a few minutes, or even several hours after starting a WAM application. Fortunately, Peak offers an alternative driver (pcan) which is still socket-based but avoids this SocketCAN bug.
+NOTE: These cards are supported by the SocketCAN driver built into Linux, however, we have found that the SocketCAN txbuffer can occasionally fail to send CAN frames without reporting an error, and this causes the WAM to E-Stop itself unexpectedly. This can happen a few seconds, a few minutes, or even several hours after starting a WAM application. **Fortunately, Peak offers an alternative driver (pcan) which is still socket-based but avoids this SocketCAN bug.**
 
-**You kernel may already have a PCAN driver.**
-For more info, see the [Peak Linux Driver Webpage](https://www.peak-system.com/fileadmin/media/linux/index.htm)
-
-
-1. Try connecting your PCAN hardware and running `reset_can.sh` which was installed in `/usr/bin`.
-
-2. Check that `can0` is active in `ifconfig`. If not (and you see an error message from the previous command), you can install the PCAN driver here:
+You can install that PCAN driver here:
 ```
 sh ~/libbarrett/scripts/install_pcan.sh
 ```
