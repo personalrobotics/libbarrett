@@ -20,14 +20,7 @@ if [ "$DISTRIB_RELEASE" = "22.04" ]; then
 
 	# Pin the new kernel (to avoid recompiling custom modules)
 	sudo apt-mark hold linux-lowlatency
-	
-	# Set the lowlatency kernel as the default in grub (survive apt upgrades)
-	menu=`grep menuentry.*gnulinux-advanced /boot/grub/grub.cfg -m 1 |cut -d\' -f4`
-	item=`grep menuentry.*lowlatency /boot/grub/grub.cfg -m 1 |cut -d\' -f4`
-	sudo sed -i "s/GRUB_DEFAULT=.*/GRUB_DEFAULT='$menu>$item'/g" /etc/default/grub
-	# Workaround for the 'hwmatch' bug in grub2-efi
-	grep -qF GRUB_GFXPAYLOAD_LINUX /etc/default/grub || echo 'GRUB_GFXPAYLOAD_LINUX=keep' | sudo tee -a /etc/default/grub > /dev/null
-	sudo update-grub
+
 else
 	echo "This script must run under Ubuntu 22.04"
 fi

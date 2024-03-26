@@ -132,17 +132,17 @@ public:
 	/** getTactilePucks Method creates container of pucks to get tactile sensor data from possible locations */
 	const std::vector<TactilePuck*>& getTactilePucks() const { return tactilePucks; }
 
-
+	void setProperty(unsigned int whichDigits, enum Puck::Property prop, int value) const;
+	/** */
+	void setProperty(unsigned int whichDigits, enum Puck::Property prop, const v_type& values) const;
+	/** */
 	static const size_t SPREAD_INDEX = 3;
 
 protected:
 	/** */
 	bool digitsInclude(unsigned int whichDigits, size_t index) const { return whichDigits & (1 << index); }
 	/** */
-	void setProperty(unsigned int whichDigits, enum Puck::Property prop, int value) const;
-	/** */
-	void setProperty(unsigned int whichDigits, enum Puck::Property prop, const v_type& values) const;
-	/** */
+
 	void blockIf(bool blocking, unsigned int whichDigits) const;
 
 
