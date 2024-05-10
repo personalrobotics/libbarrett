@@ -7,7 +7,7 @@ Technology products (WAM and BarrettHand)
 
 ### Download package
 ```
-cd && git clone https://git.barrett.com/software/libbarrett
+cd && git clone https://github.com/personalrobotics/libbarrett
 ```
 
 ### Install dependencies
