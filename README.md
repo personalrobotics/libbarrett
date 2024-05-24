@@ -116,3 +116,17 @@ sudo dpkg -i burt-util_3.7.3_amd64.deb
 ```
 
 
+## Enumerating the pucks on the CAN bus
+
+`burt-util` offers a variety of functions. E.g. enumerating the devices on the
+bus. For that to work, you need to specify the ID of the CAN bus in
+`.config/barrett/burt_util.toml`.  For example `burt-util enumerate`, should
+output
+
+```
+Searching for nodes
+  [####################################]  100%          
+Found: [1, 2, 3, 4, 5, 6, 7]
+```
+
+
