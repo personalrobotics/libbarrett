@@ -43,6 +43,8 @@ You can install that PCAN driver here:
 sh ~/libbarrett/scripts/install_pcan.sh
 ```
 
+
+
 ### For PCAN-ISA only, manually configure the driver (not plug-and-play): 
 ```
 sudo tee /etc/modprobe.d/pcan.conf <<EOF
@@ -60,7 +62,10 @@ You may need to run `reset_can.sh` before `can0` appears in `ifconfig`.
 
 ### Build libbarrett
 ```
-cd ~/libbarrett && cmake .
+cd ~/libbarrett
+mkdir build
+cd build
+cmake ..
 make -j$(nproc)
 ```
 
@@ -71,7 +76,9 @@ sudo make install
 
 ### Build the libbarrett example programs
 ```
-cd ~/libbarrett/examples && cmake .
+cd ~/libbarrett/examples
+mkdir build
+cmake ..
 make -j$(nproc)
 ```
 
@@ -98,6 +105,8 @@ cmake . -G"Eclipse CDT4 - Unix Makefiles"
 ```
 Then import the generated project into your Eclipse workspace using:
 File -> Import -> General -> Existing Projects into Workspace
+
+
 
 ## BURT Util
 
