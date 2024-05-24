@@ -5,6 +5,14 @@ Technology products (WAM and BarrettHand)
 ` This version of Libbarrett works with a non-real-time kernel (a low-latency Ubuntu 22.04 kernel) and should only be used when a hard real-time guarantee is not critical for your application.`
 
 
+### General
+
+Disable unattended upgrades
+
+```
+apt remove unattended-upgrades
+```
+
 ### Download package
 ```
 cd && git clone https://github.com/personalrobotics/libbarrett
@@ -90,3 +98,21 @@ cmake . -G"Eclipse CDT4 - Unix Makefiles"
 ```
 Then import the generated project into your Eclipse workspace using:
 File -> Import -> General -> Existing Projects into Workspace
+
+## BURT Util
+
+`burt-util` is a BURT firmware management Utility with commands
+that allow you to easily upgrade firmware, flash a bootloader,
+connect to the firmware via CAN and CoAP, and much more.
+
+### Installing burl-util
+
+Download the utils from https://git.barrett.com/burt/software/burt-util/ and install them. 
+
+```sh
+curl 'https://git.barrett.com/burt/software/burt-util/-/jobs/40381/artifacts/download'  --output  burt-util-dev-3.7.3-deb.zip 
+unzip burt-util-dev-3.7.3-deb.zip
+sudo dpkg -i burt-util_3.7.3_amd64.deb 
+```
+
+
