@@ -5,6 +5,14 @@ Technology products (WAM and BarrettHand)
 ` This version of Libbarrett works with a non-real-time kernel (a low-latency Ubuntu 22.04 kernel) and should only be used when a hard real-time guarantee is not critical for your application.`
 
 
+### General
+
+Disable unattended upgrades
+
+```
+apt remove unattended-upgrades
+```
+
 ### Download package
 ```
 cd && git clone https://github.com/personalrobotics/libbarrett
@@ -52,7 +60,10 @@ You may need to run `reset_can.sh` before `can0` appears in `ifconfig`.
 
 ### Build libbarrett
 ```
-cd ~/libbarrett && cmake .
+cd ~/libbarrett
+mkdir build
+cd build
+cmake ..
 make -j$(nproc)
 ```
 
@@ -63,7 +74,9 @@ sudo make install
 
 ### Build the libbarrett example programs
 ```
-cd ~/libbarrett/examples && cmake .
+cd ~/libbarrett/examples
+mkdir build
+cmake ..
 make -j$(nproc)
 ```
 
