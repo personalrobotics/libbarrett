@@ -43,6 +43,8 @@ You can install that PCAN driver here:
 sh ~/libbarrett/scripts/install_pcan.sh
 ```
 
+
+
 ### For PCAN-ISA only, manually configure the driver (not plug-and-play): 
 ```
 sudo tee /etc/modprobe.d/pcan.conf <<EOF
@@ -103,3 +105,37 @@ cmake . -G"Eclipse CDT4 - Unix Makefiles"
 ```
 Then import the generated project into your Eclipse workspace using:
 File -> Import -> General -> Existing Projects into Workspace
+
+
+
+## BURT Util
+
+`burt-util` is a BURT firmware management Utility with commands
+that allow you to easily upgrade firmware, flash a bootloader,
+connect to the firmware via CAN and CoAP, and much more.
+
+### Installing burl-util
+
+Download the utils from https://git.barrett.com/burt/software/burt-util/ and install them. 
+
+```sh
+curl 'https://git.barrett.com/burt/software/burt-util/-/jobs/40381/artifacts/download'  --output  burt-util-dev-3.7.3-deb.zip 
+unzip burt-util-dev-3.7.3-deb.zip
+sudo dpkg -i burt-util_3.7.3_amd64.deb 
+```
+
+
+## Enumerating the pucks on the CAN bus
+
+`burt-util` offers a variety of functions. E.g. enumerating the devices on the
+bus. For that to work, you need to specify the ID of the CAN bus in
+`.config/barrett/burt_util.toml`.  For example `burt-util enumerate`, should
+output
+
+```
+Searching for nodes
+  [####################################]  100%          
+Found: [1, 2, 3, 4, 5, 6, 7]
+```
+
+
