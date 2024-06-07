@@ -1,4 +1,4 @@
-!/usr/bin/env bash
+#!/usr/bin/env bash
 # This script installs libbarrett dependencies
 
 # Import the Linux Version Number Variables
@@ -13,11 +13,15 @@ if [ "$DISTRIB_RELEASE" = "22.04" ]; then
 	else
 		echo "peak-linux-driver-8.11.0" already downloaded
 	fi
-	exit 
 	cd peak-linux-driver-8.11.0 
 	make -j$(nproc) -C driver netdev
 	sudo make -C driver install
 	cd $mydir
+
+	cat >> /etc/modprobe.d/pcan.conf <<EOF
+options pcan assign=devid
+EOF
+
 else
 	echo "This script must run under Ubuntu 22.04"
 fi
