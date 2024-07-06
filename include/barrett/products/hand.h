@@ -136,6 +136,8 @@ public:
 	/** */
 	void setProperty(unsigned int whichDigits, enum Puck::Property prop, const v_type& values) const;
 	/** */
+	void getProperty(enum Puck::Property prop, int results[], bool realtime = false) const;
+	/** */
 	static const size_t SPREAD_INDEX = 3;
 
 protected:

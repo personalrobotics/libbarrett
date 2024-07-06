@@ -48,7 +48,7 @@ add_programs(
   joint_encoder_test
 	load_ft_cal
 #	log_ft_data
-#	log_hand_jp
+	log_hand_jp
 #	log_hand_tact
 #	log_sg_data
 #	log_temp_data

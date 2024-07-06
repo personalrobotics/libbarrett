@@ -7,9 +7,8 @@
 
 #include <iostream>
 #include <string>
-
+#include <chrono>
 #include <unistd.h>
-#include <native/timer.h>
 
 #include <boost/bind/bind.hpp>
 using namespace boost::placeholders;
@@ -50,14 +49,15 @@ void logEntryPoint(Hand& hand, const char* outFile) {
 
 	// Become a shadowed Xenomai task so we can use rt_timer services.
 	hand.update();
-	RTIME start = rt_timer_read();
+	// ETIME start = rt_timer_read();
 
 	tuple_type data;
 	log::Writer<tuple_type> logWriter(tmpFile);
 	while ( !boost::this_thread::interruption_requested() ) {
-		boost::get<0>(data) = (rt_timer_read() - start) * 1e-9;
-
-		hand.update();
+		auto start = std::chrono::high_resolution_clock::now();
+		hand.update(Hand::S_POSITION, true);
+		auto end = std::chrono::high_resolution_clock::now();
+		boost::get<0>(data) = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
 
 		boost::get<1>(data) = hand.getInnerLinkPosition();
 		boost::get<2>(data) = hand.getOuterLinkPosition();
@@ -97,7 +97,7 @@ int wam_main(int argc, char** argv, ProductManager& pm, systems::Wam<DOF>& wam) 
 	}
 	Hand& hand = *pm.getHand();
 
-	wam.gravityCompensate();
+	//wam.gravityCompensate();
 
 	printf("Press [Enter] to initialize Hand. (Make sure it has room!)");
 	waitForEnter();

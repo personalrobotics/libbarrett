@@ -289,6 +289,13 @@ void Hand::setProperty(unsigned int whichDigits, enum Puck::Property prop, const
 		}
 	}
 }
+
+/** getProperty Method */
+void Hand::getProperty(enum Puck::Property prop, int results[], bool realtime) const
+{
+	group.getProperty(prop, results, realtime);
+}
+
 /** blockIf Method */
 void Hand::blockIf(bool blocking, unsigned int whichDigits) const {
 	if (blocking) {
